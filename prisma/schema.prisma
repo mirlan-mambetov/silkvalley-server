@@ -1,0 +1,98 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ###### PRODUCTS
+model Products {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @default(now()) @map("updated_at")
+
+  title String @unique
+  description String 
+  slug String @unique
+  images String[]
+  poster String
+  price Float
+  rating Int? @default(0)
+  discount Int?
+  totalReviews Int?
+  video String?
+  brand String?
+  category Category? @relation(fields: [categoryId], references: [id])
+  categoryId Int? @map("category_id")
+  attributes ProductAttributes[]
+}
+
+// ###### PRODUCTS ATTRIBUTES
+model ProductAttributes {
+
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @default(now()) @map("updated_at")
+
+  colors String[]
+  sizes String[]
+  ram Int?
+  storageMemory Int? @map("storage_memory")
+  weight Int?
+  mainCamera Float? @map("main_camera")
+  frontCamera Float? @map("front_camera")
+  sheetQuantity Int? @map("sheet_quantity")
+  author String? 
+  yearOfPublication Int?
+  publishingHouse String? @map("publishing_house")
+  product Products? @relation(fields: [productId], references: [id])
+  productId Int? @map("product_id")
+  @@map("product_attributes")
+}
+
+// ###### PRODUCTS ATTRIBUTES
+model Category {
+
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @default(now()) @map("updated_at")
+
+  name String
+  slug String
+
+  products Products[]
+}
+
+
+// ###### PRODUCTS REVIEWS
+// model ProductReview {
+
+//   id Int @id @default(autoincrement())
+//   createdAt DateTime @default(now()) @map("created_at")
+//   updatedAt DateTime @updatedAt @default(now()) @map("updated_at")
+
+//   rating Int
+//   text String
+
+//   products Products[]
+// }
+
+
+// ###### USERS
+// model Users {
+
+//   id Int @id @default(autoincrement())
+//   createdAt DateTime @default(now()) @map("created_at")
+//   updatedAt DateTime @updatedAt @default(now()) @map("updated_at")
+
+//   name String
+//   email String @unique
+//   avatar String?  @default("https://img.freepik.com/free-vector/mysterious-mafia-man-smoking-cigarette_52683-34828.jpg?w=740&t=st=1694444364~exp=1694444964~hmac=d8f796895eef4ddecd38777dc9bfa8794dd63672d66cf795d8b297cd2ceb7d66")
+
+//   products Products[]
+// }
