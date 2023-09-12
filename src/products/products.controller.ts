@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
@@ -13,6 +14,12 @@ import { ProductsService } from './products.service'
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
+
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  async getAllProducts() {
+    return await this.productsService.getAllProducts()
+  }
 
   // CREATE PRODUCT
   @Post()

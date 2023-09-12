@@ -19,7 +19,7 @@ model Products {
   title String @unique
   description String 
   slug String @unique
-  images String[]
+  images ProductImages[]
   poster String
   price Float
   rating Int? @default(0)
@@ -54,6 +54,23 @@ model ProductAttributes {
   productId Int? @map("product_id")
   @@map("product_attributes")
 }
+
+// ###### PRODUCTS IMAGES
+model ProductImages {
+
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @default(now()) @map("updated_at")
+
+  color String @unique
+  images String[]
+
+  product Products @relation(fields: [productId], references: [id])
+  productId Int
+  @@map("product_images")
+}
+
+
 
 // ###### PRODUCTS ATTRIBUTES
 model Category {

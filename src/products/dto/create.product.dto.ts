@@ -1,10 +1,4 @@
-import {
-  IsArray,
-  IsNumber,
-  IsOptional,
-  IsString,
-  Length,
-} from 'class-validator'
+import { IsNumber, IsOptional, IsString, Length } from 'class-validator'
 
 export class CreateProductDTO {
   @IsString()
@@ -12,11 +6,13 @@ export class CreateProductDTO {
   title: string
 
   @IsString()
-  @Length(5, 500)
+  @Length(5, 5000)
   description: string
 
-  @IsArray()
-  images: string[]
+  images: {
+    color: string
+    images: string[]
+  }
 
   @IsString()
   @Length(5, 500)
