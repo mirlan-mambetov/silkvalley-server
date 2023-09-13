@@ -62,7 +62,7 @@ model ProductImages {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @default(now()) @map("updated_at")
 
-  color String @unique
+  color String
   images String[]
 
   product Products @relation(fields: [productId], references: [id])

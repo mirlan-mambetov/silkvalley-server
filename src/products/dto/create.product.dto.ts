@@ -12,7 +12,7 @@ export class CreateProductDTO {
   images: {
     color: string
     images: string[]
-  }
+  }[]
 
   @IsString()
   @Length(5, 500)
@@ -22,7 +22,12 @@ export class CreateProductDTO {
   price: number
 
   @IsOptional()
-  attributes: {
+  @IsString()
+  @Length(2, 255)
+  brand?: string
+
+  @IsOptional()
+  attributes?: {
     colors: string[]
     sizes: string[]
   }

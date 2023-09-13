@@ -4,11 +4,16 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Param,
+  ParseIntPipe,
   Post,
+  Put,
+  Query,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common'
 import { CreateProductDTO } from './dto/create.product.dto'
+import { UpdateProductDTO } from './dto/update.product.dto'
 import { ProductsService } from './products.service'
 
 @Controller('products')
@@ -20,6 +25,19 @@ export class ProductsController {
   async getAllProducts() {
     return await this.productsService.getAllProducts()
   }
+  // GET PRODUCT BY SLUG
+  @Get('by-slug/:slug')
+  @HttpCode(HttpStatus.OK)
+  async getProductBySlug(@Param('slug') slug: string) {
+    return await this.productsService.getProductBySlug(slug)
+  }
+
+  // GET PRODUCT BY ID
+  @Get(':id')
+  @HttpCode(HttpStatus.OK)
+  async getProductById(@Param('id', ParseIntPipe) id: number) {
+    return await this.productsService.getProducById(id)
+  }
 
   // CREATE PRODUCT
   @Post()
@@ -27,5 +45,17 @@ export class ProductsController {
   @UsePipes(new ValidationPipe())
   async createProduct(@Body() dto: CreateProductDTO) {
     return await this.productsService.createProduct(dto)
+  }
+
+  // UPDATE PRODUCT
+  @Put(':id')
+  @HttpCode(HttpStatus.OK)
+  @UsePipes(new ValidationPipe())
+  async updateProduct(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateProductDTO,
+    @Query('imgId') imgId: number,
+  ) {
+    return await this.productsService.updateProduct(id, dto, +imgId)
   }
 }
