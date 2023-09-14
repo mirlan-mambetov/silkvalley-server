@@ -34,7 +34,7 @@ export class ProductsService {
   async getProducById(id: number) {
     const product = await this.Prisma.products.findUnique({
       where: { id },
-      include: { ...RETURN_PRODUCT_FIELDS },
+      include: RETURN_PRODUCT_FIELDS,
     })
     if (!product)
       throw new NotFoundException('Продукт по такому идентификатору не найден')
@@ -46,7 +46,10 @@ export class ProductsService {
    * @returns Product
    */
   async getProductBySlug(slug: string) {
-    const product = await this.Prisma.products.findUnique({ where: { slug } })
+    const product = await this.Prisma.products.findUnique({
+      where: { slug },
+      include: RETURN_PRODUCT_FIELDS,
+    })
     if (!product)
       throw new NotFoundException('Продукт по такому SLUG не найден')
     return product
