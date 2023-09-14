@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common'
 import { APP_FILTER } from '@nestjs/core'
+// import { ServeStaticModule } from '@nestjs/serve-static'
 import { AppController } from './app.controller'
 import { NotFoundExceptionFilter } from './filters/NotFound.filters'
 import { PrismaService } from './prisma.service'
@@ -8,7 +9,14 @@ import { ProductsImagesModule } from './resource/products/products-images/produc
 import { ProductsModule } from './resource/products/products.module'
 
 @Module({
-  imports: [ProductsModule, ProductsImagesModule, ProductsAttributesModule],
+  imports: [
+    // ServeStaticModule.forRoot({
+    //   rootPath: join(__dirname, '..', 'public'),
+    // }),
+    ProductsModule,
+    ProductsImagesModule,
+    ProductsAttributesModule,
+  ],
   controllers: [AppController],
 
   providers: [

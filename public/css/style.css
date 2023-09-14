@@ -1,0 +1,23 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande',
+    'Lucida Sans', Arial, sans-serif;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+}
+.container {
+  width: calc(1330px - 30px);
+  padding-left: 15px;
+  padding-right: 15px;
+  margin: 0 auto;
+}
+
+.products {
+  display: flex;
+}
