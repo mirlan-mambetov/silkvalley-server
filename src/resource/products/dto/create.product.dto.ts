@@ -23,7 +23,9 @@ export class CreateProductDTO {
 
   @IsOptional()
   @IsString()
-  @Length(2, 255)
+  @Length(2, 255, {
+    message: 'Минимальная длина для поля Бренд: 2 и максимальная 255 символов',
+  })
   brand?: string
 
   @IsOptional()

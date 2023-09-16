@@ -18,6 +18,7 @@ async function bootstrap() {
   )
   app.setViewEngine('hbs')
   app.setGlobalPrefix('api', { exclude: ['/'] })
+  app.enableCors()
   await app.listen(5000)
 }
 bootstrap()

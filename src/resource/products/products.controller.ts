@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -8,7 +9,6 @@ import {
   ParseIntPipe,
   Post,
   Put,
-  Query,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common'
@@ -54,8 +54,13 @@ export class ProductsController {
   async updateProduct(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateProductDTO,
-    @Query('imgId') imgId: number,
   ) {
-    return await this.productsService.updateProduct(id, dto, +imgId)
+    return await this.productsService.updateProduct(id, dto)
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.OK)
+  async deleteProduct(@Param('id', ParseIntPipe) id: number) {
+    return await this.productsService.deleteProduct(id)
   }
 }

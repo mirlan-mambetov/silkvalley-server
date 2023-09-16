@@ -95,7 +95,7 @@ export class ProductsService {
    * @param imgId
    * @returns Created Product
    */
-  async updateProduct(id: number, dto: UpdateProductDTO, imgId: number) {
+  async updateProduct(id: number, dto: UpdateProductDTO) {
     try {
       const {
         brand,
