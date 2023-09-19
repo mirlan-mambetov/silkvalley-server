@@ -10,6 +10,13 @@ export class ProductsImagesService {
     private readonly productService: ProductsService,
   ) {}
 
+  async getById(id: number) {
+    const images = await this.Prisma.productImages.findUnique({ where: { id } })
+    if (!images)
+      throw new NotFoundException('Изображения по такому ID не найдены')
+    return images
+  }
+
   /**
    *
    * @param productId

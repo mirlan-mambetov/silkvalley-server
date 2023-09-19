@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Param,
@@ -14,6 +15,12 @@ import { ProductsImagesService } from './products-images.service'
 @Controller('products-images')
 export class ProductsImagesController {
   constructor(private readonly productsImagesService: ProductsImagesService) {}
+
+  @Get(':id')
+  @HttpCode(HttpStatus.OK)
+  async getImagesById(@Param('id', ParseIntPipe) id: number) {
+    return await this.productsImagesService.getById(id)
+  }
 
   // CREATE PRODUCT IMAGES
   @Post(':productId')

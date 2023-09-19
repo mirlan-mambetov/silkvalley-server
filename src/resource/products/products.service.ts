@@ -34,7 +34,9 @@ export class ProductsService {
   async getProducById(id: number) {
     const product = await this.Prisma.products.findUnique({
       where: { id },
-      include: RETURN_PRODUCT_FIELDS,
+      include: {
+        ...RETURN_PRODUCT_FIELDS,
+      },
     })
     if (!product)
       throw new NotFoundException('Продукт по такому идентификатору не найден')

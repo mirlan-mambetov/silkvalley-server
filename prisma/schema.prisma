@@ -51,7 +51,7 @@ model ProductAttributes {
   yearOfPublication Int?
   publishingHouse String? @map("publishing_house")
   product Products? @relation(fields: [productId], references: [id])
-  productId Int? @map("product_id")
+  productId Int? 
   @@map("product_attributes")
 }
 
