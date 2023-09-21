@@ -1,12 +1,10 @@
-import { IsArray, IsNumber, IsOptional, IsString } from 'class-validator'
+import { IsNumber, IsOptional, IsString } from 'class-validator'
 
 export class CreateProductAttributesDto {
-  @IsArray()
   @IsOptional()
   color?: string[]
 
   @IsOptional()
-  @IsArray()
   sizes?: string[]
 
   @IsOptional()

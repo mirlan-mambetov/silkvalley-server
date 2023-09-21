@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Param,
@@ -18,6 +19,12 @@ export class ProductsAttributesController {
   constructor(
     private readonly productsAttributesService: ProductsAttributesService,
   ) {}
+
+  @Get(':id')
+  @HttpCode(HttpStatus.OK)
+  async findById(@Param('id', ParseIntPipe) id: number) {
+    return await this.productsAttributesService.findById(id)
+  }
 
   // CREATE PRODUCT ATTRIBUTES
   @Post(':productId')
