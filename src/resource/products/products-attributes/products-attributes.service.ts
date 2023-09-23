@@ -47,6 +47,8 @@ export class ProductsAttributesService {
   }
 
   async update(id: number, dto: CreateProductAttributesDto) {
+    console.log(dto, id)
+
     const attribute = await this.Prisma.productAttributes.findUnique({
       where: { id },
     })

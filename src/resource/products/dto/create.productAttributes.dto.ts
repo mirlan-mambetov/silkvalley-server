@@ -2,7 +2,7 @@ import { IsNumber, IsOptional, IsString } from 'class-validator'
 
 export class CreateProductAttributesDto {
   @IsOptional()
-  color?: string[]
+  colors?: string[]
 
   @IsOptional()
   sizes?: string[]
