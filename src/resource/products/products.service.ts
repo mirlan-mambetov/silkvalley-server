@@ -1,10 +1,12 @@
 import {
   BadRequestException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common'
 import Slugify from 'slugify'
 import { PrismaService } from 'src/prisma.service'
+import { CategoryService } from '../category/category.service'
 import { MESSAGE_PRODUCT_FOUND } from './constants/message.constants'
 import { RETURN_PRODUCT_FIELDS } from './constants/return.product.fields'
 import { CreateProductDTO } from './dto/create.product.dto'
@@ -12,7 +14,10 @@ import { UpdateProductDTO } from './dto/update.product.dto'
 
 @Injectable()
 export class ProductsService {
-  constructor(private readonly Prisma: PrismaService) {}
+  constructor(
+    private readonly Prisma: PrismaService,
+    private readonly categoryService: CategoryService,
+  ) {}
 
   /**
    * @returns ALL PRODUCTS
@@ -63,29 +68,32 @@ export class ProductsService {
    * @description Create product
    */
   async createProduct(dto: CreateProductDTO) {
-    const { description, poster, brand, price, title } = dto
-
     // GENERATE SLUG FOR PRODUCT
-    const slugName = Slugify(title, {
+    const slugName = Slugify(dto.title, {
       lower: true,
       trim: true,
     })
 
+    if (dto.categoryId)
+      await this.categoryService.findProductCategoryById(dto.categoryId)
     // CHECK ISALREADY PRODUCT IN DATABASE
-    const isExist = await this.Prisma.products.findUnique({ where: { title } })
+    const isExist = await this.Prisma.products.findUnique({
+      where: { title: dto.title },
+    })
 
     // // IF EXIST ON DATA BASE
     if (isExist) throw new BadRequestException(MESSAGE_PRODUCT_FOUND)
 
     // ELSE CREATE PRODUCT
-    const product = await this.Prisma.products.create({
+    const product = await this.Prisma.products.createMany({
       data: {
-        title,
+        title: dto.title,
+        description: dto.description,
+        poster: dto.poster,
+        price: dto.price,
         slug: slugName,
-        description,
-        poster,
-        price,
-        brand,
+        brand: dto.brand,
+        categoryId: dto.categoryId,
       },
     })
     return product
@@ -99,32 +107,15 @@ export class ProductsService {
    */
   async updateProduct(id: number, dto: UpdateProductDTO) {
     try {
-      const {
-        brand,
-        description,
-        discount,
-        poster,
-        price,
-        rating,
-        title,
-        video,
-      } = dto
       await this.getProducById(id)
       return await this.Prisma.products.update({
         where: { id },
         data: {
-          title,
-          description,
-          discount,
-          brand,
-          price,
-          rating,
-          poster,
-          video,
+          ...dto,
         },
       })
     } catch (err) {
-      console.log(err)
+      throw new InternalServerErrorException(err)
     }
   }
   async deleteProduct(id: number) {

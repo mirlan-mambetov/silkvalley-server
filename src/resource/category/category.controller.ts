@@ -25,7 +25,7 @@ export class CategoryController {
   @Get()
   @HttpCode(HttpStatus.OK)
   async findAllCategories() {
-    return await this.categoryService.findAllCategories()
+    return await this.categoryService.findAllMainCategories()
   }
 
   /**
@@ -43,7 +43,29 @@ export class CategoryController {
   @Get(':id')
   @HttpCode(HttpStatus.OK)
   async findById(@Param('id', ParseIntPipe) id: number) {
-    return await this.categoryService.findById(id)
+    return await this.categoryService.findMainCategoryById(id)
+  }
+
+  @Get('by-slug/:slug')
+  @HttpCode(HttpStatus.OK)
+  async findBySlugName(@Param('slug') slug: string) {
+    return await this.categoryService.findMainCategoryBySlug(slug)
+  }
+
+  @Get('product-category/:id')
+  @HttpCode(HttpStatus.OK)
+  async findProductCategoryById(@Param('id', ParseIntPipe) id: number) {
+    return await this.categoryService.findProductCategoryById(id)
+  }
+
+  @Get('product-category/by-category/:categoryId')
+  @HttpCode(HttpStatus.OK)
+  async findProductCategoryByCategoryId(
+    @Param('categoryId', ParseIntPipe) categoryId: number,
+  ) {
+    return await this.categoryService.findProductCategoryByCategoryId(
+      categoryId,
+    )
   }
 
   /**
@@ -56,6 +78,16 @@ export class CategoryController {
   @HttpCode(HttpStatus.CREATED)
   async createMainCategory(@Body() dto: CategoryDTO) {
     return await this.categoryService.createMainCategory(dto)
+  }
+
+  @Put(':id')
+  @UsePipes(new ValidationPipe())
+  @HttpCode(HttpStatus.CREATED)
+  async updateMainCategory(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: CategoryDTO,
+  ) {
+    return await this.categoryService.updateMainCategory(id, dto)
   }
 
   /**
@@ -84,6 +116,16 @@ export class CategoryController {
     @Body() dto: ProductCategoryDTO,
   ) {
     return await this.categoryService.updateProductCategory(id, dto)
+  }
+
+  /**
+   * @param id
+   * @description delete category
+   */
+  @Delete(':id')
+  @HttpCode(HttpStatus.OK)
+  async deleteMainCategory(@Param('id', ParseIntPipe) id: number) {
+    return await this.categoryService.deleteMainCategory(id)
   }
 
   /**

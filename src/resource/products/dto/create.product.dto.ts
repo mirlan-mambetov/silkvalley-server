@@ -32,4 +32,7 @@ export class CreateProductDTO {
   @IsOptional()
   @IsNumber()
   rating?: number
+
+  @IsNumber()
+  categoryId: number
 }

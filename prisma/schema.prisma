@@ -27,8 +27,8 @@ model Products {
   totalReviews Int?
   video String?
   brand String?
-  category ProductCategory? @relation(fields: [categoryId], references: [id])
-  categoryId Int? @map("category_id")
+  category ProductCategory @relation(fields: [categoryId], references: [id])
+  categoryId Int @map("category_id")
   attributes ProductAttributes[]
 }
 
@@ -78,6 +78,7 @@ model Category {
   updatedAt DateTime @updatedAt @default(now()) @map("updated_at")
 
   name String @unique
+  slug String @unique
   
   categories ProductCategory[] 
 }
@@ -91,7 +92,7 @@ model ProductCategory {
   slug String
 
   category Category? @relation(fields: [categoryId], references: [id])
-  categoryId Int? @map("category_id")
+  categoryId Int? @unique @map("category_id")
 
   products Products[]
 }

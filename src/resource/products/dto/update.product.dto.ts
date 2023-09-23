@@ -36,4 +36,8 @@ export class UpdateProductDTO {
   @IsOptional()
   @IsNumber()
   rating?: number
+
+  @IsOptional()
+  @IsNumber()
+  categoryId?: number
 }

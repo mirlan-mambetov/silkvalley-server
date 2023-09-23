@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common'
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common'
 import slugify from 'slugify'
 import { PrismaService } from 'src/prisma.service'
 import { CategoryDTO, ProductCategoryDTO } from './dto/category.dto'
@@ -11,7 +15,7 @@ export class CategoryService {
    *
    * @returns Main Categories
    */
-  async findAllCategories() {
+  async findAllMainCategories() {
     const categories = await this.Prisma.category.findMany({
       include: {
         categories: true,
@@ -26,8 +30,33 @@ export class CategoryService {
    * @param id
    * @returns Main Category
    */
-  async findById(id: number) {
-    const category = await this.Prisma.category.findUnique({ where: { id } })
+  async findMainCategoryById(id: number) {
+    const category = await this.Prisma.category.findUnique({
+      where: { id },
+      include: { categories: true },
+    })
+    if (!category)
+      throw new BadRequestException('Категория по такому ID не найден')
+    return category
+  }
+
+  /**
+   *
+   * @param id
+   * @returns Main Category
+   * @description Find Main category by slug
+   */
+  async findMainCategoryBySlug(slug: string) {
+    const category = await this.Prisma.category.findUnique({
+      where: { slug },
+      include: {
+        categories: {
+          include: {
+            products: true,
+          },
+        },
+      },
+    })
     if (!category)
       throw new BadRequestException('Категория по такому ID не найден')
     return category
@@ -41,6 +70,18 @@ export class CategoryService {
   async findProductCategoryById(id: number) {
     const category = await this.Prisma.productCategory.findUnique({
       where: { id },
+      include: {
+        products: true,
+      },
+    })
+    if (!category)
+      throw new BadRequestException('Категория по такому ID не найден')
+    return category
+  }
+
+  async findProductCategoryByCategoryId(categoryId: number) {
+    const category = await this.Prisma.productCategory.findMany({
+      where: { categoryId },
     })
     if (!category)
       throw new BadRequestException('Категория по такому ID не найден')
@@ -77,9 +118,39 @@ export class CategoryService {
       where: { name: dto.name },
     })
     if (category) throw new BadRequestException('Категория уже существует')
+    const slugName = slugify(dto.name, {
+      lower: true,
+      trim: true,
+    })
     return await this.Prisma.category.create({
       data: {
         ...dto,
+        slug: slugName,
+      },
+    })
+  }
+
+  /**
+   *
+   * @param id
+   * @param dto
+   * @description Update main category
+   */
+  async updateMainCategory(id: number, dto: CategoryDTO) {
+    const category = await this.findMainCategoryById(id)
+    if (!category)
+      throw new BadRequestException(
+        'Категория не существует по такому ID. Редактирование невозможно',
+      )
+    const slugName = slugify(dto.name, {
+      lower: true,
+      trim: true,
+    })
+    return await this.Prisma.category.update({
+      where: { id },
+      data: {
+        ...dto,
+        slug: slugName,
       },
     })
   }
@@ -92,18 +163,27 @@ export class CategoryService {
    * @description Create product category
    */
   async createProductCategory(dto: ProductCategoryDTO) {
-    const mainCategory = await this.findById(dto.categoryId)
-    const slugName = slugify(dto.name, {
-      lower: true,
-      trim: true,
-    })
-    return await this.Prisma.productCategory.createMany({
-      data: {
-        ...dto,
-        categoryId: mainCategory.id,
-        slug: slugName,
-      },
-    })
+    try {
+      const category = await this.Prisma.productCategory.findUnique({
+        where: { name: dto.name },
+      })
+      if (category)
+        throw new BadRequestException('Данная категория уже существует')
+      const mainCategory = await this.findMainCategoryById(dto.categoryId)
+      const slugName = slugify(dto.name, {
+        lower: true,
+        trim: true,
+      })
+      return await this.Prisma.productCategory.createMany({
+        data: {
+          ...dto,
+          categoryId: mainCategory.id,
+          slug: slugName,
+        },
+      })
+    } catch (err) {
+      throw new InternalServerErrorException(err)
+    }
   }
 
   /**
@@ -113,15 +193,36 @@ export class CategoryService {
    * @returns Create product category
    */
   async updateProductCategory(id: number, dto: ProductCategoryDTO) {
-    await this.findById(dto.categoryId)
-    await this.findProductCategoryById(id)
-    return await this.Prisma.productCategory.updateMany({
-      where: { id },
-      data: {
-        ...dto,
-        categoryId: dto.categoryId,
-      },
-    })
+    try {
+      if (dto.categoryId) await this.findMainCategoryById(dto.categoryId)
+      await this.findProductCategoryById(id)
+      const slugName = slugify(dto.name, {
+        lower: true,
+        trim: true,
+      })
+      return await this.Prisma.productCategory.updateMany({
+        where: { id },
+        data: {
+          ...dto,
+          slug: slugName,
+        },
+      })
+    } catch (err) {
+      throw new InternalServerErrorException(err)
+    }
+  }
+
+  /**
+   * @param id
+   * @description deleted product category
+   */
+  async deleteMainCategory(id: number) {
+    const category = await this.findMainCategoryById(id)
+    if (category.categories.length)
+      throw new BadRequestException(
+        `Удаление невозможно, так как у категории "${category.name}" есть подкатегории!`,
+      )
+    return await this.Prisma.productCategory.delete({ where: { id } })
   }
 
   /**
@@ -129,7 +230,11 @@ export class CategoryService {
    * @description deleted product category
    */
   async deleteProductCategory(id: number) {
-    await this.findProductCategoryById(id)
+    const category = await this.findProductCategoryById(id)
+    if (category && category.products.length)
+      throw new BadRequestException(
+        `Удаление категории '${category.name}' невозможно. Так как содержит товары!`,
+      )
     return await this.Prisma.productCategory.delete({ where: { id } })
   }
 }
