@@ -25,6 +25,7 @@ export class ProductsController {
   async getAllProducts() {
     return await this.productsService.getAllProducts()
   }
+
   // GET PRODUCT BY SLUG
   @Get('by-slug/:slug')
   @HttpCode(HttpStatus.OK)

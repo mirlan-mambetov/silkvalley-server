@@ -118,6 +118,12 @@ export class ProductsService {
       throw new InternalServerErrorException(err)
     }
   }
+
+  /**
+   *
+   * @param id
+   * @description Deleted product
+   */
   async deleteProduct(id: number) {
     return await this.Prisma.products.delete({ where: { id } })
   }
