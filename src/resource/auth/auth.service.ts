@@ -1,44 +1,84 @@
-import { BadRequestException, Injectable } from '@nestjs/common'
-import { hash } from 'argon2'
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common'
+import { JwtService } from '@nestjs/jwt'
+import { hash, verify } from 'argon2'
 import { PrismaService } from 'src/prisma.service'
-import { AuthRegisterDTO } from './dto/auth.dto'
+import { UserService } from '../user/user.service'
+import { AuthLoginDTO, AuthRegisterDTO } from './dto/auth.dto'
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly Prisma: PrismaService) {}
+  constructor(
+    private readonly Prisma: PrismaService,
+    private readonly Jwt: JwtService,
+    private readonly userService: UserService,
+  ) {}
 
   /**
    * @param dto
    * @description Register new User
    */
   async register(dto: AuthRegisterDTO) {
-    const user = await this.Prisma.user.findUnique({
-      where: { email: dto.email },
-    })
-    if (user)
-      throw new BadRequestException(
-        'Пользователь с таким E-mail уже зарегистрирован',
-      )
-
     const hasnedPassword = await hash(dto.password)
 
-    if (dto.avatar) {
-      return await this.Prisma.user.create({
-        data: {
-          username: dto.username,
-          email: dto.email,
-          password: hasnedPassword,
-          avatar: dto.avatar,
-        },
+    const user = await this.userService.create(dto, hasnedPassword)
+
+    const tokens = await this.issueTokens(user.id)
+    return {
+      user: this.userService.returnUserFields(user),
+      ...tokens,
+    }
+  }
+
+  /**
+   *
+   * @param dto
+   * @returns TOkens and User
+   */
+  async login(dto: AuthLoginDTO) {
+    await this.userService.checkExistUserByEmail(dto.email)
+    const user = await this.userService.findUserByEmail(dto.email)
+    const checkPassword = await verify(user.password, dto.password)
+    if (!checkPassword) throw new BadRequestException('Неправильный пароль')
+
+    const tokens = await this.issueTokens(user.id)
+
+    return {
+      user: this.userService.returnUserFields(user),
+      tokens,
+    }
+  }
+
+  /**
+   *
+   * @param userId
+   * @description Generate auth tokens
+   * @returns AccessToken and RefreshToken
+   */
+  private async issueTokens(userId: number) {
+    try {
+      const data = { id: userId }
+
+      const accessToken = this.Jwt.sign(data, {
+        expiresIn: '1h',
       })
-    } else {
-      return await this.Prisma.user.create({
-        data: {
-          username: dto.username,
-          email: dto.email,
-          password: hasnedPassword,
-        },
+
+      const refreshToken = this.Jwt.sign(data, {
+        expiresIn: '7d',
       })
+      return {
+        accessToken,
+        refreshToken,
+      }
+    } catch (err) {
+      throw new HttpException(
+        'Неизвестная ошибка сервера, повторите попытку позже.',
+        HttpStatus.UNAUTHORIZED,
+      )
     }
   }
 }
