@@ -11,7 +11,6 @@ export class UserController {
   @Auth()
   @HttpCode(HttpStatus.OK)
   async getUserProfile(@CurrentUser('id') userId: number) {
-    console.log(userId)
     return await this.userService.getUserProfile(userId)
   }
 }

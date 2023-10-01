@@ -70,6 +70,17 @@ export class UserService {
   }
 
   /**
+   * 
+   * @param id 
+   * @returns User by ID
+   */
+  async findUserById(id: number) {
+    const user = await this.Prisma.user.findUnique({ where: { id } })
+    if (!user) throw new BadRequestException('Пользователь не найден')
+    return user
+  }
+
+  /**
    *
    * @param email
    * @returns BOOLEAN
@@ -77,7 +88,8 @@ export class UserService {
    */
   async checkExistUserByEmail(email: string) {
     const user = await this.Prisma.user.findUnique({ where: { email } })
-    if (!user) return !!user
+    if (!user) return false
+    else return true
   }
 
   /**

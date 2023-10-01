@@ -3,9 +3,11 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
+  UnauthorizedException,
 } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { hash, verify } from 'argon2'
+import { IUser } from 'src/interfaces/user.interface'
 import { PrismaService } from 'src/prisma.service'
 import { UserService } from '../user/user.service'
 import { AuthLoginDTO, AuthRegisterDTO } from './dto/auth.dto'
@@ -49,7 +51,7 @@ export class AuthService {
 
     return {
       user: this.userService.returnUserFields(user),
-      tokens,
+      ...tokens,
     }
   }
 
@@ -79,6 +81,25 @@ export class AuthService {
         'Неизвестная ошибка сервера, повторите попытку позже.',
         HttpStatus.UNAUTHORIZED,
       )
+    }
+  }
+
+  async getNewUserToken(refreshToken: string) {
+    try {
+      const result =
+        await this.Jwt.verifyAsync<Pick<IUser, 'id' | 'username'>>(refreshToken)
+      if (!result) throw new UnauthorizedException('Не валидный токен!')
+
+      const user = await this.userService.findUserById(result.id)
+
+      const tokens = await this.issueTokens(user.id)
+
+      return {
+        user: this.userService.returnUserFields(user),
+        ...tokens,
+      }
+    } catch (err) {
+      throw new HttpException('Не валидный токен', HttpStatus.FORBIDDEN)
     }
   }
 }

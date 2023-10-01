@@ -1,4 +1,4 @@
-import { IsEmail, IsOptional, IsString, Length } from 'class-validator'
+import { IsEmail, IsString, Length } from 'class-validator'
 
 export class AuthRegisterDTO {
   @IsString({ message: 'Поле username должен быть в строковом формате!' })
@@ -12,10 +12,6 @@ export class AuthRegisterDTO {
   @Length(2, 255, { message: 'Поле password не может быть пустым' })
   @IsString({ message: 'Поле password должен быть в строковом формате!' })
   password: string
-
-  @IsOptional()
-  @IsString()
-  avatar: string
 }
 
 export class AuthLoginDTO {
@@ -26,4 +22,9 @@ export class AuthLoginDTO {
   @Length(2, 255, { message: 'Поле password не может быть пустым' })
   @IsString({ message: 'Поле password должен быть в строковом формате!' })
   password: string
+}
+
+export class TokenDTO {
+  @IsString()
+  refreshToken: string
 }
