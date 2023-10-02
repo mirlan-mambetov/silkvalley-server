@@ -11,6 +11,13 @@ body {
   font-style: normal;
   font-weight: 400;
 }
+::-webkit-scrollbar {
+  display: none;
+}
+.content {
+  min-height: 100vh;
+  padding: 10px 0;
+}
 .container {
   width: calc(1330px - 30px);
   padding-left: 15px;
@@ -20,4 +27,23 @@ body {
 
 .products {
   display: flex;
+}
+
+/* NAVBAR */
+.navbar {
+  padding: 16px 0;
+  background: #000;
+  color: #fff;
+}
+
+.navbarwrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.navbarlogo {
+  font-size: 20px;
+  font-style: normal;
+  line-height: 25px;
+  font-weight: 400;
 }
