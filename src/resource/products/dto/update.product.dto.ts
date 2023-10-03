@@ -1,4 +1,11 @@
-import { IsNumber, IsOptional, IsString, Length } from 'class-validator'
+import {
+  IsBoolean,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Length,
+} from 'class-validator'
+
 export class UpdateProductDTO {
   @IsOptional()
   @IsString()
@@ -40,4 +47,16 @@ export class UpdateProductDTO {
   @IsOptional()
   @IsNumber()
   categoryId?: number
+
+  @IsBoolean()
+  @IsOptional()
+  exclusive?: boolean
+
+  @IsOptional()
+  additional?: [
+    {
+      name: string
+      value: string
+    },
+  ]
 }

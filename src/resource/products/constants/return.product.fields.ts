@@ -16,4 +16,5 @@ export const RETURN_PRODUCT_FIELDS: Prisma.ProductsSelect = {
       productId: true,
     },
   },
+  additianal_information: true,
 }

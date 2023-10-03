@@ -112,13 +112,32 @@ export class ProductsService {
   async updateProduct(id: number, dto: UpdateProductDTO) {
     try {
       await this.getProducById(id)
-      return await this.Prisma.products.update({
-        where: { id },
-        data: {
-          ...dto,
-        },
-      })
+
+      if (dto.additional) {
+        await this.Prisma.products.update({
+          where: { id },
+          data: {
+            additianal_information: {
+              deleteMany: {},
+              createMany: {
+                data: dto.additional.map((element) => ({
+                  name: element.name,
+                  value: element.value,
+                })),
+              },
+            },
+          },
+        })
+      } else {
+        await this.Prisma.products.update({
+          where: { id },
+          data: {
+            ...dto,
+          },
+        })
+      }
     } catch (err) {
+      console.log(err)
       throw new InternalServerErrorException(err)
     }
   }
