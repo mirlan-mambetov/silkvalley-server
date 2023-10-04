@@ -113,12 +113,12 @@ export class ProductsService {
     try {
       await this.getProducById(id)
 
-      if (dto.additional) {
+      const filterd = this.checkExistData<UpdateProductDTO>(dto)
+      if (filterd.additional) {
         await this.Prisma.products.update({
           where: { id },
           data: {
             additianal_information: {
-              deleteMany: {},
               createMany: {
                 data: dto.additional.map((element) => ({
                   name: element.name,
@@ -132,12 +132,11 @@ export class ProductsService {
         await this.Prisma.products.update({
           where: { id },
           data: {
-            ...dto,
+            ...filterd,
           },
         })
       }
     } catch (err) {
-      console.log(err)
       throw new InternalServerErrorException(err)
     }
   }
@@ -149,5 +148,15 @@ export class ProductsService {
    */
   async deleteProduct(id: number) {
     return await this.Prisma.products.delete({ where: { id } })
+  }
+
+  private checkExistData<T = {}>(dto: T): T {
+    const filterd: T = Object.keys(dto).reduce((filterdData, key) => {
+      if (dto[key] !== undefined && dto[key] !== null && dto[key] !== '') {
+        filterdData[key] = dto[key]
+      }
+      return filterdData
+    }, dto)
+    return filterd
   }
 }
