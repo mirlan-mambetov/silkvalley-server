@@ -51,12 +51,4 @@ export class UpdateProductDTO {
   @IsBoolean()
   @IsOptional()
   exclusive?: boolean
-
-  @IsOptional()
-  additional?: [
-    {
-      name: string
-      value: string
-    },
-  ]
 }

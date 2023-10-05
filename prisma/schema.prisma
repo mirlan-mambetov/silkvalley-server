@@ -58,8 +58,7 @@ model Products {
 
   additianal_information ProductAdditianalInformation[]
 
-  dimensions ProductDimensions? @relation(fields: [dimensionsId], references: [id])
-  dimensionsId Int? @unique
+  dimensions ProductDimensions?
 }
 
 // ###### PRODUCTS ADDITIANAL INFORMATION
@@ -68,7 +67,7 @@ model ProductAdditianalInformation{
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @default(now()) @map("updated_at")
 
-  name String
+  name String @unique
   value String
 
   product Products? @relation(fields: [productId], references: [id])
@@ -85,8 +84,11 @@ model ProductDimensions{
 
   form_factors String?
   packing_size String?
+  color_packing String?
+  
 
-  products Products?
+  products Products? @relation(fields: [productsId], references: [id])
+  productsId Int? @unique
 
   @@map("product_dimensions")
 }

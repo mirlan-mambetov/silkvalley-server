@@ -114,28 +114,12 @@ export class ProductsService {
       await this.getProducById(id)
 
       const filterd = this.checkExistData<UpdateProductDTO>(dto)
-      if (filterd.additional) {
-        await this.Prisma.products.update({
-          where: { id },
-          data: {
-            additianal_information: {
-              createMany: {
-                data: dto.additional.map((element) => ({
-                  name: element.name,
-                  value: element.value,
-                })),
-              },
-            },
-          },
-        })
-      } else {
-        await this.Prisma.products.update({
-          where: { id },
-          data: {
-            ...filterd,
-          },
-        })
-      }
+      await this.Prisma.products.update({
+        where: { id },
+        data: {
+          ...filterd,
+        },
+      })
     } catch (err) {
       throw new InternalServerErrorException(err)
     }
