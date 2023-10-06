@@ -21,11 +21,6 @@ export class AdditionalInformationService {
    */
   async create(productId: number, dto: ProductsAdditionalDTO) {
     try {
-      const isExist = await this.Prisma.productAdditianalInformation.findUnique(
-        { where: { name: dto.name } },
-      )
-      if (isExist)
-        throw new BadRequestException('Данная информация уже существует')
       return await this.Prisma.productAdditianalInformation.create({
         data: {
           name: dto.name,

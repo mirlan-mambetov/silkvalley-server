@@ -67,7 +67,7 @@ model ProductAdditianalInformation{
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @default(now()) @map("updated_at")
 
-  name String @unique
+  name String
   value String
 
   product Products? @relation(fields: [productId], references: [id])
