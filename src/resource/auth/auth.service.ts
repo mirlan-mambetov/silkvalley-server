@@ -43,7 +43,9 @@ export class AuthService {
    */
   async login(dto: AuthLoginDTO) {
     await this.userService.checkExistUserByEmail(dto.email)
-    const user = await this.userService.findUserByEmail(dto.email)
+    const user = await this.userService.findUserByEmail(dto.email, {
+      password: true,
+    })
     const checkPassword = await verify(user.password, dto.password)
     if (!checkPassword) throw new BadRequestException('Неправильный пароль')
 
