@@ -140,6 +140,7 @@ model Category {
 
   name String @unique
   slug String @unique
+  icon String?
   
   categories ProductCategory[] 
 }
@@ -151,6 +152,7 @@ model ProductCategory {
 
   name String @unique
   slug String
+  icon String?
 
   category Category? @relation(fields: [categoryId], references: [id])
   categoryId Int? @map("category_id")

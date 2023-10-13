@@ -142,17 +142,26 @@ export class CategoryService {
       throw new BadRequestException(
         'Категория не существует по такому ID. Редактирование невозможно',
       )
-    const slugName = slugify(dto.name, {
-      lower: true,
-      trim: true,
-    })
-    return await this.Prisma.category.update({
-      where: { id },
-      data: {
-        ...dto,
-        slug: slugName,
-      },
-    })
+    if (dto.name) {
+      const slugName = slugify(dto.name, {
+        lower: true,
+        trim: true,
+      })
+      await this.Prisma.category.update({
+        where: { id },
+        data: {
+          ...dto,
+          slug: slugName,
+        },
+      })
+    } else {
+      return await this.Prisma.category.update({
+        where: { id },
+        data: {
+          ...dto,
+        },
+      })
+    }
   }
 
   /**
