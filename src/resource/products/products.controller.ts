@@ -27,10 +27,37 @@ export class ProductsController {
   }
 
   // GET PRODUCT BY SLUG
+  @Get('popular')
+  @HttpCode(HttpStatus.OK)
+  async getPopular() {
+    return await this.productsService.getPopularProducts()
+  }
+
+  // GET PRODUCT BY SLUG
+  @Get('exclusive')
+  @HttpCode(HttpStatus.OK)
+  async getExclusive() {
+    return await this.productsService.getExclusiveProducts()
+  }
+
+  @Get('for-womans')
+  @HttpCode(HttpStatus.OK)
+  async getForWomans() {
+    return await this.productsService.getForWomans()
+  }
+
+  // GET PRODUCT BY SLUG
   @Get('by-slug/:slug')
   @HttpCode(HttpStatus.OK)
   async getProductBySlug(@Param('slug') slug: string) {
     return await this.productsService.getProductBySlug(slug)
+  }
+
+  // GET SIMILAR PRODUCTS
+  @Get('similar/:id')
+  @HttpCode(HttpStatus.OK)
+  async getSimilarProducts(@Param('id', ParseIntPipe) id: number) {
+    return await this.productsService.getSimilar(id)
   }
 
   // GET PRODUCT BY ID

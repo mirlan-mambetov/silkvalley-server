@@ -1,4 +1,5 @@
-import { IsNumber, IsOptional, IsString, Length } from 'class-validator'
+import { EnumProductType } from '@prisma/client'
+import { IsEnum, IsNumber, IsOptional, IsString, Length } from 'class-validator'
 
 export class CreateProductDTO {
   @IsString()
@@ -35,4 +36,7 @@ export class CreateProductDTO {
 
   @IsNumber()
   categoryId: number
+
+  @IsEnum(EnumProductType)
+  productType: EnumProductType
 }

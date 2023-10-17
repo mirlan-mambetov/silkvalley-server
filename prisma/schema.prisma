@@ -30,6 +30,17 @@ enum EnumUserRole {
 	USER 
 }
 
+enum EnumProductType {
+	WOMAN 
+	MAN
+  SMARTPHONES
+  ALL
+  TV
+  APPLE
+  SAMSUNG
+  ELECTRONICS
+}
+
 // ###### PRODUCTS
 model Products {
   id Int @id @default(autoincrement())
@@ -59,6 +70,10 @@ model Products {
   additianal_information ProductAdditianalInformation[]
 
   dimensions ProductDimensions?
+
+  views Int? @default(0)
+
+  productType EnumProductType? @default(ALL)
 }
 
 // ###### PRODUCTS ADDITIANAL INFORMATION

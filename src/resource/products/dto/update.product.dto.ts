@@ -1,5 +1,7 @@
+import { EnumProductType } from '@prisma/client'
 import {
   IsBoolean,
+  IsEnum,
   IsNumber,
   IsOptional,
   IsString,
@@ -51,4 +53,8 @@ export class UpdateProductDTO {
   @IsBoolean()
   @IsOptional()
   exclusive?: boolean
+
+  @IsOptional()
+  @IsEnum(EnumProductType)
+  productType: EnumProductType
 }

@@ -6,6 +6,6 @@ export class ProductsAdditionalDTO {
   name: string
 
   @IsString()
-  @Length(2, 255)
+  @Length(1, 255)
   value: string
 }
