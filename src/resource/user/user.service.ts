@@ -101,9 +101,7 @@ export class UserService {
         username: user.username,
         email: user.email,
         password: hashedPassword,
-        avatar: user.avatar
-          ? user.avatar
-          : 'https://ui-avatars.com/api/?background=random',
+        avatar: user.avatar,
       },
     })
     return userSave

@@ -12,6 +12,7 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common'
+import { EnumProductType } from '@prisma/client'
 import { CreateProductDTO } from './dto/create.product.dto'
 import { UpdateProductDTO } from './dto/update.product.dto'
 import { ProductsService } from './products.service'
@@ -43,7 +44,13 @@ export class ProductsController {
   @Get('for-womans')
   @HttpCode(HttpStatus.OK)
   async getForWomans() {
-    return await this.productsService.getForWomans()
+    return await this.productsService.getProductsByType(EnumProductType.WOMAN)
+  }
+
+  @Get('for-mans')
+  @HttpCode(HttpStatus.OK)
+  async getForMans() {
+    return await this.productsService.getProductsByType(EnumProductType.MAN)
   }
 
   // GET PRODUCT BY SLUG

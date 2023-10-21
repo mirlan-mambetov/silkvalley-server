@@ -52,6 +52,8 @@ export class ProductsService {
     return product
   }
 
+  async search(c) {}
+
   /**
    * @param slug
    * @returns Product
@@ -100,12 +102,12 @@ export class ProductsService {
     }
   }
 
-  async getForWomans() {
+  async getProductsByType(type: EnumProductType) {
     try {
       const products = await this.Prisma.products.findMany({
         where: {
           productType: {
-            equals: EnumProductType.WOMAN,
+            equals: type,
           },
         },
         include: RETURN_PRODUCT_FIELDS,
