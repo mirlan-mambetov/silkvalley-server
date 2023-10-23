@@ -68,6 +68,12 @@ export class CategoryController {
     )
   }
 
+  @Get('product-category/by-slug/:slug')
+  @HttpCode(HttpStatus.OK)
+  async findProductCategoryBySlug(@Param('slug') slug: string) {
+    return await this.categoryService.findProductCategoryBySlug(slug)
+  }
+
   /**
    * @param dto
    * @returns Main category

@@ -7,6 +7,7 @@ import { NotFoundExceptionFilter } from './filters/NotFound.filters'
 import { PrismaService } from './prisma.service'
 import { AuthModule } from './resource/auth/auth.module'
 import { CategoryModule } from './resource/category/category.module'
+import { PaginationModule } from './resource/pagination/pagination.module'
 import { AdditionalInformationModule } from './resource/products/products-additional/products.additional.module'
 import { ProductsAttributesModule } from './resource/products/products-attributes/products-attributes.module'
 import { ProductsDimensionsModule } from './resource/products/products-dimensions/products.dimensions.module'
@@ -28,6 +29,7 @@ import { UserModule } from './resource/user/user.module'
     ProductsModule,
     ProductsImagesModule,
     ProductsAttributesModule,
+    PaginationModule,
   ],
   controllers: [AppController],
 

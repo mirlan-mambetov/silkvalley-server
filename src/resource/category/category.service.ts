@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common'
 import slugify from 'slugify'
 import { PrismaService } from 'src/prisma.service'
+import { v4 as Uuid } from 'uuid'
 import { CategoryDTO, ProductCategoryDTO } from './dto/category.dto'
 
 @Injectable()
@@ -70,6 +71,23 @@ export class CategoryService {
   async findProductCategoryById(id: number) {
     const category = await this.Prisma.productCategory.findUnique({
       where: { id },
+      include: {
+        products: true,
+      },
+    })
+    if (!category)
+      throw new BadRequestException('Категория по такому ID не найден')
+    return category
+  }
+
+  /**
+   *
+   * @param id
+   * @returns Product Category
+   */
+  async findProductCategoryBySlug(slug: string) {
+    const category = await this.Prisma.productCategory.findUnique({
+      where: { slug },
       include: {
         products: true,
       },
@@ -173,11 +191,7 @@ export class CategoryService {
    */
   async createProductCategory(dto: ProductCategoryDTO) {
     try {
-      const category = await this.Prisma.productCategory.findUnique({
-        where: { name: dto.name },
-      })
-      if (category)
-        throw new BadRequestException('Данная категория уже существует')
+      const uniqueId = Uuid()
       const mainCategory = await this.findMainCategoryById(dto.categoryId)
       const slugName = slugify(dto.name, {
         lower: true,
@@ -187,7 +201,7 @@ export class CategoryService {
         data: {
           ...dto,
           categoryId: mainCategory.id,
-          slug: slugName,
+          slug: `${slugName}-${uniqueId}`,
         },
       })
     } catch (err) {
@@ -205,6 +219,7 @@ export class CategoryService {
     try {
       if (dto.categoryId) await this.findMainCategoryById(dto.categoryId)
       await this.findProductCategoryById(id)
+      const uniqueId = Uuid()
       const slugName = slugify(dto.name, {
         lower: true,
         trim: true,
@@ -213,7 +228,7 @@ export class CategoryService {
         where: { id },
         data: {
           ...dto,
-          slug: slugName,
+          slug: `${slugName}-${uniqueId}`,
         },
       })
     } catch (err) {

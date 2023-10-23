@@ -9,11 +9,13 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common'
 import { EnumProductType } from '@prisma/client'
 import { CreateProductDTO } from './dto/create.product.dto'
+import { FiltersDto } from './dto/filters.dto'
 import { UpdateProductDTO } from './dto/update.product.dto'
 import { ProductsService } from './products.service'
 
@@ -51,6 +53,13 @@ export class ProductsController {
   @HttpCode(HttpStatus.OK)
   async getForMans() {
     return await this.productsService.getProductsByType(EnumProductType.MAN)
+  }
+
+  // GET PRODUCT BY SLUG
+  @Get('by-category')
+  @HttpCode(HttpStatus.OK)
+  async getProductByCategory(@Query() queryDto: FiltersDto) {
+    return await this.productsService.getProductsByCategory(queryDto)
   }
 
   // GET PRODUCT BY SLUG

@@ -165,8 +165,8 @@ model ProductCategory {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @default(now()) @map("updated_at")
 
-  name String @unique
-  slug String
+  name String 
+  slug String @unique
   icon String?
 
   category Category? @relation(fields: [categoryId], references: [id])

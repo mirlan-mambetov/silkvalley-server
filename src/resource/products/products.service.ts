@@ -4,13 +4,17 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common'
-import { EnumProductType } from '@prisma/client'
+import { EnumProductType, Prisma } from '@prisma/client'
 import Slugify from 'slugify'
+import { EnumProductPrice, EnumProductSort } from 'src/enums/Filter.enum'
 import { PrismaService } from 'src/prisma.service'
+import { SortType } from 'types/sortTypes'
 import { CategoryService } from '../category/category.service'
+import { PaginationService } from '../pagination/pagination.service'
 import { MESSAGE_PRODUCT_FOUND } from './constants/message.constants'
 import { RETURN_PRODUCT_FIELDS } from './constants/return.product.fields'
 import { CreateProductDTO } from './dto/create.product.dto'
+import { FiltersDto } from './dto/filters.dto'
 import { UpdateProductDTO } from './dto/update.product.dto'
 
 @Injectable()
@@ -18,6 +22,7 @@ export class ProductsService {
   constructor(
     private readonly Prisma: PrismaService,
     private readonly categoryService: CategoryService,
+    private readonly paginationService: PaginationService,
   ) {}
 
   /**
@@ -51,8 +56,6 @@ export class ProductsService {
       throw new NotFoundException('Продукт по такому идентификатору не найден')
     return product
   }
-
-  async search(c) {}
 
   /**
    * @param slug
@@ -116,6 +119,25 @@ export class ProductsService {
       return products
     } catch (err) {
       throw new InternalServerErrorException(err)
+    }
+  }
+
+  async getProductsByCategory(filters?: FiltersDto) {
+    try {
+      const filter = this.createFilter(filters)
+      const { perPage, skip } = this.paginationService.getPagination(filters)
+      const products = await this.Prisma.products.findMany({
+        where: {
+          ...filter,
+        },
+        skip,
+        orderBy: this.sortFilter(filters.sort || filters.priceSort),
+        take: perPage,
+        include: RETURN_PRODUCT_FIELDS,
+      })
+      return products
+    } catch (err) {
+      throw new BadRequestException('Продуктов по такой категории нет')
     }
   }
 
@@ -235,6 +257,117 @@ export class ProductsService {
    */
   async deleteProduct(id: number) {
     return await this.Prisma.products.delete({ where: { id } })
+  }
+
+  private createFilter(dto: FiltersDto): Prisma.ProductsWhereInput {
+    const filters: Prisma.ProductsWhereInput[] = []
+    if (dto.searchTerm) filters.push(this.searchFilter(dto.searchTerm))
+    if (dto.rating) filters.push(this.ratingFilter(Number(dto.rating)))
+    if (dto.categoryId)
+      filters.push(this.categoryFilter({ categoryId: +dto.categoryId }))
+    if (dto.mainCategoryId)
+      filters.push(this.categoryFilter({ mainCategoryId: +dto.mainCategoryId }))
+    if (dto.minPrice || dto.maxPrice) {
+      filters.push(this.priceFilter(Number(dto.minPrice), Number(dto.maxPrice)))
+    }
+    return { AND: filters }
+  }
+
+  private sortFilter(
+    sort: SortType,
+  ): Prisma.ProductsOrderByWithRelationInput[] {
+    switch (sort) {
+      case EnumProductPrice.LOW_PRICE:
+        return [{ price: 'asc' }]
+      case EnumProductPrice.HIGH_PRICE:
+        return [{ price: 'desc' }]
+      case EnumProductSort.NEWEST:
+        return [{ createdAt: 'desc' }]
+      case EnumProductSort.OLDEST:
+        return [{ createdAt: 'asc' }]
+      case EnumProductSort.POPULAR:
+        return [{ views: { sort: 'asc' } }]
+      case EnumProductSort.VIEWS:
+        return [{ views: { sort: 'desc' } }]
+    }
+  }
+
+  private categoryFilter({
+    categoryId,
+    mainCategoryId,
+  }: {
+    categoryId?: number
+    mainCategoryId?: number
+  }): Prisma.ProductsWhereInput {
+    if (mainCategoryId) {
+      return {
+        category: {
+          categoryId: mainCategoryId,
+        },
+      }
+    }
+    if (categoryId) {
+      return {
+        categoryId,
+      }
+    }
+  }
+
+  private priceFilter(
+    minPrice?: number,
+    maxPrice?: number,
+  ): Prisma.ProductsWhereInput {
+    let filter: Prisma.IntFilter | undefined = undefined
+    if (minPrice) {
+      filter = {
+        ...filter,
+        gte: minPrice,
+      }
+    }
+    if (maxPrice) {
+      filter = {
+        ...filter,
+        lte: maxPrice,
+      }
+    }
+    return {
+      price: filter,
+    }
+  }
+
+  private ratingFilter(rating: number): Prisma.ProductsWhereInput {
+    return {
+      rating: {
+        equals: rating,
+      },
+    }
+  }
+
+  private searchFilter(searchTerm: string): Prisma.ProductsWhereInput {
+    return {
+      OR: [
+        {
+          category: {
+            name: {
+              contains: searchTerm,
+              mode: 'insensitive',
+            },
+          },
+        },
+        {
+          title: {
+            contains: searchTerm,
+            mode: 'insensitive',
+          },
+        },
+        {
+          description: {
+            contains: searchTerm,
+            mode: 'insensitive',
+          },
+        },
+      ],
+    }
   }
 
   private checkExistData<T = {}>(dto: T): T {
