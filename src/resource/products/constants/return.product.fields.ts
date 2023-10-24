@@ -6,6 +6,8 @@ export const RETURN_PRODUCT_FIELDS: Prisma.ProductsSelect = {
     select: {
       id: true,
       name: true,
+      slug: true,
+      category: true,
     },
   },
   images: {

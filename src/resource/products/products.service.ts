@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common'
 import { EnumProductType, Prisma } from '@prisma/client'
 import Slugify from 'slugify'
-import { EnumProductPrice, EnumProductSort } from 'src/enums/Filter.enum'
+import { EnumProductSort } from 'src/enums/Filter.enum'
 import { PrismaService } from 'src/prisma.service'
 import { SortType } from 'types/sortTypes'
 import { CategoryService } from '../category/category.service'
@@ -28,9 +28,11 @@ export class ProductsService {
   /**
    * @returns ALL PRODUCTS
    */
-  async getAllProducts() {
+  async getAllProducts(searchTerm?: string) {
     try {
+      const filter = this.createFilter({ searchTerm })
       return await this.Prisma.products.findMany({
+        where: filter,
         include: { ...RETURN_PRODUCT_FIELDS },
         orderBy: {
           updatedAt: 'desc',
@@ -131,7 +133,7 @@ export class ProductsService {
           ...filter,
         },
         skip,
-        orderBy: this.sortFilter(filters.sort || filters.priceSort),
+        orderBy: this.sortFilter(filters.sort),
         take: perPage,
         include: RETURN_PRODUCT_FIELDS,
       })
@@ -277,9 +279,9 @@ export class ProductsService {
     sort: SortType,
   ): Prisma.ProductsOrderByWithRelationInput[] {
     switch (sort) {
-      case EnumProductPrice.LOW_PRICE:
+      case EnumProductSort.LOW_PRICE:
         return [{ price: 'asc' }]
-      case EnumProductPrice.HIGH_PRICE:
+      case EnumProductSort.HIGH_PRICE:
         return [{ price: 'desc' }]
       case EnumProductSort.NEWEST:
         return [{ createdAt: 'desc' }]

@@ -1,3 +1,3 @@
-import { EnumProductPrice, EnumProductSort } from 'src/enums/Filter.enum'
+import { EnumProductSort } from 'src/enums/Filter.enum'
 
-export type SortType = EnumProductPrice | EnumProductSort
+export type SortType = EnumProductSort

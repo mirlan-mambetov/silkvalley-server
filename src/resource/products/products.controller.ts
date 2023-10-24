@@ -25,8 +25,8 @@ export class ProductsController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  async getAllProducts() {
-    return await this.productsService.getAllProducts()
+  async getAllProducts(@Query() queryDto: FiltersDto) {
+    return await this.productsService.getAllProducts(queryDto.searchTerm)
   }
 
   // GET PRODUCT BY SLUG
