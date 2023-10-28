@@ -57,7 +57,10 @@ model Products {
   discount Int?
   totalReviews Int?
   video String?
-  brand String?
+
+  brand ProductBrand? @relation(fields: [brandId], references: [id])
+  brandId Int? @map("brand_id")
+
   category ProductCategory @relation(fields: [categoryId], references: [id])
   categoryId Int @map("category_id")
   attributes ProductAttributes[]
@@ -75,6 +78,20 @@ model Products {
 
   productType EnumProductType? @default(ALL)
 }
+
+// ###### PRODUCTS BRANDS
+model ProductBrand{
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @default(now()) @map("updated_at")
+
+  name String
+  description String?
+
+  products Products[]
+}
+
+
 
 // ###### PRODUCTS ADDITIANAL INFORMATION
 model ProductAdditianalInformation{
