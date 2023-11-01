@@ -263,8 +263,6 @@ export class ProductsService {
 
   private createFilter(dto: FiltersDto): Prisma.ProductsWhereInput {
     const filters: Prisma.ProductsWhereInput[] = []
-    console.log(`CategoryID: ${dto.categoryId}`)
-    console.log(`MainCategoryID: ${dto.mainCategoryId}`)
     if (dto.searchTerm) filters.push(this.searchFilter(dto.searchTerm))
     if (dto.rating) filters.push(this.ratingFilter(Number(dto.rating)))
     if (dto.categoryId)
