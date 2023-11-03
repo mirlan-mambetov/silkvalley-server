@@ -30,6 +30,15 @@ export class ProductReviewsService {
       const product = await this.productService.getProducById(dto.productId)
       const user = await this.userService.findUserById(userId)
 
+      await this.PrismaService.products.update({
+        where: { id: product.id },
+        data: {
+          totalReviews: {
+            increment: 1,
+          },
+        },
+      })
+
       const newReview = await this.PrismaService.productsReviews.create({
         data: {
           description: dto.description,
