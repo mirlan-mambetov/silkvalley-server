@@ -24,6 +24,8 @@ model User {
   featured Products[]
 
   role EnumUserRole[] @default([USER])
+
+  reviews ProductsReviews[] 
 }
 enum EnumUserRole {
 	ADMIN 
@@ -78,6 +80,17 @@ model Products {
 
   productType EnumProductType? @default(ALL)
 }
+// ###### PRODUCTS REVIEWS
+model ProductsReviews{
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @default(now()) @map("updated_at")
+
+  description String
+  user User? @relation(fields: [userId], references: [id])
+  userId Int? @map("user_id")
+}
+
 
 // ###### PRODUCTS BRANDS
 model ProductBrand{
@@ -85,7 +98,8 @@ model ProductBrand{
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @default(now()) @map("updated_at")
 
-  name String
+  name String @unique
+  slug String @unique
   description String?
 
   products Products[]
