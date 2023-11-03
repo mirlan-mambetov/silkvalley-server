@@ -17,9 +17,9 @@ export class CreateProductDTO {
   @IsNumber()
   price?: number
 
-  @IsString()
-  @Length(2, 255)
-  brand?: string
+  @IsOptional()
+  @IsNumber()
+  brandId?: number
 
   @IsString()
   @Length(2, 255)

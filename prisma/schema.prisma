@@ -79,6 +79,8 @@ model Products {
   views Int? @default(0)
 
   productType EnumProductType? @default(ALL) @map("product_type")
+
+  reviews ProductsReviews[]
 }
 // ###### PRODUCTS REVIEWS
 model ProductsReviews{
@@ -89,6 +91,9 @@ model ProductsReviews{
   description String
   user User? @relation(fields: [userId], references: [id])
   userId Int? @map("user_id")
+
+  product Products? @relation(fields: [productid], references: [id])
+  productid Int? @map("product_id")
 }
 
 

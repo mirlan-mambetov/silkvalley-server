@@ -29,9 +29,7 @@ export class UpdateProductDTO {
   price?: number
 
   @IsOptional()
-  @IsString()
-  @Length(2, 255)
-  brand?: string
+  brandId?: number
 
   @IsString()
   @Length(2, 255)

@@ -12,6 +12,7 @@ import { AdditionalInformationModule } from './resource/products/products-additi
 import { ProductsAttributesModule } from './resource/products/products-attributes/products-attributes.module'
 import { ProductsDimensionsModule } from './resource/products/products-dimensions/products.dimensions.module'
 import { ProductsImagesModule } from './resource/products/products-images/products-images.module'
+import { ProductsReviewsModule } from './resource/products/products-reviews/product.reviews.module'
 import { ProductsModule } from './resource/products/products.module'
 import { UserModule } from './resource/user/user.module'
 
@@ -29,6 +30,7 @@ import { UserModule } from './resource/user/user.module'
     ProductsModule,
     ProductsImagesModule,
     ProductsAttributesModule,
+    ProductsReviewsModule,
     PaginationModule,
   ],
   controllers: [AppController],

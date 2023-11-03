@@ -1,4 +1,5 @@
 import { Prisma } from 'prisma/prisma-client'
+import { RETURN_USER_OBJECT } from 'src/resource/user/constants/return.user.object'
 
 export const RETURN_PRODUCT_FIELDS: Prisma.ProductsSelect = {
   attributes: true,
@@ -20,4 +21,19 @@ export const RETURN_PRODUCT_FIELDS: Prisma.ProductsSelect = {
   },
   additianal_information: true,
   dimensions: true,
+  brand: true,
+  reviews: {
+    select: {
+      id: true,
+      description: true,
+      user: {
+        select: {
+          ...RETURN_USER_OBJECT,
+          createdAt: false,
+          updatedAt: false,
+          featured: false,
+        },
+      },
+    },
+  },
 }

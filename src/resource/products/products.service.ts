@@ -215,7 +215,6 @@ export class ProductsService {
         poster: dto.poster,
         price: dto.price,
         slug: slugName,
-        brand: dto.brand,
         productType: dto.productType,
         categoryId: dto.categoryId,
       },
@@ -234,6 +233,9 @@ export class ProductsService {
       await this.getProducById(id)
 
       const filterd = this.checkExistData<UpdateProductDTO>(dto)
+
+      // TEMP
+      // const productBrand = await this.Prisma.productBrand.findUnique({where:{id: dto.brandId}})
 
       // GENERATE SLUG FOR PRODUCT
       const slugName = Slugify(filterd.title, {
