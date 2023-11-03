@@ -261,6 +261,11 @@ export class ProductsService {
     return await this.Prisma.products.delete({ where: { id } })
   }
 
+  /**
+   *
+   * @param dto
+   * @returns Filter
+   */
   private createFilter(dto: FiltersDto): Prisma.ProductsWhereInput {
     const filters: Prisma.ProductsWhereInput[] = []
     if (dto.searchTerm) filters.push(this.searchFilter(dto.searchTerm))
