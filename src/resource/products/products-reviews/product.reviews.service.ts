@@ -14,7 +14,7 @@ import {
 @Injectable()
 export class ProductReviewsService {
   constructor(
-    private readonly PrismaService: PrismaService,
+    private readonly prismaSevice: PrismaService,
     private readonly productService: ProductsService,
     private readonly userService: UserService,
   ) {}
@@ -30,7 +30,7 @@ export class ProductReviewsService {
       const product = await this.productService.getProducById(dto.productId)
       const user = await this.userService.findUserById(userId)
 
-      await this.PrismaService.products.update({
+      await this.prismaSevice.products.update({
         where: { id: product.id },
         data: {
           totalReviews: {
@@ -39,7 +39,7 @@ export class ProductReviewsService {
         },
       })
 
-      const newReview = await this.PrismaService.productsReviews.create({
+      const newReview = await this.prismaSevice.productsReviews.create({
         data: {
           description: dto.description,
           productid: product.id,
@@ -60,7 +60,7 @@ export class ProductReviewsService {
   async update(reviewId: number, dto: UpdateProductReviewsDTO) {
     try {
       const review = await this.findById(reviewId)
-      const updatedReview = await this.PrismaService.productsReviews.update({
+      const updatedReview = await this.prismaSevice.productsReviews.update({
         where: { id: review.id },
         data: {
           description: dto.description,
@@ -78,7 +78,7 @@ export class ProductReviewsService {
    */
   async findById(id: number) {
     try {
-      const review = await this.PrismaService.productsReviews.findUnique({
+      const review = await this.prismaSevice.productsReviews.findUnique({
         where: { id },
       })
       if (!review)
@@ -97,7 +97,7 @@ export class ProductReviewsService {
       const review = await this.findById(id)
       if (!review)
         throw new BadRequestException('Отзыв не найден. Удаление невозможно')
-      return await this.PrismaService.productsReviews.delete({ where: { id } })
+      return await this.prismaSevice.productsReviews.delete({ where: { id } })
     } catch (err) {
       throw new InternalServerErrorException(err)
     }

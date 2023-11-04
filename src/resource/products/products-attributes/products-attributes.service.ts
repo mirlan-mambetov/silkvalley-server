@@ -11,12 +11,12 @@ import { ProductsService } from '../products.service'
 @Injectable()
 export class ProductsAttributesService {
   constructor(
-    private readonly Prisma: PrismaService,
+    private readonly prismaSevice: PrismaService,
     private readonly productService: ProductsService,
   ) {}
 
   async findById(id: number) {
-    const attribute = await this.Prisma.productAttributes.findUnique({
+    const attribute = await this.prismaSevice.productAttributes.findUnique({
       where: { id },
     })
     if (!attribute)
@@ -29,14 +29,14 @@ export class ProductsAttributesService {
     try {
       const product = await this.productService.getProducById(+productId)
       if (!product.attributes.length) {
-        await this.Prisma.productAttributes.create({
+        await this.prismaSevice.productAttributes.create({
           data: {
             ...dto,
             productId: product.id,
           },
         })
       } else {
-        await this.Prisma.productAttributes.updateMany({
+        await this.prismaSevice.productAttributes.updateMany({
           where: { productId: product.id },
           data: { ...dto },
         })
@@ -47,12 +47,12 @@ export class ProductsAttributesService {
   }
 
   async update(id: number, dto: CreateProductAttributesDto) {
-    const attribute = await this.Prisma.productAttributes.findUnique({
+    const attribute = await this.prismaSevice.productAttributes.findUnique({
       where: { id },
     })
     if (!attribute)
       throw new NotFoundException('Аттрибут не найден по такому ID')
-    return await this.Prisma.productAttributes.update({
+    return await this.prismaSevice.productAttributes.update({
       where: { id },
       data: {
         ...dto,

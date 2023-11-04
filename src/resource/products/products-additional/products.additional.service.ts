@@ -10,7 +10,7 @@ import { ProductsAdditionalDTO } from './dto/products.addtional.dto'
 @Injectable()
 export class AdditionalInformationService {
   constructor(
-    private readonly Prisma: PrismaService,
+    private readonly prismaSevice: PrismaService,
     private readonly productsService: ProductsService,
   ) {}
 
@@ -21,7 +21,7 @@ export class AdditionalInformationService {
    */
   async create(productId: number, dto: ProductsAdditionalDTO) {
     try {
-      return await this.Prisma.productAdditianalInformation.create({
+      return await this.prismaSevice.productAdditianalInformation.create({
         data: {
           name: dto.name,
           value: dto.value,
@@ -35,12 +35,13 @@ export class AdditionalInformationService {
 
   async update(id: number, dto: ProductsAdditionalDTO) {
     try {
-      const isExist = await this.Prisma.productAdditianalInformation.findUnique(
-        { where: { id } },
-      )
+      const isExist =
+        await this.prismaSevice.productAdditianalInformation.findUnique({
+          where: { id },
+        })
       if (!isExist)
         throw new BadRequestException('Данная информация не существует')
-      return await this.Prisma.productAdditianalInformation.update({
+      return await this.prismaSevice.productAdditianalInformation.update({
         where: { id },
         data: {
           name: dto.name,

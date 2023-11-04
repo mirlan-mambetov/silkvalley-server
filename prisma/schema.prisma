@@ -65,6 +65,7 @@ model Products {
 
   category ProductCategory @relation(fields: [categoryId], references: [id])
   categoryId Int @map("category_id")
+  
   attributes ProductAttributes[]
 
   exclusive Boolean? @default(false)

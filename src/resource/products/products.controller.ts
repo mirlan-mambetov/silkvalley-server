@@ -62,6 +62,13 @@ export class ProductsController {
     return await this.productsService.getProductsByCategory(queryDto)
   }
 
+  // GET PRODUCT BY BRAND ID
+  @Get('by-brand/:id')
+  @HttpCode(HttpStatus.OK)
+  async getProductByBrand(@Param('id', ParseIntPipe) brandId: number) {
+    return await this.productsService.getProductsByBrand(brandId)
+  }
+
   // GET PRODUCT BY SLUG
   @Get('by-slug/:slug')
   @HttpCode(HttpStatus.OK)

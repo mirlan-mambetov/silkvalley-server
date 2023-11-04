@@ -4,6 +4,7 @@ import { CategoryModule } from 'src/resource/category/category.module'
 import { PaginationService } from 'src/resource/pagination/pagination.service'
 import { UserService } from 'src/resource/user/user.service'
 import { ProductsAttributesModule } from '../products-attributes/products-attributes.module'
+import { ProductsBrandService } from '../products-brand/products.brand.service'
 import { ProductsImagesModule } from '../products-images/products-images.module'
 import { ProductsModule } from '../products.module'
 import { ProductsService } from '../products.service'
@@ -18,6 +19,7 @@ import { ProductReviewsService } from './product.reviews.service'
     ProductsService,
     PaginationService,
     UserService,
+    ProductsBrandService,
   ],
   imports: [
     ProductsModule,

@@ -16,13 +16,15 @@ import { RETURN_PRODUCT_FIELDS } from './constants/return.product.fields'
 import { CreateProductDTO } from './dto/create.product.dto'
 import { FiltersDto } from './dto/filters.dto'
 import { UpdateProductDTO } from './dto/update.product.dto'
+import { ProductsBrandService } from './products-brand/products.brand.service'
 
 @Injectable()
 export class ProductsService {
   constructor(
-    private readonly Prisma: PrismaService,
+    private readonly prismaSevice: PrismaService,
     private readonly categoryService: CategoryService,
     private readonly paginationService: PaginationService,
+    private readonly productBrandService: ProductsBrandService,
   ) {}
 
   /**
@@ -31,7 +33,7 @@ export class ProductsService {
   async getAllProducts(searchTerm?: string) {
     try {
       const filter = this.createFilter({ searchTerm })
-      return await this.Prisma.products.findMany({
+      return await this.prismaSevice.products.findMany({
         where: filter,
         include: { ...RETURN_PRODUCT_FIELDS },
         orderBy: {
@@ -48,7 +50,7 @@ export class ProductsService {
    * @returns Product
    */
   async getProducById(id: number) {
-    const product = await this.Prisma.products.findUnique({
+    const product = await this.prismaSevice.products.findUnique({
       where: { id },
       include: {
         ...RETURN_PRODUCT_FIELDS,
@@ -65,13 +67,13 @@ export class ProductsService {
    */
   async getProductBySlug(slug: string) {
     try {
-      const product = await this.Prisma.products.findUnique({
+      const product = await this.prismaSevice.products.findUnique({
         where: { slug },
       })
       if (!product)
         throw new NotFoundException(`Продукт по такому SLUG: ${slug} не найден`)
 
-      const updatedProduct = await this.Prisma.products.update({
+      const updatedProduct = await this.prismaSevice.products.update({
         where: {
           id: product.id,
         },
@@ -90,7 +92,7 @@ export class ProductsService {
 
   async getPopularProducts() {
     try {
-      const products = await this.Prisma.products.findMany({
+      const products = await this.prismaSevice.products.findMany({
         where: {
           views: {
             gt: 10,
@@ -109,7 +111,7 @@ export class ProductsService {
 
   async getProductsByType(type: EnumProductType) {
     try {
-      const products = await this.Prisma.products.findMany({
+      const products = await this.prismaSevice.products.findMany({
         where: {
           productType: {
             equals: type,
@@ -128,7 +130,7 @@ export class ProductsService {
     try {
       const filter = this.createFilter(filters)
       const { perPage, skip } = this.paginationService.getPagination(filters)
-      const products = await this.Prisma.products.findMany({
+      const products = await this.prismaSevice.products.findMany({
         where: {
           ...filter,
         },
@@ -149,7 +151,7 @@ export class ProductsService {
    */
   async getSimilar(productId: number) {
     const product = await this.getProducById(productId)
-    const similar = await this.Prisma.products.findMany({
+    const similar = await this.prismaSevice.products.findMany({
       where: {
         category: {
           name: product.category.name,
@@ -172,7 +174,7 @@ export class ProductsService {
    */
   async getExclusiveProducts() {
     try {
-      const exclusives = await this.Prisma.products.findMany({
+      const exclusives = await this.prismaSevice.products.findMany({
         where: {
           exclusive: true,
         },
@@ -180,6 +182,19 @@ export class ProductsService {
       if (!exclusives)
         throw new BadRequestException('Нет эксклюзивных продуктов')
       return exclusives
+    } catch (err) {
+      throw new InternalServerErrorException(err)
+    }
+  }
+
+  async getProductsByBrand(brandId: number) {
+    try {
+      const products = await this.prismaSevice.products.findMany({
+        where: {
+          brandId,
+        },
+      })
+      return products
     } catch (err) {
       throw new InternalServerErrorException(err)
     }
@@ -197,18 +212,15 @@ export class ProductsService {
       trim: true,
     })
 
-    if (dto.categoryId)
-      await this.categoryService.findProductCategoryById(dto.categoryId)
+    await this.categoryService.findProductCategoryById(dto.categoryId)
     // CHECK ISALREADY PRODUCT IN DATABASE
-    const isExist = await this.Prisma.products.findUnique({
+    const isExist = await this.prismaSevice.products.findUnique({
       where: { title: dto.title },
     })
-
-    // // IF EXIST ON DATA BASE
     if (isExist) throw new BadRequestException(MESSAGE_PRODUCT_FOUND)
 
     // ELSE CREATE PRODUCT
-    const product = await this.Prisma.products.createMany({
+    const product = await this.prismaSevice.products.createMany({
       data: {
         title: dto.title,
         description: dto.description,
@@ -217,6 +229,7 @@ export class ProductsService {
         slug: slugName,
         productType: dto.productType,
         categoryId: dto.categoryId,
+        brandId: dto.brandId,
       },
     })
     return product
@@ -230,27 +243,39 @@ export class ProductsService {
    */
   async updateProduct(id: number, dto: UpdateProductDTO) {
     try {
+      // CHEck exist current product
       await this.getProducById(id)
 
+      // FILTERD DATA
       const filterd = this.checkExistData<UpdateProductDTO>(dto)
 
-      // TEMP
-      // const productBrand = await this.Prisma.productBrand.findUnique({where:{id: dto.brandId}})
+      // CHeck exist current brand
+      if (dto.brandId) await this.productBrandService.findById(filterd.brandId)
 
       // GENERATE SLUG FOR PRODUCT
-      const slugName = Slugify(filterd.title, {
-        lower: true,
-        trim: true,
-      })
-      await this.Prisma.products.update({
-        where: { id },
-        data: {
-          ...filterd,
-          slug: slugName,
-        },
-      })
+      if (filterd.title) {
+        const slugName = Slugify(filterd.title, {
+          lower: true,
+          trim: true,
+        })
+        await this.prismaSevice.products.update({
+          where: { id },
+          data: {
+            ...filterd,
+            slug: slugName,
+          },
+        })
+      } else {
+        await this.prismaSevice.products.update({
+          where: { id },
+          data: {
+            ...filterd,
+          },
+        })
+      }
     } catch (err) {
-      throw new InternalServerErrorException(err)
+      // throw new InternalServerErrorException(err)
+      console.log(err)
     }
   }
 
@@ -260,7 +285,7 @@ export class ProductsService {
    * @description Deleted product
    */
   async deleteProduct(id: number) {
-    return await this.Prisma.products.delete({ where: { id } })
+    return await this.prismaSevice.products.delete({ where: { id } })
   }
 
   /**

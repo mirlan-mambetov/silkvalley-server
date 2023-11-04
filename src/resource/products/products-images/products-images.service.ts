@@ -11,7 +11,7 @@ import { ProductsService } from '../products.service'
 @Injectable()
 export class ProductsImagesService {
   constructor(
-    private readonly Prisma: PrismaService,
+    private readonly prismaSevice: PrismaService,
     private readonly productService: ProductsService,
   ) {}
 
@@ -20,7 +20,9 @@ export class ProductsImagesService {
    * @returns Product Images
    */
   async getById(id: number) {
-    const images = await this.Prisma.productImages.findUnique({ where: { id } })
+    const images = await this.prismaSevice.productImages.findUnique({
+      where: { id },
+    })
     if (!images)
       throw new NotFoundException('Изображения по такому ID не найдены')
     return images
@@ -32,7 +34,7 @@ export class ProductsImagesService {
    */
   async findWithColor(productId: number, color: string) {
     try {
-      const images = await this.Prisma.productImages.findMany({
+      const images = await this.prismaSevice.productImages.findMany({
         where: {
           productId: Number(productId),
           AND: {
@@ -56,7 +58,7 @@ export class ProductsImagesService {
    */
   async create(productId: number, dto: CreateProductImagesDto) {
     const product = await this.productService.getProducById(+productId)
-    const images = await this.Prisma.productImages.create({
+    const images = await this.prismaSevice.productImages.create({
       data: {
         productId: product.id,
         color: dto.color,
@@ -72,10 +74,12 @@ export class ProductsImagesService {
    * @returns Product
    */
   async update(id: number, dto: CreateProductImagesDto) {
-    const image = await this.Prisma.productImages.findUnique({ where: { id } })
+    const image = await this.prismaSevice.productImages.findUnique({
+      where: { id },
+    })
     if (!image)
       throw new NotFoundException('Аттрибут картинки по такому ID не найден')
-    return await this.Prisma.productImages.update({
+    return await this.prismaSevice.productImages.update({
       where: {
         id,
       },

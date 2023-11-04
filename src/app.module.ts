@@ -10,6 +10,7 @@ import { CategoryModule } from './resource/category/category.module'
 import { PaginationModule } from './resource/pagination/pagination.module'
 import { AdditionalInformationModule } from './resource/products/products-additional/products.additional.module'
 import { ProductsAttributesModule } from './resource/products/products-attributes/products-attributes.module'
+import { ProductsBrandModule } from './resource/products/products-brand/products.brand.module'
 import { ProductsDimensionsModule } from './resource/products/products-dimensions/products.dimensions.module'
 import { ProductsImagesModule } from './resource/products/products-images/products-images.module'
 import { ProductsReviewsModule } from './resource/products/products-reviews/product.reviews.module'
@@ -32,6 +33,7 @@ import { UserModule } from './resource/user/user.module'
     ProductsAttributesModule,
     ProductsReviewsModule,
     PaginationModule,
+    ProductsBrandModule,
   ],
   controllers: [AppController],
 
