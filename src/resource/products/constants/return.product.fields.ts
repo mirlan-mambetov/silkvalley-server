@@ -26,6 +26,8 @@ export const RETURN_PRODUCT_FIELDS: Prisma.ProductsSelect = {
     select: {
       id: true,
       description: true,
+      createdAt: true,
+      updatedAt: true,
       user: {
         select: {
           ...RETURN_USER_OBJECT,

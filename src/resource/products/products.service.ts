@@ -9,6 +9,7 @@ import Slugify from 'slugify'
 import { EnumProductSort } from 'src/enums/Filter.enum'
 import { PrismaService } from 'src/prisma.service'
 import { SortType } from 'types/sortTypes'
+import { v4 as uuid } from 'uuid'
 import { CategoryService } from '../category/category.service'
 import { PaginationService } from '../pagination/pagination.service'
 import { MESSAGE_PRODUCT_FOUND } from './constants/message.constants'
@@ -211,6 +212,7 @@ export class ProductsService {
       lower: true,
       trim: true,
     })
+    const uniqueKey = uuid({ random: { length: 10 } })
 
     await this.categoryService.findProductCategoryById(dto.categoryId)
     // CHECK ISALREADY PRODUCT IN DATABASE
@@ -226,7 +228,7 @@ export class ProductsService {
         description: dto.description,
         poster: dto.poster,
         price: dto.price,
-        slug: slugName,
+        slug: `${slugName}--${uniqueKey}`,
         productType: dto.productType,
         categoryId: dto.categoryId,
         brandId: dto.brandId,
