@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   HttpCode,
   HttpStatus,
   Param,
@@ -23,6 +24,12 @@ import { ProductReviewsService } from './product.reviews.service'
 export class ProductReviewsController {
   constructor(private readonly productReviewService: ProductReviewsService) {}
 
+  @Get(':id')
+  @Auth()
+  @HttpCode(HttpStatus.CREATED)
+  async findById(@Param('id', ParseIntPipe) id: number) {
+    return await this.productReviewService.findById(id)
+  }
   /**
    *
    * @param userId

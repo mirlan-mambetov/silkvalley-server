@@ -37,5 +37,8 @@ export const RETURN_PRODUCT_FIELDS: Prisma.ProductsSelect = {
         },
       },
     },
+    orderBy: {
+      createdAt: 'desc',
+    },
   },
 }
