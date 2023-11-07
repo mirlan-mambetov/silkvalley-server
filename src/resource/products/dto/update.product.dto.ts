@@ -54,5 +54,5 @@ export class UpdateProductDTO {
 
   @IsOptional()
   @IsEnum(EnumProductType)
-  productType: EnumProductType
+  productType?: EnumProductType
 }

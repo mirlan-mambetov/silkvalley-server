@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common'
 import { EnumProductType, Prisma } from '@prisma/client'
+import { DefaultArgs } from '@prisma/client/runtime/library'
 import Slugify from 'slugify'
 import { EnumProductSort } from 'src/enums/Filter.enum'
 import { PrismaService } from 'src/prisma.service'
@@ -243,17 +244,19 @@ export class ProductsService {
    * @param imgId
    * @returns Created Product
    */
-  async updateProduct(id: number, dto: UpdateProductDTO) {
+  async updateProduct(
+    id: number,
+    dto: UpdateProductDTO,
+    updatedObjec?: Prisma.ProductsUpdateArgs<DefaultArgs>,
+  ) {
     try {
       // CHEck exist current product
       await this.getProducById(id)
 
       // FILTERD DATA
       const filterd = this.checkExistData<UpdateProductDTO>(dto)
-
       // CHeck exist current brand
       if (dto.brandId) await this.productBrandService.findById(filterd.brandId)
-
       // GENERATE SLUG FOR PRODUCT
       if (filterd.title) {
         const slugName = Slugify(filterd.title, {
@@ -264,6 +267,7 @@ export class ProductsService {
           where: { id },
           data: {
             ...filterd,
+            rating: +filterd.rating,
             slug: slugName,
           },
         })
@@ -272,6 +276,7 @@ export class ProductsService {
           where: { id },
           data: {
             ...filterd,
+            rating: +filterd.rating,
           },
         })
       }
@@ -290,6 +295,40 @@ export class ProductsService {
     return await this.prismaSevice.products.delete({ where: { id } })
   }
 
+  async setRatingToProduct(userId: number, productId: number, rating: number) {
+    try {
+      const product = await this.getProducById(productId)
+
+      const isExistVoice = product.voices.some(
+        (voice) => voice.userId === userId,
+      )
+      if (isExistVoice)
+        throw new BadRequestException('Вы уже поставили рейтинг')
+
+      await this.prismaSevice.productVoices.create({
+        data: {
+          productId: product.id,
+          userId,
+        },
+      })
+
+      const totalRating = product.rating + rating
+      const totalVoices = product.voices.length
+      const newRating = totalVoices > 0 ? totalRating / totalVoices / 5 : 1
+
+      await this.prismaSevice.products.update({
+        where: {
+          id: product.id,
+        },
+        data: {
+          rating: newRating,
+        },
+      })
+    } catch (err) {
+      throw new InternalServerErrorException(err)
+    }
+  }
+
   /**
    *
    * @param dto
@@ -298,7 +337,6 @@ export class ProductsService {
   private createFilter(dto: FiltersDto): Prisma.ProductsWhereInput {
     const filters: Prisma.ProductsWhereInput[] = []
     if (dto.searchTerm) filters.push(this.searchFilter(dto.searchTerm))
-    if (dto.rating) filters.push(this.ratingFilter(Number(dto.rating)))
     if (dto.categoryId)
       filters.push(this.categoryFilter({ categoryId: +dto.categoryId }))
     if (dto.mainCategoryId)
@@ -325,6 +363,8 @@ export class ProductsService {
         return [{ views: { sort: 'asc' } }]
       case EnumProductSort.VIEWS:
         return [{ views: { sort: 'desc' } }]
+      case EnumProductSort.RATING:
+        return [{ rating: 'desc' }]
     }
   }
 
@@ -374,7 +414,7 @@ export class ProductsService {
   private ratingFilter(rating: number): Prisma.ProductsWhereInput {
     return {
       rating: {
-        equals: rating,
+        gte: rating,
       },
     }
   }

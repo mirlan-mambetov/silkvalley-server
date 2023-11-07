@@ -41,4 +41,5 @@ export const RETURN_PRODUCT_FIELDS: Prisma.ProductsSelect = {
       createdAt: 'desc',
     },
   },
+  voices: true,
 }

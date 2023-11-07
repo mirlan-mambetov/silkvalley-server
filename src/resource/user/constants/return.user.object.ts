@@ -11,6 +11,12 @@ export const RETURN_USER_OBJECT: Prisma.UserSelect = {
       images: true,
     },
   },
+  voices: {
+    select: {
+      product: true,
+    },
+  },
+  reviews: true,
   createdAt: true,
   updatedAt: true,
 }

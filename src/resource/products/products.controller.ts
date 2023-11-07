@@ -14,6 +14,8 @@ import {
   ValidationPipe,
 } from '@nestjs/common'
 import { EnumProductType } from '@prisma/client'
+import { Auth } from '../auth/decarators/auth.decarator'
+import { CurrentUser } from '../user/decarators/current.user'
 import { CreateProductDTO } from './dto/create.product.dto'
 import { FiltersDto } from './dto/filters.dto'
 import { UpdateProductDTO } from './dto/update.product.dto'
@@ -88,6 +90,22 @@ export class ProductsController {
   @HttpCode(HttpStatus.OK)
   async getProductById(@Param('id', ParseIntPipe) id: number) {
     return await this.productsService.getProducById(id)
+  }
+
+  // SET RATING
+  @Post('rating')
+  @Auth()
+  @HttpCode(HttpStatus.CREATED)
+  @UsePipes(new ValidationPipe())
+  async setRatingToProduct(
+    @CurrentUser('id') userId: number,
+    @Body() dto: { rating: number; productId: number },
+  ) {
+    return await this.productsService.setRatingToProduct(
+      userId,
+      dto.productId,
+      dto.rating,
+    )
   }
 
   // CREATE PRODUCT
