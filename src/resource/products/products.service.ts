@@ -213,7 +213,7 @@ export class ProductsService {
       lower: true,
       trim: true,
     })
-    const uniqueKey = uuid({ random: { length: 10 } })
+    const uniqueKey = uuid()
 
     await this.categoryService.findProductCategoryById(dto.categoryId)
     // CHECK ISALREADY PRODUCT IN DATABASE
@@ -267,7 +267,6 @@ export class ProductsService {
           where: { id },
           data: {
             ...filterd,
-            rating: +filterd.rating,
             slug: slugName,
           },
         })
@@ -276,7 +275,6 @@ export class ProductsService {
           where: { id },
           data: {
             ...filterd,
-            rating: +filterd.rating,
           },
         })
       }
