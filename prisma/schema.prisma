@@ -9,3 +9,59 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+//#### PRODUCT
+model Product {
+  id  Int @id @default(autoincrement())
+
+  title String
+
+  subtitle String @map("sub_title")
+
+  description String
+
+  alias String
+
+  poster String
+
+  price Int
+
+  article Int
+
+  rating Int?
+
+  video String? 
+
+  discount Int?
+
+  isHit Boolean? @map("is_hit") @default(false)
+
+  isNew Boolean? @map("is_new") @default(false)
+
+  specification ProductSpecification[]
+
+}
+//#### SPECIFICATIONS
+model ProductSpecification {
+  id            Int @id @default(autoincrement())
+
+  attribute Productattribute[]
+
+  productId     Int @map("product_id")
+  product       Product  @relation(fields: [productId], references: [id])
+
+  @@map("product_specification")
+}
+//#### ATTRIBUTES
+model Productattribute {
+  id            Int @id @default(autoincrement())
+
+  name          String
+
+  value   String
+
+  specification ProductSpecification @relation(fields: [id], references: [id])
+  specificationId Int @map("specification_id")
+
+  @@map("attribute")
+}
