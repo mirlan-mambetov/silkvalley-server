@@ -1,13 +1,11 @@
 import { Module } from '@nestjs/common'
-import { APP_FILTER } from '@nestjs/core'
 // import { ServeStaticModule } from '@nestjs/serve-static'
 import { ConfigModule } from '@nestjs/config'
 import { AppController } from './app.controller'
-import { NotFoundExceptionFilter } from './filters/NotFound.filters'
 import { PrismaService } from './prisma.service'
-import { ProductModule } from './resources/product/product.module';
-import { ProductSpecificationModule } from './resources/product.specification/product.specification.module';
-import { ProductAttributeModule } from './resources/product.attribute/product.attribute.module';
+import { ProductAttributeModule } from './resources/product.attribute/product.attribute.module'
+import { ProductSpecificationModule } from './resources/product.specification/product.specification.module'
+import { ProductModule } from './resources/product/product.module'
 
 @Module({
   imports: [
@@ -21,12 +19,6 @@ import { ProductAttributeModule } from './resources/product.attribute/product.at
   ],
   controllers: [AppController],
 
-  providers: [
-    PrismaService,
-    {
-      provide: APP_FILTER,
-      useClass: NotFoundExceptionFilter,
-    },
-  ],
+  providers: [PrismaService],
 })
 export class AppModule {}

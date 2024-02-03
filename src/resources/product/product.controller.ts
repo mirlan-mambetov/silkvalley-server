@@ -7,7 +7,10 @@ import {
   HttpStatus,
   Post,
   Put,
+  UseInterceptors,
 } from '@nestjs/common'
+import { FileInterceptor } from '@nestjs/platform-express'
+import { uploadHelper } from 'src/helpers/upload.helper'
 import { CreateProductDTO } from './data-transfer/data.transfer'
 import { ProductService } from './product.service'
 
@@ -17,8 +20,9 @@ export class ProductController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @UseInterceptors(FileInterceptor('file', { ...uploadHelper('product') }))
   async create(@Body() dto: CreateProductDTO) {
-    return this.productService.create(dto)
+    // return this.productService.create(dto)
   }
 
   @Put()
