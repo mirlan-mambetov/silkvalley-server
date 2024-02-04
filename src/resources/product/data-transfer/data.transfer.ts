@@ -1,16 +1,16 @@
 import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator'
 
 export class CreateProductDTO {
-  @IsString()
+  @IsString({ message: 'Название товара не может быть пустым' })
   title: string
 
-  @IsString()
+  @IsString({ message: 'Подзаголовок не может быть пустым' })
   subtitle: string
 
-  @IsString()
+  @IsString({ message: 'Описание товара не может быть пустым' })
   description: string
 
-  @IsNumber()
+  @IsString({ message: 'Цена товара не может быть пустым' })
   price: number
 
   @IsOptional()

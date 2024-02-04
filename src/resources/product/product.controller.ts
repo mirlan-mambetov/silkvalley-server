@@ -7,9 +7,13 @@ import {
   HttpStatus,
   Post,
   Put,
+  UploadedFile,
   UseInterceptors,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express'
+import { PRODUCT_UPLOAD_PATH } from 'src/constants/upload.constants'
 import { uploadHelper } from 'src/helpers/upload.helper'
 import { CreateProductDTO } from './data-transfer/data.transfer'
 import { ProductService } from './product.service'
@@ -20,9 +24,15 @@ export class ProductController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @UseInterceptors(FileInterceptor('file', { ...uploadHelper('product') }))
-  async create(@Body() dto: CreateProductDTO) {
-    // return this.productService.create(dto)
+  @UsePipes(new ValidationPipe())
+  @UseInterceptors(
+    FileInterceptor('poster', { ...uploadHelper(PRODUCT_UPLOAD_PATH) }),
+  )
+  async create(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() dto: CreateProductDTO,
+  ) {
+    return this.productService.create(dto, file.filename)
   }
 
   @Put()
