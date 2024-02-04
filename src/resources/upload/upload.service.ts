@@ -12,34 +12,42 @@ export class UploadService {
    * @param destinationPath
    * @returns SAVED FILE TO STORAGE
    */
-  saveFile(file: Express.Multer.File, destinationPath?: string) {
+  saveFile(
+    file: Express.Multer.File,
+    destinationPath?: string,
+  ): Promise<{ filePath: string; message: string }> {
     const dest = destinationPath
       ? `${BASE_UPLOAD_PATH}/${destinationPath}`
       : BASE_UPLOAD_PATH
     const uniqueName = uuid()
     const fileName = file.originalname.split('.')[0]
     const fileExtName = path.extname(file.originalname)
-
+    const fullName = `${dest}/${fileName}-${uniqueName}${fileExtName}`
     return new Promise((resolve, reject) => {
       if (!fs.existsSync(dest)) {
         fs.mkdirSync(dest, { recursive: true })
-        fs.writeFile(
-          `${dest}/${fileName}-${uniqueName}${fileExtName}`,
-          file.buffer,
-          (err) => {
-            if (err) reject(err)
-            else resolve('Файл успешно загружен!')
-          },
-        )
       }
+      fs.writeFile(`${fullName}`, file.buffer, (err) => {
+        if (err) reject(err)
+        else
+          resolve({
+            filePath: fullName.replace('public', ''),
+            message: 'Файл успешно загружен!',
+          })
+      })
     })
   }
 
-  deleteFile(pathName: string) {
+  /**
+   *
+   * @param pathName
+   * @returns Message string
+   */
+  deleteFile(pathName: string): Promise<{ message: string }> {
     return new Promise((resolve, reject) => {
       if (pathName) {
         fs.unlinkSync(`public${pathName}`)
-        resolve('Файл успешно удален')
+        resolve({ message: 'Файл успешно удален' })
       } else {
         reject('Не известая ошибка сервера')
       }
@@ -50,7 +58,7 @@ export class UploadService {
    *
    * @returns [] OF PATHS FILES
    */
-  filndAllFilesPaths() {
+  filndAllFilesPaths(): string[] {
     const paths: string[] = []
     function traverse(directoryPath: string) {
       const dirContents = fs.readdirSync(directoryPath)
