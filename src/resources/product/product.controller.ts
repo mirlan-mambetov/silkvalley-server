@@ -5,17 +5,15 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Param,
+  ParseIntPipe,
   Post,
   Put,
-  UploadedFile,
-  UseInterceptors,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common'
-import { FileInterceptor } from '@nestjs/platform-express'
-import { PRODUCT_UPLOAD_PATH } from 'src/constants/upload.constants'
-import { uploadHelper } from 'src/helpers/upload.helper'
-import { CreateProductDTO } from './data-transfer/data.transfer'
+import { CreateProductDTO } from './data-transfer/create.data.transfer'
+import { UpdateProductDTO } from './data-transfer/update.data.transfer'
 import { ProductService } from './product.service'
 
 @Controller('product')
@@ -25,49 +23,46 @@ export class ProductController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @UsePipes(new ValidationPipe())
-  @UseInterceptors(
-    FileInterceptor('poster', { ...uploadHelper(PRODUCT_UPLOAD_PATH) }),
-  )
-  async create(
-    @UploadedFile() file: Express.Multer.File,
-    @Body() dto: CreateProductDTO,
-  ) {
-    return this.productService.create(dto, file.filename)
+  async create(@Body() dto: CreateProductDTO) {
+    return await this.productService.create(dto)
   }
 
-  @Put()
+  @Put(':id')
   @HttpCode(HttpStatus.OK)
-  async update() {
-    return this.productService.update()
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateProductDTO,
+  ) {
+    return await this.productService.update(id, dto)
   }
 
   @Delete()
   @HttpCode(HttpStatus.OK)
   async delete() {
-    return this.productService.delete()
+    return await this.productService.delete()
+  }
+
+  @Get(':id')
+  @HttpCode(HttpStatus.OK)
+  async findOneById(@Param('id', ParseIntPipe) id: number) {
+    return await this.productService.findOneById(id)
   }
 
   @Get(':alias')
   @HttpCode(HttpStatus.OK)
   async findOneByAlias() {
-    return this.productService.findOneByAlias()
-  }
-
-  @Get(':id')
-  @HttpCode(HttpStatus.OK)
-  async findOneById() {
-    return this.productService.findOneById()
+    return await this.productService.findOneByAlias()
   }
 
   @Get('')
   @HttpCode(HttpStatus.OK)
   async findAll() {
-    return this.productService.findAll()
+    return await this.productService.findAll()
   }
 
   @Get('similar/:id')
   @HttpCode(HttpStatus.OK)
   async findSimilar() {
-    return this.productService.findSimilar()
+    return await this.productService.findSimilar()
   }
 }
