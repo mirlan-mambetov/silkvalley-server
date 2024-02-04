@@ -26,7 +26,7 @@ model Product {
 
   price Int
 
-  article String
+  articleNumber String @unique @map("article_number")
 
   rating Int?
 
