@@ -26,7 +26,7 @@ model Product {
 
   price Int
 
-  article Int
+  article String
 
   rating Int?
 
@@ -39,6 +39,8 @@ model Product {
   isNew Boolean? @map("is_new") @default(false)
 
   specification ProductSpecification[]
+
+  quantity Int @default(1)
 
 }
 //#### SPECIFICATIONS
