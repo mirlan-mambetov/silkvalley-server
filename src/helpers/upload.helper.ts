@@ -4,6 +4,13 @@ import { extname } from 'path'
 import { BASE_UPLOAD_PATH } from 'src/constants/upload.constants'
 import { v4 as uuid } from 'uuid'
 
+/**
+ *
+ * @param destinationPath
+ * @returns
+ * @deprecated
+ * @description This helper not a using. Deprecated
+ */
 export const uploadHelper = (destinationPath?: string) => ({
   storage: diskStorage({
     destination: (req, file, cb) => {
