@@ -1,8 +1,12 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import slugify from 'slugify'
 import { generateProductId } from 'src/helpers/generate.id'
-import { ProductInput } from 'src/interfaces/Product.interface'
+import { IProduct } from 'src/interfaces/Product.interface'
 import { PrismaService } from 'src/prisma.service'
 import { CreateProductDTO } from './data-transfer/create.data.transfer'
 import { UpdateProductDTO } from './data-transfer/update.data.transfer'
@@ -20,10 +24,14 @@ export class ProductService {
    * @description Создание продукта (Товара)
    */
   async create(dto: CreateProductDTO) {
-    const productData = this.savedFields<Prisma.ProductCreateInput>(dto)
-    return await this.prismaSevice.product.create({
-      data: productData,
-    })
+    try {
+      const productData = this.savedFields<Prisma.ProductCreateInput>(dto)
+      return await this.prismaSevice.product.create({
+        data: productData,
+      })
+    } catch (err) {
+      throw new BadRequestException()
+    }
   }
 
   /**
@@ -73,7 +81,7 @@ export class ProductService {
    * @param dto Входные данные для создания или обновления продукта.
    * @returns Поля для создания или обновления продукта.
    */
-  private savedFields<T>(dto: ProductInput): T {
+  private savedFields<T>(dto: IProduct): T {
     const aliasName = dto.title
       ? slugify(dto.title, { lower: true, locale: 'eng' })
       : null

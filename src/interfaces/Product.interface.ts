@@ -1,4 +1,4 @@
-export interface ProductInput {
+export interface IProduct {
   title: string
   description: string
   poster: string
