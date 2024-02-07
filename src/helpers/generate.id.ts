@@ -1,4 +1,4 @@
-export function generateProductId(length: number = 10) {
+export function generateProductId(length: number = 5) {
   let result = ''
   const characters = '0123456789'
   const charactersLength = characters.length

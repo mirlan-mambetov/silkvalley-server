@@ -8,13 +8,20 @@ import slugify from 'slugify'
 import { generateProductId } from 'src/helpers/generate.id'
 import { IProduct } from 'src/interfaces/Product.interface'
 import { PrismaService } from 'src/prisma.service'
+import { UploadService } from '../upload/upload.service'
 import { CreateProductDTO } from './data-transfer/create.data.transfer'
 import { UpdateProductDTO } from './data-transfer/update.data.transfer'
-import { returnProductFields } from './objects/return.product.fields'
+import {
+  returnProductFields,
+  returnProductUniqueFields,
+} from './objects/return.product.fields'
 
 @Injectable()
 export class ProductService {
-  constructor(private readonly prismaSevice: PrismaService) {}
+  constructor(
+    private readonly prismaSevice: PrismaService,
+    private readonly uploadService: UploadService,
+  ) {}
 
   /**
    *
@@ -44,30 +51,49 @@ export class ProductService {
    * @returns Обновленный продукт (Товар)
    */
   async update(id: number, dto: UpdateProductDTO) {
-    await this.findOneById(id)
+    const product = await this.findOneById(id)
+    if (dto.poster.length) {
+      await this.uploadService.deleteFile(product.poster)
+    }
     const productData = this.savedFields<Prisma.ProductUpdateInput>(dto)
-    return await this.prismaSevice.product.update({
+    await this.prismaSevice.product.update({
       where: { id },
       data: productData,
     })
+    return {
+      message: 'Товар успешно обновлен',
+    }
   }
 
   async delete() {}
 
-  async findOneByAlias() {}
+  /**
+   *
+   * @param alias Вывод продукта по [alias]
+   * @returns Возвращает один продукт, если найден
+   */
+  async findOneByAlias(alias: string) {
+    const product = await this.prismaSevice.product.findUnique({
+      where: { alias },
+      ...returnProductUniqueFields,
+    })
 
+    if (!product)
+      throw new BadRequestException(`Продук по такому "${alias}" не найден`)
+    return product
+  }
+
+  /**
+   *
+   * @param alias Вывод продукта по [id]
+   * @returns Возвращает один продукт, если найден
+   */
   async findOneById(id: number) {
     const product = await this.prismaSevice.product.findUnique({
       where: {
         id,
       },
-      include: {
-        specification: {
-          include: {
-            attribute: true,
-          },
-        },
-      },
+      ...returnProductUniqueFields,
     })
     if (product) return product
     else throw new NotFoundException()
@@ -88,10 +114,11 @@ export class ProductService {
     const aliasName = dto.title
       ? slugify(dto.title, { lower: true, locale: 'eng' })
       : null
-    const PRODUCT_ID = generateProductId()
+    const PRODUCT_ID = generateProductId(5)
+    const ALIAS_ID = generateProductId(3)
 
     const fields: Prisma.ProductCreateInput | Prisma.ProductUpdateInput = {
-      alias: aliasName || undefined,
+      alias: `${aliasName}-${ALIAS_ID}` || undefined,
       articleNumber: PRODUCT_ID || undefined,
       description: dto.description ? dto.description.trim() : undefined,
       poster: dto.poster ? dto.poster : undefined,

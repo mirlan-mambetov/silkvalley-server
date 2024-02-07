@@ -42,16 +42,16 @@ export class ProductController {
     return await this.productService.delete()
   }
 
+  @Get(':alias')
+  @HttpCode(HttpStatus.OK)
+  async findOneByAlias(@Param('alias') alias: string) {
+    return await this.productService.findOneByAlias(alias)
+  }
+
   @Get(':id')
   @HttpCode(HttpStatus.OK)
   async findOneById(@Param('id', ParseIntPipe) id: number) {
     return await this.productService.findOneById(id)
-  }
-
-  @Get(':alias')
-  @HttpCode(HttpStatus.OK)
-  async findOneByAlias() {
-    return await this.productService.findOneByAlias()
   }
 
   @Get('')

@@ -16,3 +16,12 @@ export const returnProductFields: Prisma.ProductFindManyArgs = {
     },
   },
 }
+export const returnProductUniqueFields = {
+  include: {
+    specification: {
+      include: {
+        attribute: true,
+      },
+    },
+  },
+}
