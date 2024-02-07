@@ -26,9 +26,12 @@ export class ProductService {
   async create(dto: CreateProductDTO) {
     try {
       const productData = this.savedFields<Prisma.ProductCreateInput>(dto)
-      return await this.prismaSevice.product.create({
+      await this.prismaSevice.product.create({
         data: productData,
       })
+      return {
+        message: 'Товар успешно добавлен',
+      }
     } catch (err) {
       throw new BadRequestException()
     }
