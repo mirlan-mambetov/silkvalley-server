@@ -2,10 +2,10 @@ import { Prisma } from '@prisma/client'
 
 export const returnProductFields: Prisma.ProductFindManyArgs = {
   include: {
-    specification: {
+    specifications: {
       select: {
         id: true,
-        attribute: true,
+        attributes: true,
         product: {
           select: {
             title: true,
@@ -15,12 +15,16 @@ export const returnProductFields: Prisma.ProductFindManyArgs = {
       },
     },
   },
+  // При следующей миграции сделать сортировку по дате обновления
+  // orderBy:{
+
+  // }
 }
 export const returnProductUniqueFields = {
   include: {
-    specification: {
+    specifications: {
       include: {
-        attribute: true,
+        attributes: true,
       },
     },
   },

@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
@@ -33,14 +34,14 @@ export class ProductService {
   async create(dto: CreateProductDTO) {
     try {
       const productData = this.savedFields<Prisma.ProductCreateInput>(dto)
-      await this.prismaSevice.product.create({
+      await this.prismaSevice.product.createMany({
         data: productData,
       })
       return {
         message: 'Товар успешно добавлен',
       }
     } catch (err) {
-      throw new BadRequestException()
+      throw new BadRequestException(err)
     }
   }
 
@@ -51,17 +52,18 @@ export class ProductService {
    * @returns Обновленный продукт (Товар)
    */
   async update(id: number, dto: UpdateProductDTO) {
-    const product = await this.findOneById(id)
-    if (dto.poster.length) {
-      await this.uploadService.deleteFile(product.poster)
-    }
-    const productData = this.savedFields<Prisma.ProductUpdateInput>(dto)
-    await this.prismaSevice.product.update({
-      where: { id },
-      data: productData,
-    })
-    return {
-      message: 'Товар успешно обновлен',
+    try {
+      await this.findOneById(id)
+      const productData = this.savedFields<Prisma.ProductUpdateInput>(dto)
+      await this.prismaSevice.product.update({
+        where: { id },
+        data: productData,
+      })
+      return {
+        message: 'Товар успешно обновлен',
+      }
+    } catch (err) {
+      throw new InternalServerErrorException(new BadRequestException(err))
     }
   }
 

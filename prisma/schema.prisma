@@ -34,33 +34,39 @@ model Product {
 
   discount Int?
 
+  // Недавное добавленные
+  sizes String[]
+
+  // Недавное добавленные
+  images ProductImage[]
+
   isHit Boolean? @map("is_hit") @default(false)
 
   isNew Boolean? @map("is_new") @default(false)
 
-  specification ProductSpecification[]
+  specifications ProductSpecification?
 
   quantity Int @default(1)
 
-  sales Int
+  sales Int? @default(0)
 
   createdAt DateTime @default(now())
 
   updatedAt DateTime @updatedAt
 
 }
-//#### SPECIFICATIONS
+//#### PRODUCT SPECIFICATIONS
 model ProductSpecification {
   id            Int @id @default(autoincrement())
 
-  attribute Productattribute[]
+  attributes Productattribute[]
 
-  productId     Int @map("product_id")
+  productId     Int @map("product_id") @unique
   product       Product  @relation(fields: [productId], references: [id])
 
   @@map("product_specification")
 }
-//#### ATTRIBUTES
+//#### PRODUCT ATTRIBUTES
 model Productattribute {
   id            Int @id @default(autoincrement())
 
@@ -68,8 +74,22 @@ model Productattribute {
 
   value   String
 
-  specification ProductSpecification @relation(fields: [id], references: [id])
+  specification ProductSpecification @relation(fields: [specificationId], references: [id])
   specificationId Int @map("specification_id")
 
   @@map("attribute")
+}
+
+//#### PRODUCT IMAGES
+model ProductImage {
+  id            Int @id @default(autoincrement())
+
+  color          String
+
+  image   String[]
+
+  product Product @relation(fields: [productId], references: [id])
+  productId Int @map("product_ite")
+
+  @@map("product_image")
 }
