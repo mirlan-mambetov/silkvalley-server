@@ -33,20 +33,23 @@ export class ProductAttributeService {
     // }
   }
 
-  async update(id: number, dto: IUpdateAttributeDTO) {
-    try {
-      await this.findById(id)
-      await this.prismaService.productattribute.update({
-        where: { id },
-        data: {
-          ...dto,
-        },
-      })
-      return {
-        message: 'Аттрибут добавлен',
-      }
-    } catch (err) {
-      throw new InternalServerErrorException(err)
+  async update(specificationId: number, dto: IUpdateAttributeDTO[]) {
+    const specification =
+      await this.specificationService.findById(specificationId)
+    const updateData = specification.attributes.map((attribute, index) => ({
+      where: { id: attribute.id },
+      data: {
+        name: dto[index].name,
+        value: dto[index].value,
+      },
+    }))
+    await Promise.all(
+      updateData.map(async (data) => {
+        await this.prismaService.productattribute.updateMany(data)
+      }),
+    )
+    return {
+      message: 'Аттрибут обновлен',
     }
   }
 

@@ -35,7 +35,7 @@ export class ProductAttributeController {
   @UsePipes(new ValidationPipe())
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() dto: IUpdateAttributeDTO,
+    @Body() dto: IUpdateAttributeDTO[],
   ) {
     return await this.productAttributeService.update(id, dto)
   }
