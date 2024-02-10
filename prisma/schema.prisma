@@ -84,12 +84,12 @@ model Productattribute {
 model ProductImage {
   id            Int @id @default(autoincrement())
 
-  color          String
+  color          String @unique
 
   image   String[]
 
   product Product @relation(fields: [productId], references: [id])
-  productId Int @map("product_ite")
+  productId Int @map("product_id")
 
   @@map("product_image")
 }
