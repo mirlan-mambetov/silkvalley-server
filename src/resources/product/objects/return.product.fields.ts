@@ -28,5 +28,6 @@ export const returnProductUniqueFields = {
         attributes: true,
       },
     },
+    images: true,
   },
 }

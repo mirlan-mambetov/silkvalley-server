@@ -16,20 +16,20 @@ export class ProductImageService {
   ) {}
 
   async create(productId: number, dto: CreateProductImageDTO) {
-    try {
-      const product = await this.productService.findOneById(productId)
-      await this.prismaService.productImage.create({
-        data: {
-          ...dto,
-          productId: product.id,
-        },
-      })
-      return {
-        message: 'Изображения успешно добавлены!',
-      }
-    } catch (err) {
-      throw new InternalServerErrorException(err)
+    // try {
+    const product = await this.productService.findOneById(productId)
+    await this.prismaService.productImage.create({
+      data: {
+        ...dto,
+        productId: product.id,
+      },
+    })
+    return {
+      message: 'Изображения успешно добавлены!',
     }
+    // } catch (err) {
+    //   throw new InternalServerErrorException(err)
+    // }
   }
 
   async update(id: number, dto: UpdateProductImageDTO) {
