@@ -70,7 +70,7 @@ model ProductSpecification {
 model Productattribute {
   id            Int @id @default(autoincrement())
 
-  name          String
+  name          String @unique
 
   value   String
 

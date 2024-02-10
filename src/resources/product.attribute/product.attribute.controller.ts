@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   HttpCode,
   HttpStatus,
   Param,
@@ -38,5 +39,11 @@ export class ProductAttributeController {
     @Body() dto: IUpdateAttributeDTO[],
   ) {
     return await this.productAttributeService.update(id, dto)
+  }
+
+  @Delete(':name')
+  @HttpCode(HttpStatus.OK)
+  async deleteOne(@Param('name') name: string) {
+    return await this.productAttributeService.deleteOne(name)
   }
 }
