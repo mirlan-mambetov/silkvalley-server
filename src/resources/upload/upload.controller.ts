@@ -8,14 +8,25 @@ import {
   Param,
   Post,
   UploadedFile,
+  UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common'
-import { FileInterceptor } from '@nestjs/platform-express'
+import { AnyFilesInterceptor, FileInterceptor } from '@nestjs/platform-express'
 import { UploadService } from './upload.service'
 
 @Controller('upload')
 export class UploadController {
   constructor(private readonly uploadService: UploadService) {}
+
+  @Post('multi/:alias')
+  @HttpCode(HttpStatus.OK)
+  @UseInterceptors(AnyFilesInterceptor())
+  async uploads(
+    @UploadedFiles() files: Array<Express.Multer.File>,
+    @Param('alias') alias: string,
+  ) {
+    return await this.uploadService.saveMultiFiles(files, alias)
+  }
 
   @Post(':alias')
   @HttpCode(HttpStatus.OK)

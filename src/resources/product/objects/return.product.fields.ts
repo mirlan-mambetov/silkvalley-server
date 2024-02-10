@@ -14,6 +14,7 @@ export const returnProductFields: Prisma.ProductFindManyArgs = {
         },
       },
     },
+    images: true,
   },
   // При следующей миграции сделать сортировку по дате обновления
   // orderBy:{
