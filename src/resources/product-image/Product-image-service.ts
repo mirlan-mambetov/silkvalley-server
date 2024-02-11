@@ -86,4 +86,17 @@ export class ProductImageService {
       throw new InternalServerErrorException(err)
     }
   }
+
+  async deleteOne(id: number) {
+    try{
+      await this.findImageById(id)
+      await this.prismaService.productImage.delete({where: {id}})
+      
+      return {
+        message: "Удалено"
+      }
+    }catch (err) {
+      throw new InternalServerErrorException(err)
+    }
+  }
 }

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -50,5 +51,11 @@ export class ProductImageController {
   @HttpCode(HttpStatus.OK)
   async findAllImages() {
     return await this.productImageService.findAllImages()
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.OK)
+  async deleteOne(@Param('id', ParseIntPipe) id: number) {
+    return await this.productImageService.deleteOne(id)
   }
 }
