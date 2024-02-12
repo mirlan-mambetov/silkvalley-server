@@ -34,10 +34,8 @@ model Product {
 
   discount Int?
 
-  // Недавное добавленные
   sizes String[]
 
-  // Недавное добавленные
   images ProductImage[]
 
   isHit Boolean? @map("is_hit") @default(false)
@@ -49,6 +47,14 @@ model Product {
   quantity Int @default(1)
 
   sales Int? @default(0)
+
+  // НОВОЕ
+  mainCategory MainCategory @relation(fields: [mainCategoryId], references: [id])
+  mainCategoryId Int @map("main_category_id")
+
+  // НОВОЕ
+  secondCategory SecondCategory @relation(fields: [secondCategoryId], references: [id])
+  secondCategoryId Int @map("second_category_id")
 
   createdAt DateTime @default(now())
 
@@ -92,4 +98,32 @@ model ProductImage {
   productId Int @map("product_id")
 
   @@map("product_image")
+}
+
+
+//#### MainCategory
+model MainCategory {
+  id            Int @id @default(autoincrement())
+
+  name String @unique
+
+  childCategories SecondCategory[]
+
+  products Product[]
+
+  @@map("categories")
+}
+
+//#### MainCategory
+model SecondCategory {
+  id            Int @id @default(autoincrement())
+
+  name String
+
+  products Product[]
+
+  mainCategory MainCategory @relation(fields: [mainCategoryId], references: [id])
+  mainCategoryId Int @map("main_category_id")
+
+  @@map("second_category")
 }
