@@ -5,6 +5,8 @@ import { ServeStaticModule } from '@nestjs/serve-static'
 import { join } from 'path'
 import { AppController } from './app.controller'
 import { PrismaService } from './prisma.service'
+import { ChildsCategoryModule } from './resources/categories/childs-category/childs-category.module'
+import { MainCategoryModule } from './resources/categories/main.category.module'
 import { ProductImageModule } from './resources/product-image/product-image.module'
 import { ProductAttributeModule } from './resources/product.attribute/product.attribute.module'
 import { ProductSpecificationModule } from './resources/product.specification/product.specification.module'
@@ -22,6 +24,8 @@ import { UploadModule } from './resources/upload/upload.module'
     ProductAttributeModule,
     UploadModule,
     ProductImageModule,
+    MainCategoryModule,
+    ChildsCategoryModule,
   ],
   controllers: [AppController],
 
