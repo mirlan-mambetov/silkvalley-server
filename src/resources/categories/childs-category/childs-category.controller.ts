@@ -40,10 +40,22 @@ export class ChildsCategoryController {
     return await this.childsCategoryService.update(id, dto)
   }
 
+  @Get('by-category/:id')
+  @HttpCode(HttpStatus.OK)
+  async findByMainCategoryId(@Param('id', ParseIntPipe) id: number) {
+    return await this.childsCategoryService.findByMainCategoryId(id)
+  }
+
   @Get(':id')
   @HttpCode(HttpStatus.OK)
   async findById(@Param('id', ParseIntPipe) id: number) {
     return await this.childsCategoryService.findById(id)
+  }
+
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  async findAll() {
+    return await this.childsCategoryService.findAll()
   }
 
   @Delete(':id')

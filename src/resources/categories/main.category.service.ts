@@ -87,7 +87,11 @@ export class MainCategoryService {
     const category = await this.prismaService.mainCategory.findUnique({
       where: { slug: slug },
       include: {
-        childCategories: true,
+        childCategories: {
+          include: {
+            products: true,
+          },
+        },
         products: {
           select: {
             id: true,

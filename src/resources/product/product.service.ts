@@ -35,7 +35,11 @@ export class ProductService {
     try {
       const productData = this.savedFields<Prisma.ProductCreateInput>(dto)
       await this.prismaSevice.product.createMany({
-        data: productData,
+        data: {
+          ...productData,
+          mainCategoryId: dto.mainCategoryId,
+          secondCategoryId: dto.childCategoryId,
+        },
       })
       return {
         message: 'Товар успешно добавлен',
@@ -55,9 +59,13 @@ export class ProductService {
     try {
       await this.findOneById(id)
       const productData = this.savedFields<Prisma.ProductUpdateInput>(dto)
-      await this.prismaSevice.product.update({
+      await this.prismaSevice.product.updateMany({
         where: { id },
-        data: productData,
+        data: {
+          ...productData,
+          mainCategoryId: Number(dto.mainCategoryId) || undefined,
+          secondCategoryId: Number(dto.childCategoryId) || undefined,
+        },
       })
       return {
         message: 'Товар успешно обновлен',
@@ -67,7 +75,29 @@ export class ProductService {
     }
   }
 
-  async delete() {}
+  async delete(id: number) {
+    const product = await this.findOneById(id)
+    const specifications =
+      await this.prismaSevice.productSpecification.findMany({
+        where: { productId: id },
+      })
+    await this.uploadService.deleteFile(product.poster)
+
+    for (const specification of specifications) {
+      await this.prismaSevice.productattribute.deleteMany({
+        where: { specificationId: specification.id },
+      })
+    }
+    await this.prismaSevice.productSpecification.deleteMany({
+      where: { productId: id },
+    })
+    await this.prismaSevice.product.delete({
+      where: { id },
+    })
+    return {
+      message: `Товар ${product.title} удален! `,
+    }
+  }
 
   /**
    *
@@ -95,7 +125,7 @@ export class ProductService {
       where: {
         id,
       },
-      ...returnProductUniqueFields,
+      include: { specifications: { include: { attributes: true } } },
     })
     if (product) return product
     else throw new NotFoundException()

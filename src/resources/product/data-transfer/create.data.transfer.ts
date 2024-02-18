@@ -57,4 +57,12 @@ export class CreateProductDTO {
   @IsOptional()
   @IsBoolean()
   isNew?: boolean
+
+  @IsOptional()
+  @IsNumber()
+  mainCategoryId?: number
+
+  @IsOptional()
+  @IsNumber()
+  childCategoryId?: number
 }

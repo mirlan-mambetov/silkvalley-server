@@ -36,10 +36,10 @@ export class ProductController {
     return await this.productService.update(id, dto)
   }
 
-  @Delete()
+  @Delete(':id')
   @HttpCode(HttpStatus.OK)
-  async delete() {
-    return await this.productService.delete()
+  async delete(@Param('id', ParseIntPipe) id: number) {
+    return await this.productService.delete(id)
   }
 
   @Get(':alias')

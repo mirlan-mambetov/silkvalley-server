@@ -44,4 +44,12 @@ export class UpdateProductDTO {
   @IsOptional()
   @IsNumber()
   quantity?: number
+
+  @IsOptional()
+  @IsNumber()
+  mainCategoryId?: number
+
+  @IsOptional()
+  @IsNumber()
+  childCategoryId?: number
 }

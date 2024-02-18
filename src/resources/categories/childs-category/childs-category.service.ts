@@ -62,6 +62,43 @@ export class ChildsCategoryService {
     return category
   }
 
+  async findAll() {
+    return await this.prismaService.secondCategory.findMany({
+      include: {
+        mainCategory: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        products: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    })
+  }
+
+  async findByMainCategoryId(mainCategoryId: number) {
+    return await this.prismaService.secondCategory.findMany({
+      where: { mainCategoryId },
+      include: {
+        mainCategory: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        products: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    })
+  }
+
   async delete(id: number) {
     const category = await this.findById(id)
     if (category.products.length) {
