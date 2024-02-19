@@ -1,5 +1,6 @@
 import {
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Param,
@@ -18,5 +19,11 @@ export class ProductSpecificationController {
   @HttpCode(HttpStatus.CREATED)
   async create(@Param('id', ParseIntPipe) productId: number) {
     return await this.productSpecificationService.create(productId)
+  }
+
+  @Get(':id')
+  @HttpCode(HttpStatus.OK)
+  async findById(@Param('id', ParseIntPipe) id: number) {
+    return await this.productSpecificationService.findById(id)
   }
 }

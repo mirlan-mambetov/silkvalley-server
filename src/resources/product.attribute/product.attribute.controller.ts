@@ -41,9 +41,9 @@ export class ProductAttributeController {
     return await this.productAttributeService.update(id, dto)
   }
 
-  @Delete(':name')
+  @Delete(':id')
   @HttpCode(HttpStatus.OK)
-  async deleteOne(@Param('name') name: string) {
-    return await this.productAttributeService.deleteOne(name)
+  async deleteOne(@Param('id', ParseIntPipe) id: number) {
+    return await this.productAttributeService.deleteOne(id)
   }
 }

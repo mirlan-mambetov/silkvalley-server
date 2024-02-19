@@ -92,11 +92,11 @@ export class ProductAttributeService {
     }
   }
 
-  async deleteOne(name: string) {
+  async deleteOne(id: number) {
     try {
-      const decodedName = decodeURIComponent(name)
+      // const decodedName = decodeURIComponent(name)
       await this.prismaService.productattribute.delete({
-        where: { name: decodedName },
+        where: { id },
       })
       return {
         message: 'Атрибут удален',
