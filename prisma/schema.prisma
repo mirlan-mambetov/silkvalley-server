@@ -98,7 +98,7 @@ model Productattribute {
 model ProductImage {
   id            Int @id @default(autoincrement())
 
-  color          String @unique
+  color          String 
 
   image   String[]
 

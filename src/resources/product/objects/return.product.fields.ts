@@ -29,5 +29,17 @@ export const returnProductUniqueFields = {
       },
     },
     images: true,
+    mainCategory: {
+      select: {
+        id: true,
+        name: true,
+      },
+    },
+    secondCategory: {
+      select: {
+        id: true,
+        name: true,
+      },
+    },
   },
 }
