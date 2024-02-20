@@ -77,12 +77,12 @@ export class ProductService {
 
   async delete(id: number) {
     const product = await this.findOneById(id)
+
+    // DELETE SPECIFICATIONS
     const specifications =
       await this.prismaSevice.productSpecification.findMany({
         where: { productId: id },
       })
-    await this.uploadService.deleteFile(product.poster)
-
     for (const specification of specifications) {
       await this.prismaSevice.productattribute.deleteMany({
         where: { specificationId: specification.id },
@@ -91,6 +91,28 @@ export class ProductService {
     await this.prismaSevice.productSpecification.deleteMany({
       where: { productId: id },
     })
+
+    // DELETE PRODUCT POSTER
+    await this.uploadService.deleteFile(product.poster)
+
+    // DELETE IMAGES
+    const images = await this.prismaSevice.productImage.findMany({
+      where: {
+        productId: id,
+      },
+    })
+    for await (const image of images) {
+      for (let path of image.image) {
+        await this.uploadService.deleteFile(path)
+      }
+    }
+    await this.prismaSevice.productImage.deleteMany({
+      where: {
+        productId: id,
+      },
+    })
+
+    // DELETE PRODUCT
     await this.prismaSevice.product.delete({
       where: { id },
     })

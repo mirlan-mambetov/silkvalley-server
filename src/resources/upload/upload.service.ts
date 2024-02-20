@@ -48,11 +48,17 @@ export class UploadService {
    */
   deleteFile(pathName: string): Promise<{ message: string }> {
     return new Promise((resolve, reject) => {
-      if (pathName) {
-        fs.unlinkSync(`public${pathName}`)
-        resolve({ message: 'Файл успешно удален' })
+      if (!pathName) return { message: 'Неккоректный путь файла' }
+      if (fs.existsSync(`public${pathName}`)) {
+        fs.unlink(`public${pathName}`, (err) => {
+          if (err) {
+            reject(err)
+          } else {
+            resolve({ message: 'Файл успешно удален' })
+          }
+        })
       } else {
-        reject('Не известая ошибка сервера')
+        reject('Файл не найден')
       }
     })
   }
