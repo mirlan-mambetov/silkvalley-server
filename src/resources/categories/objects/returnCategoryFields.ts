@@ -10,3 +10,22 @@ export const returnCategoryFields: Prisma.MainCategoryFindManyArgs = {
     },
   },
 }
+export const returnCategoryUniqueFields = {
+  include: {
+    childCategories: {
+      select: {
+        id: true,
+        products: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    },
+    products: {
+      select: {
+        id: true,
+      },
+    },
+  },
+}
