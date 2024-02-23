@@ -15,6 +15,9 @@ export const returnCategoryUniqueFields = {
     childCategories: {
       select: {
         id: true,
+        name: true,
+        createdAt: true,
+        updatedAt: true,
         products: {
           select: {
             id: true,

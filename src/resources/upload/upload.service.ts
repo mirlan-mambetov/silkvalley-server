@@ -67,14 +67,17 @@ export class UploadService {
    *
    * @returns [] OF PATHS FILES
    */
-  filndAllFilesPaths(): string[] {
+  filndAllFilesPaths(): { paths: string[]; totalSize: number } {
     const paths: string[] = []
+    let totalSize = 0
     function traverse(directoryPath: string) {
       const dirContents = fs.readdirSync(directoryPath)
       for (const item of dirContents) {
         const itemPath = path.join(directoryPath, item)
         const stats = fs.statSync(itemPath)
         if (stats.isFile()) {
+          const fileSize = stats.size
+          totalSize += fileSize
           paths.push(itemPath.replace('public', ''))
         } else if (stats.isDirectory()) {
           traverse(itemPath)
@@ -82,7 +85,8 @@ export class UploadService {
       }
     }
     traverse(BASE_UPLOAD_PATH)
-    return paths
+
+    return { paths, totalSize }
   }
 
   private uploadDetail(
