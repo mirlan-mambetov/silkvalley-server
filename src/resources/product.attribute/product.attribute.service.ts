@@ -92,9 +92,13 @@ export class ProductAttributeService {
     }
   }
 
+  /**
+   *
+   * @param id
+   * @returns
+   */
   async deleteOne(id: number) {
     try {
-      // const decodedName = decodeURIComponent(name)
       await this.prismaService.productattribute.delete({
         where: { id },
       })

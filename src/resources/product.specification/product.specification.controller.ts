@@ -15,12 +15,22 @@ export class ProductSpecificationController {
     private readonly productSpecificationService: ProductSpecificationService,
   ) {}
 
+  /**
+   *
+   * @param productId
+   * @returns
+   */
   @Post(':id')
   @HttpCode(HttpStatus.CREATED)
   async create(@Param('id', ParseIntPipe) productId: number) {
     return await this.productSpecificationService.create(productId)
   }
 
+  /**
+   *
+   * @param id
+   * @returns
+   */
   @Get(':id')
   @HttpCode(HttpStatus.OK)
   async findById(@Param('id', ParseIntPipe) id: number) {

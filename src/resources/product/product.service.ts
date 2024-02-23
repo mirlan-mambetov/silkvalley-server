@@ -75,66 +75,24 @@ export class ProductService {
     }
   }
 
-  async delete(id: number) {
-    const product = await this.findOneById(id)
-
-    // DELETE SPECIFICATIONS
-    const specifications =
-      await this.prismaSevice.productSpecification.findMany({
-        where: { productId: id },
-      })
-    for (const specification of specifications) {
-      await this.prismaSevice.productattribute.deleteMany({
-        where: { specificationId: specification.id },
-      })
-    }
-    await this.prismaSevice.productSpecification.deleteMany({
-      where: { productId: id },
-    })
-
-    // DELETE PRODUCT POSTER
-    await this.uploadService.deleteFile(product.poster)
-
-    // DELETE IMAGES
-    const images = await this.prismaSevice.productImage.findMany({
-      where: {
-        productId: id,
-      },
-    })
-    for await (const image of images) {
-      for (let path of image.image) {
-        await this.uploadService.deleteFile(path)
-      }
-    }
-    await this.prismaSevice.productImage.deleteMany({
-      where: {
-        productId: id,
-      },
-    })
-
-    // DELETE PRODUCT
-    await this.prismaSevice.product.delete({
-      where: { id },
-    })
-    return {
-      message: `Товар ${product.title} удален! `,
-    }
-  }
-
   /**
    *
    * @param alias Вывод продукта по [alias]
    * @returns Возвращает один продукт, если найден
    */
   async findOneByAlias(alias: string) {
-    const product = await this.prismaSevice.product.findUnique({
-      where: { alias },
-      ...returnProductUniqueFields,
-    })
+    try {
+      const product = await this.prismaSevice.product.findUnique({
+        where: { alias },
+        ...returnProductUniqueFields,
+      })
 
-    if (!product)
-      throw new BadRequestException(`Продук по такому "${alias}" не найден`)
-    return product
+      if (!product)
+        throw new BadRequestException(`Продук по такому "${alias}" не найден`)
+      return product
+    } catch (error) {
+      throw new InternalServerErrorException(error)
+    }
   }
 
   /**
@@ -143,16 +101,24 @@ export class ProductService {
    * @returns Возвращает один продукт, если найден
    */
   async findOneById(id: number) {
-    const product = await this.prismaSevice.product.findUnique({
-      where: {
-        id,
-      },
-      include: { specifications: { include: { attributes: true } } },
-    })
-    if (product) return product
-    else throw new NotFoundException()
+    try {
+      const product = await this.prismaSevice.product.findUnique({
+        where: {
+          id,
+        },
+        include: { specifications: { include: { attributes: true } } },
+      })
+      if (product) return product
+      else throw new NotFoundException()
+    } catch (error) {
+      throw new InternalServerErrorException(error)
+    }
   }
 
+  /**
+   *
+   * @returns
+   */
   async findAll() {
     return await this.prismaSevice.product.findMany(returnProductFields)
   }
@@ -187,5 +153,60 @@ export class ProductService {
     if (dto.video !== undefined) fields.video = dto.video
 
     return fields as T
+  }
+
+  /**
+   *
+   * @param id
+   * @returns
+   */
+  async delete(id: number) {
+    try {
+      const product = await this.findOneById(id)
+
+      // DELETE SPECIFICATIONS
+      const specifications =
+        await this.prismaSevice.productSpecification.findMany({
+          where: { productId: id },
+        })
+      for (const specification of specifications) {
+        await this.prismaSevice.productattribute.deleteMany({
+          where: { specificationId: specification.id },
+        })
+      }
+      await this.prismaSevice.productSpecification.deleteMany({
+        where: { productId: id },
+      })
+
+      // DELETE PRODUCT POSTER
+      await this.uploadService.deleteFile(product.poster)
+
+      // DELETE IMAGES
+      const images = await this.prismaSevice.productImage.findMany({
+        where: {
+          productId: id,
+        },
+      })
+      for await (const image of images) {
+        for (let path of image.image) {
+          await this.uploadService.deleteFile(path)
+        }
+      }
+      await this.prismaSevice.productImage.deleteMany({
+        where: {
+          productId: id,
+        },
+      })
+
+      // DELETE PRODUCT
+      await this.prismaSevice.product.delete({
+        where: { id },
+      })
+      return {
+        message: `Товар ${product.title} удален! `,
+      }
+    } catch (error) {
+      throw new InternalServerErrorException(error)
+    }
   }
 }

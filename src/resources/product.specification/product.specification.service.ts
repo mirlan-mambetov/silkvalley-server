@@ -44,15 +44,19 @@ export class ProductSpecificationService {
    * @returns
    */
   async findById(id: number) {
-    const specification =
-      await this.prismaService.productSpecification.findUnique({
-        where: { id },
-        include: {
-          attributes: true,
-        },
-      })
-    if (!specification)
-      throw new BadRequestException('По такому ID спецификация не найдена')
-    return specification
+    try {
+      const specification =
+        await this.prismaService.productSpecification.findUnique({
+          where: { id },
+          include: {
+            attributes: true,
+          },
+        })
+      if (!specification)
+        throw new BadRequestException('По такому ID спецификация не найдена')
+      return specification
+    } catch (error) {
+      throw new InternalServerErrorException(error)
+    }
   }
 }

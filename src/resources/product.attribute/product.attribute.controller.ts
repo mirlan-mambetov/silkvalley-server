@@ -21,6 +21,12 @@ export class ProductAttributeController {
     private readonly productAttributeService: ProductAttributeService,
   ) {}
 
+  /**
+   *
+   * @param specificationId
+   * @param dto
+   * @returns
+   */
   @Post(':id')
   @HttpCode(HttpStatus.CREATED)
   @UsePipes(new ValidationPipe())
@@ -31,6 +37,12 @@ export class ProductAttributeController {
     return await this.productAttributeService.create(specificationId, dto)
   }
 
+  /**
+   *
+   * @param id
+   * @param dto
+   * @returns
+   */
   @Put(':id')
   @HttpCode(HttpStatus.OK)
   @UsePipes(new ValidationPipe())
@@ -41,6 +53,11 @@ export class ProductAttributeController {
     return await this.productAttributeService.update(id, dto)
   }
 
+  /**
+   *
+   * @param id
+   * @returns
+   */
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
   async deleteOne(@Param('id', ParseIntPipe) id: number) {
