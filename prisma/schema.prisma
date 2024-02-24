@@ -10,6 +10,42 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// USER ROLES ENUM
+enum UserRoles {
+  USER
+  ADMIN
+  MODERATOR
+}
+
+//#### USER
+model User{
+
+  id  Int @id @default(autoincrement())
+
+  name String
+  
+  email String
+
+  phoneNumber Int @map("phone_number")
+
+  password String
+
+  sessionPassword String @map("session_password")
+
+  avatar String? @default("")
+
+  authToken String @unique @map("auth_token")
+
+  sessionToken String @unique @map("session_token")
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  role UserRoles[] @default([USER])
+  
+}
+
 //#### PRODUCT
 model Product {
   id  Int @id @default(autoincrement())
@@ -48,11 +84,9 @@ model Product {
 
   sales Int? @default(0)
 
-  // НОВОЕ
   mainCategory MainCategory? @relation(fields: [mainCategoryId], references: [id])
   mainCategoryId Int? @map("main_category_id")
 
-  // НОВОЕ
   secondCategory SecondCategory? @relation(fields: [secondCategoryId], references: [id])
   secondCategoryId Int? @map("second_category_id")
 
