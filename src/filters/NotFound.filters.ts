@@ -10,6 +10,6 @@ export class NotFoundExceptionFilter implements ExceptionFilter {
   catch(exception: NotFoundException, host: ArgumentsHost) {
     const ctx = host.switchToHttp()
     const response = ctx.getResponse()
-    response.render('404')
+    response.status(404).render('404')
   }
 }
