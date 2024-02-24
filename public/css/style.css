@@ -32,7 +32,7 @@ body {
 /* NAVBAR */
 .navbar {
   padding: 16px 0;
-  background: #000;
+  background: #222222;
   color: #fff;
 }
 
@@ -42,8 +42,24 @@ body {
   justify-content: space-between;
 }
 .navbarlogo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.navbarlogo span {
+  font-size: 12px;
+  font-weight: 300;
+  letter-spacing: 0.8em;
+  text-transform: uppercase;
+  color: rgb(194, 194, 194);
+}
+
+.forrbidden {
+  padding: 20px 50px;
+}
+.forrbidden span {
   font-size: 20px;
-  font-style: normal;
-  line-height: 25px;
-  font-weight: 400;
+  font-weight: 300;
+  letter-spacing: 0.4em;
+  color: rgb(218, 166, 23);
 }

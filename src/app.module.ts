@@ -43,7 +43,7 @@ export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(ApiNotFoundMiddleware)
-      .exclude({ path: '/api', method: RequestMethod.GET })
+      .exclude({ path: '/', method: RequestMethod.GET })
       .forRoutes('*')
   }
 }

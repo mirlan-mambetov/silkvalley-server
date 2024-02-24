@@ -1,5 +1,5 @@
 // ApiNotFoundMiddleware.ts
-import { Injectable, NestMiddleware } from '@nestjs/common'
+import { HttpStatus, Injectable, NestMiddleware } from '@nestjs/common'
 import { NextFunction, Request, Response } from 'express'
 import { ApiNotFoundFilter } from 'src/filters/Api.notFound.filter'
 
@@ -11,7 +11,7 @@ export class ApiNotFoundMiddleware implements NestMiddleware {
     if (req.originalUrl.includes('/api/')) {
       next()
     } else {
-      res.status(404).render('404')
+      res.status(HttpStatus.NOT_FOUND).render('404')
     }
   }
 }
