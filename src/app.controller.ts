@@ -1,4 +1,5 @@
-import { Controller, Get, Render } from '@nestjs/common'
+import { Controller, Get, Render, UseFilters } from '@nestjs/common'
+import { NotFoundExceptionFilter } from './filters/NotFound.filters'
 
 @Controller('/')
 export class AppController {
@@ -6,6 +7,7 @@ export class AppController {
 
   @Get()
   @Render('pages/home/index')
+  @UseFilters(NotFoundExceptionFilter)
   async root() {
     // const products = await this.productService.getAllProducts()
     return {
