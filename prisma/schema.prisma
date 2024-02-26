@@ -24,25 +24,19 @@ model User{
 
   name String
   
-  email String
+  email String @unique
 
   phoneNumber Int @map("phone_number")
 
   password String
 
-  sessionPassword String @map("session_password")
-
   avatar String? @default("")
 
-  authToken String @unique @map("auth_token")
-
-  sessionToken String @unique @map("session_token")
-
+  role UserRoles[] @default([USER])
+  
   createdAt DateTime @default(now())
 
   updatedAt DateTime @updatedAt
-
-  role UserRoles[] @default([USER])
   
 }
 
