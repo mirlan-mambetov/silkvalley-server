@@ -19,6 +19,7 @@ import { ProductAttributeModule } from './resources/product.attribute/product.at
 import { ProductSpecificationModule } from './resources/product.specification/product.specification.module'
 import { ProductModule } from './resources/product/product.module'
 import { UploadModule } from './resources/upload/upload.module'
+import { UserModule } from './resources/user/user.module'
 
 @Module({
   imports: [
@@ -26,7 +27,7 @@ import { UploadModule } from './resources/upload/upload.module'
       rootPath: join(__dirname, '..', 'public'),
       exclude: ['/api/(.*)'],
     }),
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({ isGlobal: true }),
     ProductModule,
     ProductSpecificationModule,
     ProductAttributeModule,
@@ -35,6 +36,7 @@ import { UploadModule } from './resources/upload/upload.module'
     MainCategoryModule,
     ChildsCategoryModule,
     AuthModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [PrismaService],

@@ -11,7 +11,11 @@ export class ApiNotFoundMiddleware implements NestMiddleware {
     if (req.originalUrl.includes('/api/')) {
       next()
     } else {
-      res.status(HttpStatus.NOT_FOUND).render('404')
+      res.status(HttpStatus.NOT_FOUND).render('404', {
+        message: 'NOT FOUND',
+        title: 'NOT FOUND',
+        statusCode: HttpStatus.NOT_FOUND,
+      })
     }
   }
 }
