@@ -5,13 +5,11 @@ import {
   HttpCode,
   HttpStatus,
   Post,
-  Req,
-  Res,
   UnauthorizedException,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common'
-import { Request, Response } from 'express'
+import { Response } from 'express'
 import { AuthService } from './auth.service'
 import { LoginDTO } from './data-transfer/login.dto'
 import { RegisterDTO } from './data-transfer/register.dto'
@@ -30,17 +28,8 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @UsePipes(new ValidationPipe())
-  async login(
-    @Req() req: Request,
-    @Res() res: Response,
-    @Body() dto: LoginDTO,
-  ) {
-    const { accessToken, refreshToken } = await this.authService.login(dto)
-    res.cookie('refresh_token', refreshToken, {
-      httpOnly: true,
-      sameSite: 'strict',
-    })
-    res.status(HttpStatus.OK).json({ accessToken, refreshToken })
+  async login(@Body() dto: LoginDTO) {
+    return await this.authService.login(dto)
   }
 
   @Get('refresh')
