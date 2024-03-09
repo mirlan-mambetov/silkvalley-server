@@ -5,7 +5,7 @@ import { RolesGuard } from '../guards/roles.guard'
 
 export const Auth = (role: UserRoles = 'USER') =>
   applyDecorators(
-    role === 'ADMIN'
+    role.includes(UserRoles.SUPERUSER || UserRoles.OWNER)
       ? UseGuards(JwtAuthGuard, RolesGuard)
       : UseGuards(JwtAuthGuard),
   )

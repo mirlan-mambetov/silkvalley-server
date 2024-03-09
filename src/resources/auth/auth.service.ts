@@ -29,12 +29,16 @@ export class AuthService {
       where: { email: dto.email },
     })
     if (user) throw new BadRequestException('Такой E-mail уже используется')
-
     return await this.userService.save(dto)
   }
 
   async login(dto: LoginDTO): Promise<IAuth> {
-    const user = await this.userService.findOneByEmail(dto.email)
+    const user = await this.userService.findOneByEmail(dto.email, {
+      id: true,
+      email: true,
+      password: true,
+      role: true,
+    })
     if (!user) throw new BadRequestException('Пользователь не найден')
 
     // CHECK PASSWORD
@@ -54,7 +58,7 @@ export class AuthService {
     const payload = { id: user.id, email: user.email, role: user.role }
 
     const accessToken = await this.jwtService.signAsync(payload, {
-      expiresIn: '2m',
+      expiresIn: '1h',
     })
     const refreshToken = await this.jwtService.signAsync(payload, {
       expiresIn: '24h',
@@ -80,7 +84,11 @@ export class AuthService {
       const result = await this.jwtService.verifyAsync(token)
       if (!result) throw new UnauthorizedException('Не валидный токен!')
 
-      const user = await this.userService.findOneByEmail(result.email)
+      const user = await this.userService.findOneByEmail(result.email, {
+        id: true,
+        email: true,
+        role: true,
+      })
       const tokens = await this.generateTokens(user)
 
       return {

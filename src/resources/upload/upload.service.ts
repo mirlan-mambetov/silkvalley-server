@@ -6,7 +6,6 @@ import { v4 as uuid } from 'uuid'
 
 @Injectable()
 export class UploadService {
-  private dest
   /**
    *
    * @param file

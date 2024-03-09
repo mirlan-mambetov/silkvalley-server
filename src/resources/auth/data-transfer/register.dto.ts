@@ -1,5 +1,7 @@
+import { UserRoles } from '@prisma/client'
 import {
   IsEmail,
+  IsEnum,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -30,4 +32,8 @@ export class RegisterDTO {
   @IsOptional()
   @IsString()
   avatar?: string
+
+  @IsEnum(UserRoles)
+  @IsOptional()
+  role?: UserRoles[]
 }

@@ -36,6 +36,23 @@ export class UserController {
 
   /**
    *
+   * @param id
+   * @param dto
+   * @returns
+   */
+  @Put(':id')
+  @Auth()
+  @UsePipes(new ValidationPipe())
+  @HttpCode(HttpStatus.OK)
+  updateById(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateUserDTO,
+  ) {
+    return this.userSerivce.updateUser(id, dto)
+  }
+
+  /**
+   *
    * @param dto
    * @param userId
    * @returns
@@ -44,7 +61,7 @@ export class UserController {
   @Auth()
   @UsePipes(new ValidationPipe())
   @HttpCode(HttpStatus.OK)
-  update(@Body() dto: UpdateUserDTO, @CurrentUser('id') userId: number) {
+  updateProfile(@Body() dto: UpdateUserDTO, @CurrentUser('id') userId: number) {
     return this.userSerivce.updateUser(userId, dto)
   }
 
@@ -97,6 +114,7 @@ export class UserController {
    * @returns Message
    */
   @Delete(':id')
+  @Auth('OWNER')
   @HttpCode(HttpStatus.OK)
   delete(@Param('id', ParseIntPipe) id: number) {
     return this.userSerivce.delete(id)

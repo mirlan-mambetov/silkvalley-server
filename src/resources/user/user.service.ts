@@ -5,8 +5,9 @@ import {
   UnauthorizedException,
   forwardRef,
 } from '@nestjs/common'
-import { User } from '@prisma/client'
+import { Prisma } from '@prisma/client'
 import * as argon from 'argon2'
+import { IUser } from 'src/interfaces/user.interface'
 import { PrismaService } from 'src/prisma.service'
 import { AuthService } from '../auth/auth.service'
 import { UpdateUserDTO } from './data-transfer/update.user.dto'
@@ -24,15 +25,14 @@ export class UserService {
    * @param user DTO USER
    * @returns
    */
-  async save(user: Partial<User>) {
+  async save(user: Omit<IUser, 'createdAt' | 'updatedAt' | 'id'>) {
     const hashedPassword = await this.hashedPassword(user.password)
     return await this.prismaService.user.create({
       data: {
-        email: user.email,
-        name: user.name,
+        ...user,
         password: hashedPassword,
-        phoneNumber: user.phoneNumber,
-        avatar: user.avatar,
+        // @ts-ignore
+        role: [user.role],
       },
     })
   }
@@ -62,9 +62,12 @@ export class UserService {
         id: userId,
       },
       data: {
-        email: dto?.email ? dto.email.trim().trimStart().trimEnd() : undefined,
-        name: dto?.name ? dto.name.trim().trimStart().trimEnd() : undefined,
-        password: hashedPassword ? hashedPassword : undefined,
+        ...dto,
+        email: dto?.email ? dto.email.trim().trimEnd() : undefined,
+        name: dto?.name ? dto.name.trim().trimEnd() : undefined,
+        password: hashedPassword,
+        // @ts-ignore
+        role: [dto.role],
       },
     })
     return {
@@ -91,9 +94,12 @@ export class UserService {
    * @param unique Number or String
    * @returns User
    */
-  async findOneByEmail(email: string) {
+  async findOneByEmail(email: string, selectObject?: Prisma.UserSelect) {
     const user = await this.prismaService.user.findUnique({
       where: { email },
+      select: {
+        ...selectObject,
+      },
     })
     if (!user)
       throw new BadRequestException('Пользователь по такому E-mail не найден')
@@ -107,7 +113,14 @@ export class UserService {
    */
   async getUserProfile(email: string) {
     try {
-      return await this.findOneByEmail(email)
+      return await this.findOneByEmail(email, {
+        id: true,
+        name: true,
+        email: true,
+        avatar: true,
+        phoneNumber: true,
+        role: true,
+      })
     } catch (error) {
       throw new UnauthorizedException(error)
     }

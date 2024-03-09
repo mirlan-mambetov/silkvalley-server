@@ -1,18 +1,16 @@
 import {
   Body,
   Controller,
-  Get,
   HttpCode,
   HttpStatus,
   Post,
-  UnauthorizedException,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common'
-import { Response } from 'express'
 import { AuthService } from './auth.service'
 import { LoginDTO } from './data-transfer/login.dto'
 import { RegisterDTO } from './data-transfer/register.dto'
+import { Auth } from './decorators/auth.decorator'
 
 @Controller('auth')
 export class AuthController {
@@ -21,6 +19,7 @@ export class AuthController {
   @Post('register')
   @HttpCode(HttpStatus.OK)
   @UsePipes(new ValidationPipe())
+  @Auth('OWNER')
   register(@Body() dto: RegisterDTO) {
     return this.authService.register(dto)
   }
@@ -32,17 +31,18 @@ export class AuthController {
     return await this.authService.login(dto)
   }
 
-  @Get('refresh')
+  @Post('refresh')
   @HttpCode(HttpStatus.OK)
-  refresh(@Body() token: { refreshToken: string }) {
-    return this.authService.getNewTokens(token.refreshToken)
+  async refresh(@Body() token: { refreshToken: string }) {
+    const tokens = await this.authService.getNewTokens(token.refreshToken)
+    return tokens
   }
 
-  private setTokenOrIdToCookie(tokenOrId: string, res: Response) {
-    if (!tokenOrId) throw new UnauthorizedException()
-    res.cookie('refreshToken', tokenOrId, {
-      httpOnly: true,
-      sameSite: 'strict',
-    })
-  }
+  // private setTokenOrIdToCookie(tokenOrId: string, res: Response) {
+  //   if (!tokenOrId) throw new UnauthorizedException()
+  //   res.cookie('refreshToken', tokenOrId, {
+  //     httpOnly: true,
+  //     sameSite: 'strict',
+  //   })
+  // }
 }
