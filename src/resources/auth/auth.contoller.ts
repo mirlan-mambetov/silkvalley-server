@@ -37,12 +37,4 @@ export class AuthController {
     const tokens = await this.authService.getNewTokens(token.refreshToken)
     return tokens
   }
-
-  // private setTokenOrIdToCookie(tokenOrId: string, res: Response) {
-  //   if (!tokenOrId) throw new UnauthorizedException()
-  //   res.cookie('refreshToken', tokenOrId, {
-  //     httpOnly: true,
-  //     sameSite: 'strict',
-  //   })
-  // }
 }
