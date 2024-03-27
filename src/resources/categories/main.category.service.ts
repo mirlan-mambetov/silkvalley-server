@@ -136,6 +136,18 @@ export class MainCategoryService {
         where: filter,
         ...options,
         ...returnCategoryUniqueFields,
+        include: {
+          categories: {
+            include: {
+              childsCategories: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
+        },
       })
       if (!category) {
         if (typeof uniqueName === 'number') {

@@ -14,11 +14,11 @@ import {
 } from '@nestjs/common'
 import { CreateChildCategoryDTO } from '../data-transfer/create-childs.dto'
 import { UpdateChildCategoryDTO } from '../data-transfer/update-childs.dto'
-import { ChildsCategoryService } from './second-category.service'
+import { SecondCategoryService } from './second-category.service'
 
-@Controller('childs-category')
-export class ChildsCategoryController {
-  constructor(private readonly childsCategoryService: ChildsCategoryService) {}
+@Controller('second-category')
+export class SecondCategoryController {
+  constructor(private readonly secondCategoryService: SecondCategoryService) {}
 
   /**
    *
@@ -33,7 +33,7 @@ export class ChildsCategoryController {
     @Param('categoryId', ParseIntPipe) categoryId: number,
     @Body() dto: CreateChildCategoryDTO,
   ) {
-    return await this.childsCategoryService.create(categoryId, dto)
+    return await this.secondCategoryService.create(categoryId, dto)
   }
 
   /**
@@ -49,7 +49,7 @@ export class ChildsCategoryController {
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateChildCategoryDTO,
   ) {
-    return await this.childsCategoryService.update(id, dto)
+    return await this.secondCategoryService.update(id, dto)
   }
 
   /**
@@ -60,7 +60,7 @@ export class ChildsCategoryController {
   @Get('by-category/:id')
   @HttpCode(HttpStatus.OK)
   async findByMainCategoryId(@Param('id', ParseIntPipe) id: number) {
-    return await this.childsCategoryService.findByMainCategoryId(id)
+    return await this.secondCategoryService.findByMainCategoryId(id)
   }
 
   /**
@@ -71,7 +71,18 @@ export class ChildsCategoryController {
   @Get(':id')
   @HttpCode(HttpStatus.OK)
   async findById(@Param('id', ParseIntPipe) id: number) {
-    return await this.childsCategoryService.findById(id)
+    return await this.secondCategoryService.findById(id)
+  }
+
+  /**
+   *
+   * @param id
+   * @returns
+   */
+  @Get('by-alias/:alias')
+  @HttpCode(HttpStatus.OK)
+  async findByAlias(@Param('alias') alias: string) {
+    return await this.secondCategoryService.findByAlias(alias)
   }
 
   /**
@@ -81,7 +92,7 @@ export class ChildsCategoryController {
   @Get()
   @HttpCode(HttpStatus.OK)
   async findAll() {
-    return await this.childsCategoryService.findAll()
+    return await this.secondCategoryService.findAll()
   }
 
   /**
@@ -92,6 +103,6 @@ export class ChildsCategoryController {
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
   async delete(@Param('id', ParseIntPipe) id: number) {
-    return await this.childsCategoryService.delete(id)
+    return await this.secondCategoryService.delete(id)
   }
 }

@@ -11,7 +11,7 @@ import { UpdateChildCategoryDTO } from '../data-transfer/update-childs.dto'
 import { MainCategoryService } from '../main.category.service'
 
 @Injectable()
-export class ChildsCategoryService {
+export class SecondCategoryService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly mainCategoryService: MainCategoryService,
@@ -78,11 +78,41 @@ export class ChildsCategoryService {
       const category = await this.prismaService.secondCategory.findUnique({
         where: { id },
         include: {
-          products: true,
+          products: {
+            select: { id: true },
+          },
+          childsCategories: true,
         },
       })
       if (!category)
         throw new BadRequestException('Категория не найдена по такому ID')
+      return category
+    } catch (error) {
+      throw new InternalServerErrorException(error)
+    }
+  }
+
+  async findByAlias(alias: string) {
+    try {
+      const category = await this.prismaService.secondCategory.findUnique({
+        where: { slug: alias },
+        include: {
+          products: {
+            select: { id: true },
+          },
+          childsCategories: {
+            include: {
+              products: {
+                select: {
+                  id: true,
+                },
+              },
+            },
+          },
+        },
+      })
+      if (!category)
+        throw new BadRequestException('Категория не найдена по такому SLUG')
       return category
     } catch (error) {
       throw new InternalServerErrorException(error)
@@ -131,6 +161,12 @@ export class ChildsCategoryService {
               name: true,
             },
           },
+          childsCategories: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
           products: {
             select: {
               id: true,
@@ -148,7 +184,7 @@ export class ChildsCategoryService {
    * @param name
    * @returns
    */
-  private generateUniqueName(name: string) {
+  public generateUniqueName(name: string) {
     const UNIQUE_ID = generateProductId(3)
     const slugName = name ? slugify(name, { lower: true, locale: 'eng' }) : null
 

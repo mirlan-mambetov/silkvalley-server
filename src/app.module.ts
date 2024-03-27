@@ -12,8 +12,9 @@ import { AppController } from './app.controller'
 import { ApiNotFoundMiddleware } from './middlewares/NotFound.middleware'
 import { PrismaService } from './prisma.service'
 import { AuthModule } from './resources/auth/auth.module'
+import { ChildsCategoryModule } from './resources/categories/childs-category/childs.category.module'
 import { MainCategoryModule } from './resources/categories/main.category.module'
-import { ChildsCategoryModule } from './resources/categories/second-category/second-category.module'
+import { SecondCategoryModule } from './resources/categories/second-category/second-category.module'
 import { ProductImageModule } from './resources/product-image/product-image.module'
 import { ProductAttributeModule } from './resources/product.attribute/product.attribute.module'
 import { ProductSpecificationModule } from './resources/product.specification/product.specification.module'
@@ -34,9 +35,10 @@ import { UserModule } from './resources/user/user.module'
     UploadModule,
     ProductImageModule,
     MainCategoryModule,
-    ChildsCategoryModule,
+    SecondCategoryModule,
     AuthModule,
     UserModule,
+    ChildsCategoryModule,
   ],
   controllers: [AppController],
   providers: [PrismaService],
