@@ -45,45 +45,68 @@ model User{
 model Product {
   id  Int @id @default(autoincrement())
 
+  // Название товара [может в дайльнейшем будет переименовано на 'name']
   title String
 
+  // Подзаголовок
   subtitle String @map("sub_title")
 
-  description String
+  // Описание
+  description String 
 
+  // [ALIAS]
   alias String @unique
 
+  // Постер
   poster String
 
+  // Цена
   price Int
 
+  // Артикул
   articleNumber String @unique @map("article_number")
 
+  // Рейтинг товара
   rating Int?
 
+  // Видеоролик
   video String? 
 
+  // Скидка на товар
   discount Int?
 
+  // Размеры товара если одежда
   sizes String[]
 
+  // Картинки изображения
   images ProductImage[]
 
+  // Хитотвый товар
   isHit Boolean? @map("is_hit") @default(false)
 
+  // Новинка ли
   isNew Boolean? @map("is_new") @default(false)
 
+  // Аттрибуты товара связь
   specifications ProductSpecification?
 
+  // Количество на складе
   quantity Int @default(1)
 
+  // Продан сколько раз
   sales Int? @default(0)
 
+  // Связь с основной с главными категориями
   mainCategory MainCategory? @relation(fields: [mainCategoryId], references: [id])
   mainCategoryId Int? @map("main_category_id")
 
+  // Связь с подкатегориями
   secondCategory SecondCategory? @relation(fields: [secondCategoryId], references: [id])
   secondCategoryId Int? @map("second_category_id")
+
+  // Связь дочернимии категориями
+  childsCategory ChildsCategories? @relation(fields: [childsCategoryId], references: [id])
+  childsCategoryId Int? @map("childs_category_id")
 
   createdAt DateTime @default(now())
 
@@ -149,7 +172,7 @@ model MainCategory {
   name String @unique
   slug String @unique
 
-  childCategories SecondCategory[]
+  categories SecondCategory[]
 
   products Product[]
 
@@ -160,7 +183,7 @@ model MainCategory {
   @@map("categories")
 }
 
-//#### MainCategory
+//#### SECOND CATEGORIES
 model SecondCategory {
   id            Int @id @default(autoincrement())
 
@@ -172,9 +195,30 @@ model SecondCategory {
   mainCategory MainCategory @relation(fields: [mainCategoryId], references: [id])
   mainCategoryId Int @map("main_category_id")
 
+  childsCategories ChildsCategories[]
+
   createdAt DateTime @default(now())
 
   updatedAt DateTime @updatedAt
 
   @@map("second_category")
+}
+
+//#### MainCategory
+model ChildsCategories {
+  id            Int @id @default(autoincrement())
+
+  name String
+  slug String @unique
+
+  products Product[]
+
+  parentCategory SecondCategory @relation(fields: [parentCategoryId], references: [id])
+  parentCategoryId Int @map("parent_category_id")
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  @@map("childs_categories")
 }
