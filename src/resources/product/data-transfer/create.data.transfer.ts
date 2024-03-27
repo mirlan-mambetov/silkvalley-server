@@ -65,4 +65,8 @@ export class CreateProductDTO {
   @IsOptional()
   @IsNumber()
   childCategoryId?: number
+
+  @IsOptional()
+  @IsNumber()
+  quantity?: number
 }

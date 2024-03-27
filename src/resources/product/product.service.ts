@@ -151,6 +151,7 @@ export class ProductService {
     if (dto.isNew !== undefined) fields.isNew = dto.isNew
     if (dto.rating !== undefined) fields.rating = dto.rating
     if (dto.video !== undefined) fields.video = dto.video
+    if (dto.quantity !== undefined) fields.quantity = dto.quantity
 
     return fields as T
   }

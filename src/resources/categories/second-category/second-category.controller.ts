@@ -14,7 +14,7 @@ import {
 } from '@nestjs/common'
 import { CreateChildCategoryDTO } from '../data-transfer/create-childs.dto'
 import { UpdateChildCategoryDTO } from '../data-transfer/update-childs.dto'
-import { ChildsCategoryService } from './childs-category.service'
+import { ChildsCategoryService } from './second-category.service'
 
 @Controller('childs-category')
 export class ChildsCategoryController {

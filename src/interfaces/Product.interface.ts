@@ -9,4 +9,5 @@ export interface IProduct {
   isNew?: boolean
   rating?: number | null
   video?: string | null
+  quantity?: number
 }
