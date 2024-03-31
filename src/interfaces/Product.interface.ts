@@ -10,4 +10,5 @@ export interface IProduct {
   rating?: number | null
   video?: string | null
   quantity?: number
+  sizes?: string[]
 }

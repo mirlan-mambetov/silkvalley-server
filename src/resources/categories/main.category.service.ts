@@ -143,6 +143,16 @@ export class MainCategoryService {
                 select: {
                   id: true,
                   name: true,
+                  products: {
+                    select: {
+                      id: true,
+                    },
+                  },
+                },
+              },
+              products: {
+                select: {
+                  id: true,
                 },
               },
             },

@@ -34,11 +34,18 @@ export class ChildsCategoryController {
     return await this.childsCategoryService.findById(id)
   }
 
-  @Get('by-parent/:alias')
+  @Get('by-alias/:alias')
   @HttpCode(HttpStatus.OK)
   // @Auth('SUPERUSER')
-  async findByParentAlias(@Param('alias') alias: string) {
-    return await this.childsCategoryService.findByParentAlias(alias)
+  async findByAlias(@Param('alias') alias: string) {
+    return await this.childsCategoryService.findByAlias(alias)
+  }
+
+  @Get('by-parent-id/:id')
+  @HttpCode(HttpStatus.OK)
+  // @Auth('SUPERUSER')
+  async findByParentId(@Param('id', ParseIntPipe) id: number) {
+    return await this.childsCategoryService.findByParentId(id)
   }
 
   @Post(':id')

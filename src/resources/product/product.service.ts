@@ -34,13 +34,23 @@ export class ProductService {
   async create(dto: CreateProductDTO) {
     try {
       const productData = this.savedFields<Prisma.ProductCreateInput>(dto)
-      await this.prismaSevice.product.createMany({
-        data: {
-          ...productData,
-          mainCategoryId: dto.mainCategoryId,
-          secondCategoryId: dto.childCategoryId,
+
+      const data: any = {
+        ...productData,
+        mainCategory: {
+          connect: { id: dto.mainCategoryId },
         },
+        secondCategory: {
+          connect: { id: dto.secondCategoryId },
+        },
+      }
+      if (dto.childsCategoryId) {
+        data.childsCategory = { connect: { id: dto.childsCategoryId } }
+      }
+      await this.prismaSevice.product.create({
+        data,
       })
+
       return {
         message: 'Товар успешно добавлен',
       }
@@ -65,6 +75,7 @@ export class ProductService {
           ...productData,
           mainCategoryId: Number(dto.mainCategoryId) || undefined,
           secondCategoryId: Number(dto.childCategoryId) || undefined,
+          sizes: dto.sizes,
         },
       })
       return {
@@ -88,10 +99,10 @@ export class ProductService {
       })
 
       if (!product)
-        throw new BadRequestException(`Продук по такому "${alias}" не найден`)
+        throw new NotFoundException(`Продук по такому "${alias}" не найден`)
       return product
     } catch (error) {
-      throw new InternalServerErrorException(error)
+      throw new NotFoundException(error.response)
     }
   }
 
@@ -106,10 +117,16 @@ export class ProductService {
         where: {
           id,
         },
-        include: { specifications: { include: { attributes: true } } },
+        include: {
+          specifications: { include: { attributes: true } },
+          mainCategory: { select: { name: true } },
+          secondCategory: { select: { name: true } },
+          childsCategory: { select: { name: true } },
+        },
       })
-      if (product) return product
-      else throw new NotFoundException()
+      if (!product)
+        throw new BadRequestException('Продукт по такому ID не найден')
+      return product
     } catch (error) {
       throw new InternalServerErrorException(error)
     }

@@ -52,7 +52,7 @@ export class ProductController {
    * @param alias
    * @returns
    */
-  @Get(':alias')
+  @Get('by-alias/:alias')
   @HttpCode(HttpStatus.OK)
   async findOneByAlias(@Param('alias') alias: string) {
     return await this.productService.findOneByAlias(alias)

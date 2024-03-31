@@ -64,9 +64,17 @@ export class CreateProductDTO {
 
   @IsOptional()
   @IsNumber()
-  childCategoryId?: number
+  secondCategoryId?: number
+
+  @IsOptional()
+  @IsNumber()
+  childsCategoryId?: number
 
   @IsOptional()
   @IsNumber()
   quantity?: number
+
+  @IsOptional()
+  @IsString()
+  sizes?: string[]
 }

@@ -52,4 +52,8 @@ export class UpdateProductDTO {
   @IsOptional()
   @IsNumber()
   childCategoryId?: number
+
+  @IsOptional()
+  @IsString()
+  sizes?: string[]
 }

@@ -8,7 +8,7 @@ export class ApiNotFoundMiddleware implements NestMiddleware {
   private readonly filter = new ApiNotFoundFilter()
 
   use(req: Request, res: Response, next: NextFunction) {
-    if (req.originalUrl.includes('/api/')) {
+    if (req.originalUrl.startsWith('/api/')) {
       next()
     } else {
       res.status(HttpStatus.NOT_FOUND).render('404', {

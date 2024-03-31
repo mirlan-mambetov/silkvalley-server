@@ -63,6 +63,18 @@ export class ChildsCategoryService {
   async findById(id: number) {
     const category = await this.prismaService.childsCategories.findUnique({
       where: { id },
+      include: {
+        parentCategory: {
+          select: {
+            id: true,
+          },
+        },
+        products: {
+          select: {
+            id: true,
+          },
+        },
+      },
     })
     if (!category)
       throw new BadRequestException(
@@ -71,10 +83,12 @@ export class ChildsCategoryService {
     return category
   }
 
-  async findByParentAlias(parentAlias: string) {
-    const categories = await this.prismaService.childsCategories.findMany({
+  async findByParentId(parentId: number) {
+    return await this.prismaService.childsCategories.findMany({
       where: {
-        slug: parentAlias,
+        parentCategory: {
+          id: parentId,
+        },
       },
       include: {
         parentCategory: {
@@ -90,7 +104,6 @@ export class ChildsCategoryService {
         },
       },
     })
-    return categories
   }
 
   async findAll() {
@@ -107,5 +120,21 @@ export class ChildsCategoryService {
     return categories
   }
 
-  async findByAlias() {}
+  async findByAlias(alias: string) {
+    const category = await this.prismaService.childsCategories.findUnique({
+      where: { id: 7 },
+      include: {
+        products: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    })
+    if (!category)
+      throw new BadRequestException(
+        'Категория по данному ALIAS не найден. Либо не существует',
+      )
+    return category
+  }
 }
