@@ -57,12 +57,8 @@ export class AuthService {
   private async generateTokens(user: Partial<User>) {
     const payload = { id: user.id, email: user.email, role: user.role }
 
-    const accessToken = await this.jwtService.signAsync(payload, {
-      expiresIn: '1h',
-    })
-    const refreshToken = await this.jwtService.signAsync(payload, {
-      expiresIn: '24h',
-    })
+    const accessToken = await this.jwtService.signAsync(payload)
+    const refreshToken = await this.jwtService.signAsync(payload)
     return {
       accessToken,
       refreshToken,

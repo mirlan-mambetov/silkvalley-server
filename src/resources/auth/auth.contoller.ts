@@ -11,6 +11,7 @@ import { AuthService } from './auth.service'
 import { LoginDTO } from './data-transfer/login.dto'
 import { RegisterDTO } from './data-transfer/register.dto'
 import { Auth } from './decorators/auth.decorator'
+import { CurrentUser } from './decorators/currentUser.decorator'
 
 @Controller('auth')
 export class AuthController {
@@ -33,7 +34,10 @@ export class AuthController {
 
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
-  async refresh(@Body() token: { refreshToken: string }) {
+  async refresh(
+    @Body() token: { refreshToken: string },
+    @CurrentUser('name') username: string,
+  ) {
     const tokens = await this.authService.getNewTokens(token.refreshToken)
     return tokens
   }

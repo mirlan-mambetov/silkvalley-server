@@ -72,8 +72,8 @@ export class UserController {
   @Get('profile')
   @HttpCode(HttpStatus.OK)
   @Auth()
-  findProfile(@CurrentUser('email') email: string) {
-    return this.userSerivce.getUserProfile(email)
+  async findProfile(@CurrentUser('email') email: string) {
+    return await this.userSerivce.getUserProfile(email)
   }
 
   /**

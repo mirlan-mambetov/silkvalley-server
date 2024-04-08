@@ -4,7 +4,7 @@ export class LoginDTO {
   @IsString()
   @IsNotEmpty()
   @IsEmail()
-  @Length(4, 20, { message: 'Минимальная длина E-mail 4 и максимальная 20' })
+  @Length(4, 50, { message: 'Минимальная длина E-mail 4 и максимальная 20' })
   email: string
 
   @IsString()
