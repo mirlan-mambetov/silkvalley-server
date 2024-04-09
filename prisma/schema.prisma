@@ -8,7 +8,6 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
 // USER ROLES ENUM
@@ -29,7 +28,7 @@ model User{
   
   email String @unique
 
-  phoneNumber Int @map("phone_number")
+  phoneNumber BigInt @map("phone_number")
 
   password String
 
