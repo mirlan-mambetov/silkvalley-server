@@ -96,7 +96,7 @@ export class UploadService {
       ? `${BASE_UPLOAD_PATH}/${destinationPath}`
       : BASE_UPLOAD_PATH
     const uniqueName = uuid()
-    const fileName = file.originalname.split('.')[0]
+    const fileName = file.originalname.split('.')[0].replace(/\s+/g, '-')
     const fileExtName = path.extname(file.originalname)
     const fullName = `${dest}/${fileName}-${uniqueName}${fileExtName}`
     return new Promise((resolve, reject) => {
