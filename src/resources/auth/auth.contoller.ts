@@ -10,7 +10,6 @@ import {
 import { AuthService } from './auth.service'
 import { LoginDTO } from './data-transfer/login.dto'
 import { RegisterDTO } from './data-transfer/register.dto'
-import { Auth } from './decorators/auth.decorator'
 import { CurrentUser } from './decorators/currentUser.decorator'
 
 @Controller('auth')
@@ -20,9 +19,8 @@ export class AuthController {
   @Post('register')
   @HttpCode(HttpStatus.OK)
   @UsePipes(new ValidationPipe())
-  @Auth('OWNER')
-  register(@Body() dto: RegisterDTO) {
-    return this.authService.register(dto)
+  async register(@Body() dto: RegisterDTO) {
+    return await this.authService.register(dto)
   }
 
   @Post('login')

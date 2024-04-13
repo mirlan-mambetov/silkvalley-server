@@ -27,14 +27,18 @@ export class UserService {
    */
   async save(user: Omit<IUser, 'createdAt' | 'updatedAt' | 'id'>) {
     const hashedPassword = await this.hashedPassword(user.password)
-    return await this.prismaService.user.create({
-      data: {
-        ...user,
-        password: hashedPassword,
+    let data = {
+      ...user,
+      password: hashedPassword,
+    }
+    if (user.role) {
+      data = {
         // @ts-ignore
         role: [user.role],
-      },
-    })
+      }
+    }
+
+    return await this.prismaService.user.create({ data })
   }
 
   /**
@@ -120,6 +124,18 @@ export class UserService {
         avatar: true,
         phoneNumber: true,
         role: true,
+        createdAt: true,
+        updatedAt: true,
+        orders: {
+          include: {
+            items: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
       })
     } catch (error) {
       throw new UnauthorizedException(error)

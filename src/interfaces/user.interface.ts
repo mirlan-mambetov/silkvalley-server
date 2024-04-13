@@ -6,6 +6,6 @@ export interface IUser extends IBase {
   email: string
   password: string
   avatar?: string
-  phoneNumber: number
+  phoneNumber: string
   role?: UserRoles[]
 }

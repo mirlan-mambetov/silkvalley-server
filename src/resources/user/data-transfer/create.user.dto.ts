@@ -1,5 +1,5 @@
 import { UserRoles } from '@prisma/client'
-import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator'
+import { IsEnum, IsOptional, IsString } from 'class-validator'
 
 export class CreateUserDTO {
   @IsString()
@@ -8,8 +8,8 @@ export class CreateUserDTO {
   @IsString()
   email: string
 
-  @IsNumber()
-  phoneNumber: number
+  @IsString()
+  phoneNumber: string
 
   @IsString()
   password: string

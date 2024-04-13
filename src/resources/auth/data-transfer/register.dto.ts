@@ -3,7 +3,6 @@ import {
   IsEmail,
   IsEnum,
   IsNotEmpty,
-  IsNumber,
   IsOptional,
   IsString,
   Length,
@@ -13,17 +12,21 @@ export class RegisterDTO {
   @IsString()
   @IsNotEmpty()
   @IsEmail()
-  @Length(4, 20, { message: 'Минимальная длина E-mail 4 и максимальная 20' })
+  @Length(4, 100, {
+    message: 'Минимальная длина E-mail 4 и максимальная длина 100',
+  })
   email: string
 
   @IsNotEmpty()
-  @Length(4, 20, { message: 'Минимальная длина имени 4 и максимальная 20' })
+  @Length(4, 100, {
+    message: 'Минимальная длина имени 4 и максимальная длина 100',
+  })
   @IsString()
   name: string
 
   @IsNotEmpty()
-  @IsNumber()
-  phoneNumber: number
+  @IsString()
+  phoneNumber: string
 
   @IsNotEmpty()
   @Length(3, 20, { message: 'Минимальная длина пароля 3 и максимальная 20' })

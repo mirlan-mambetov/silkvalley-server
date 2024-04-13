@@ -29,7 +29,11 @@ export class AuthService {
       where: { email: dto.email },
     })
     if (user) throw new BadRequestException('Такой E-mail уже используется')
-    return await this.userService.save(dto)
+    await this.userService.save(dto)
+    return {
+      message: 'Регистрация прошла успешно',
+      success: true,
+    }
   }
 
   async login(dto: LoginDTO): Promise<IAuth> {
