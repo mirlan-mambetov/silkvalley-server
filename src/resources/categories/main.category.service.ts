@@ -6,7 +6,7 @@ import {
 import slugify from 'slugify'
 import { generateProductId } from 'src/helpers/generate.id'
 import { PrismaService } from 'src/prisma.service'
-import { ProductService } from '../product/product.service'
+import { FiltersService } from '../filters/filters.service'
 import { CreateMainCategoryDTO } from './data-transfer/create.main-category.dto'
 import { UpdateMainCategoryDTO } from './data-transfer/update.main-category.dto'
 import {
@@ -18,7 +18,7 @@ import {
 export class MainCategoryService {
   constructor(
     private readonly prismaService: PrismaService,
-    private readonly productService: ProductService,
+    private readonly filterService: FiltersService,
   ) {}
 
   /**
@@ -133,7 +133,9 @@ export class MainCategoryService {
     }
     try {
       category = await this.prismaService.mainCategory.findUnique({
-        where: filter,
+        where: {
+          ...filter,
+        },
         ...options,
         ...returnCategoryUniqueFields,
         include: {
@@ -157,6 +159,7 @@ export class MainCategoryService {
               },
             },
           },
+          products: true,
         },
       })
       if (!category) {

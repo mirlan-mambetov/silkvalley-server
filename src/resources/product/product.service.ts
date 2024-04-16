@@ -9,6 +9,7 @@ import slugify from 'slugify'
 import { generateProductId } from 'src/helpers/generate.id'
 import { IProduct } from 'src/interfaces/Product.interface'
 import { PrismaService } from 'src/prisma.service'
+import { FiltersService } from '../filters/filters.service'
 import { UploadService } from '../upload/upload.service'
 import { CreateProductDTO } from './data-transfer/create.data.transfer'
 import { UpdateProductDTO } from './data-transfer/update.data.transfer'
@@ -22,6 +23,7 @@ export class ProductService {
   constructor(
     private readonly prismaSevice: PrismaService,
     private readonly uploadService: UploadService,
+    private readonly filterService: FiltersService,
   ) {}
 
   /**
@@ -130,6 +132,17 @@ export class ProductService {
     } catch (error) {
       throw new InternalServerErrorException(error)
     }
+  }
+
+  async findByCategorySlug(slug: string) {
+    const products = await this.prismaSevice.product.findMany({
+      where: {
+        mainCategory: {
+          slug,
+        },
+      },
+    })
+    return products
   }
 
   /**

@@ -5,5 +5,4 @@ export enum EnumProductSort {
   NEWEST = 'newest',
   HIGH_PRICE = 'high-price',
   LOW_PRICE = 'low-price',
-  RATING = 'rating',
 }

@@ -5,7 +5,9 @@ import { join } from 'path'
 import { AppModule } from './app.module'
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule)
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    rawBody: true,
+  })
 
   app.useStaticAssets(join(__dirname, '..', 'public'))
   app.setBaseViewsDir(join(__dirname, '..', 'views'))
@@ -20,7 +22,10 @@ async function bootstrap() {
   // app.useGlobalFilters(new NotFoundExceptionFilter())
   app.setViewEngine('hbs')
   app.setGlobalPrefix('api/v1', { exclude: ['/'] })
-  app.enableCors()
+  app.enableCors({
+    origin: ['https://silk-valley-client.vercel.app', 'http://localhost:3000'],
+  })
   await app.listen(5000)
+  console.log(`Application is running on: ${await app.getUrl()}`)
 }
 bootstrap()

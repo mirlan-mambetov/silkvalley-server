@@ -60,6 +60,17 @@ export class ProductController {
 
   /**
    *
+   * @param slug
+   * @returns
+   */
+  @Get('by-category/:slug')
+  @HttpCode(HttpStatus.OK)
+  async findByCategorySlug(@Param('slug') slug: string) {
+    return await this.productService.findByCategorySlug(slug)
+  }
+
+  /**
+   *
    * @param id
    * @returns
    */

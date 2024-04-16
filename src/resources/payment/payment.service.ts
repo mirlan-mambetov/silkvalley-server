@@ -17,14 +17,14 @@ export class PaymentService {
   ) {}
 
   async payment(data: StripePaymentIntentSucceededEvent) {
-    const part = data.data.object.description
-    const parts = part.split('#')
-    const orderId = parts[1].trim()
-    const order = await this.prismaService.order.findUnique({
-      where: { id: +orderId },
-    })
     switch (data.type) {
       case PaymentEnumStatus.PAYMENT_INTENT_SUCCESS:
+        const part = data.data.object.description
+        const parts = part.split('#')
+        const orderId = parts[1].trim()
+        const order = await this.prismaService.order.findUnique({
+          where: { id: +orderId },
+        })
         await this.prismaService.order.update({
           where: {
             id: order.id,
