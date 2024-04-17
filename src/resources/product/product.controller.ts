@@ -9,6 +9,7 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common'
@@ -62,12 +63,27 @@ export class ProductController {
    *
    * @param slug
    * @returns
+   * @deprecated This method is deprecated on api/v2
    */
-  @Get('by-category/:slug')
+  @Get('by-category')
   @HttpCode(HttpStatus.OK)
-  async findByCategorySlug(@Param('slug') slug: string) {
-    return await this.productService.findByCategorySlug(slug)
+  async findByCategorySlug(
+    @Query()
+    {
+      mainCategorySlug,
+      secondCategorySlug,
+    }: {
+      mainCategorySlug: string
+      secondCategorySlug: string
+    },
+  ) {
+    return await this.productService.findByCategorySlug(
+      mainCategorySlug,
+      secondCategorySlug,
+    )
   }
+
+  async findBySecondCategory(slug: string) {}
 
   /**
    *

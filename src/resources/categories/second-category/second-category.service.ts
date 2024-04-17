@@ -108,9 +108,7 @@ export class SecondCategoryService {
       const category = await this.prismaService.secondCategory.findUnique({
         where: { slug: alias },
         include: {
-          products: {
-            select: { id: true },
-          },
+          products: true,
           childsCategories: {
             include: {
               products: {
@@ -118,6 +116,12 @@ export class SecondCategoryService {
                   id: true,
                 },
               },
+            },
+          },
+          mainCategory: {
+            select: {
+              id: true,
+              name: true,
             },
           },
         },

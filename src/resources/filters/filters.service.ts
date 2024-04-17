@@ -10,23 +10,38 @@ export class FiltersService {
 
   async productAttributes(slug: string) {
     let filters = {}
+    let condition = {}
     const productColors: string[] = []
     const productSizes: string[] = []
-
-    const category = await this.prismaService.mainCategory.findUnique({
+    const mainCategory = await this.prismaService.mainCategory.findUnique({
       where: { slug },
-      include: {
-        products: {
-          select: {
-            images: true,
-            sizes: true,
-          },
-        },
+    })
+    const secondCategory = await this.prismaService.secondCategory.findUnique({
+      where: { slug },
+    })
+    const childsCategory = await this.prismaService.childsCategories.findUnique(
+      {
+        where: { slug },
+      },
+    )
+
+    if (mainCategory) {
+      condition = { mainCategory: { slug } }
+    } else if (secondCategory) {
+      condition = { secondCategory: { slug } }
+    } else if (childsCategory) {
+      condition = { childsCategory: { slug } }
+    }
+    const products = await this.prismaService.product.findMany({
+      where: condition,
+      select: {
+        images: true,
+        sizes: true,
       },
     })
 
     // Извлекаем цвета и размеры из каждого товара
-    category.products.forEach((product) => {
+    products.forEach((product) => {
       // Получаем все уникальные цвета изображений товара
       product.images.forEach((image) => {
         if (image.color && !productColors.includes(image.color)) {
@@ -55,6 +70,7 @@ export class FiltersService {
 
   async filterdProducts(dto?: QueryDTO) {
     const sorts = this.sortFilter(dto.sort)
+    console.log(dto.selectedSize)
     const filters = []
     if (dto.childsCategoryId)
       filters.push({ childsCategoryId: Number(dto.childsCategoryId) })
@@ -76,6 +92,7 @@ export class FiltersService {
       },
       orderBy: sorts,
     })
+    console.log(products)
     return products
   }
 
@@ -91,6 +108,7 @@ export class FiltersService {
         return [{ createdAt: 'desc' }]
     }
   }
+
   private priceFilter(minPrice?: number, maxPrice?: number) {
     let priceFilter: Prisma.IntFilter | undefined = undefined
 

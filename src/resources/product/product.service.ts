@@ -134,13 +134,26 @@ export class ProductService {
     }
   }
 
-  async findByCategorySlug(slug: string) {
-    const products = await this.prismaSevice.product.findMany({
-      where: {
+  async findByCategorySlug(
+    mainCategorySlug?: string,
+    secondCategorySlug?: string,
+  ) {
+    let whereCondition = {}
+    if (mainCategorySlug) {
+      whereCondition = {
         mainCategory: {
-          slug,
+          slug: mainCategorySlug,
         },
-      },
+      }
+    } else if (secondCategorySlug) {
+      whereCondition = {
+        secondCategory: {
+          slug: secondCategorySlug,
+        },
+      }
+    }
+    const products = await this.prismaSevice.product.findMany({
+      where: whereCondition,
     })
     return products
   }
