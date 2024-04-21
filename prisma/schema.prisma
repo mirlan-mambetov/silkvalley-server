@@ -181,6 +181,7 @@ model ProductSpecification {
 
   @@map("product_specification")
 }
+
 //#### PRODUCT ATTRIBUTES
 model Productattribute {
   id            Int @id @default(autoincrement())

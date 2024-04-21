@@ -13,6 +13,7 @@ export class FiltersService {
     let condition = {}
     const productColors: string[] = []
     const productSizes: string[] = []
+
     const mainCategory = await this.prismaService.mainCategory.findUnique({
       where: { slug },
     })
@@ -70,7 +71,6 @@ export class FiltersService {
 
   async filterdProducts(dto?: QueryDTO) {
     const sorts = this.sortFilter(dto.sort)
-    console.log(dto.selectedSize)
     const filters = []
     if (dto.childsCategoryId)
       filters.push({ childsCategoryId: Number(dto.childsCategoryId) })
@@ -92,7 +92,6 @@ export class FiltersService {
       },
       orderBy: sorts,
     })
-    console.log(products)
     return products
   }
 
@@ -115,14 +114,14 @@ export class FiltersService {
     if (minPrice) {
       priceFilter = {
         ...priceFilter,
-        gte: minPrice,
+        gte: Number(minPrice),
       }
     }
 
     if (maxPrice) {
       priceFilter = {
         ...priceFilter,
-        lte: maxPrice,
+        lte: Number(maxPrice),
       }
     }
     return {
