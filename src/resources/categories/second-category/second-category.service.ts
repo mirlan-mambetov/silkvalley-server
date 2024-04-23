@@ -3,8 +3,7 @@ import {
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common'
-import slugify from 'slugify'
-import { generateProductId } from 'src/helpers/generate.id'
+import { createSlugName } from 'src/helpers/create.slug-name'
 import { PrismaService } from 'src/prisma.service'
 import { CreateChildCategoryDTO } from '../data-transfer/create-childs.dto'
 import { UpdateChildCategoryDTO } from '../data-transfer/update-childs.dto'
@@ -25,7 +24,7 @@ export class SecondCategoryService {
    */
   async create(mainCategoryId: number, dto: CreateChildCategoryDTO) {
     try {
-      const uniqueName = this.generateUniqueName(dto.name)
+      const uniqueName = createSlugName(dto.name)
       const mainCategory =
         await this.mainCategoryService.findOneById(mainCategoryId)
       await this.prismaService.secondCategory.create({
@@ -52,7 +51,7 @@ export class SecondCategoryService {
   async update(id: number, dto: UpdateChildCategoryDTO) {
     try {
       const category = await this.findById(id)
-      const uniqueName = this.generateUniqueName(dto.name)
+      const uniqueName = createSlugName(dto.name)
       await this.prismaService.secondCategory.update({
         where: { id: category.id },
         data: {
@@ -103,6 +102,11 @@ export class SecondCategoryService {
     }
   }
 
+  /**
+   *
+   * @param alias
+   * @returns
+   */
   async findByAlias(alias: string) {
     try {
       const category = await this.prismaService.secondCategory.findUnique({
@@ -192,18 +196,6 @@ export class SecondCategoryService {
     } catch (error) {
       throw new InternalServerErrorException(error)
     }
-  }
-
-  /**
-   *
-   * @param name
-   * @returns
-   */
-  public generateUniqueName(name: string) {
-    const UNIQUE_ID = generateProductId(3)
-    const slugName = name ? slugify(name, { lower: true, locale: 'eng' }) : null
-
-    return `${slugName}-${UNIQUE_ID}`
   }
 
   /**

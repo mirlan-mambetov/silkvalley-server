@@ -3,8 +3,7 @@ import {
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common'
-import slugify from 'slugify'
-import { generateProductId } from 'src/helpers/generate.id'
+import { createSlugName } from 'src/helpers/create.slug-name'
 import { PrismaService } from 'src/prisma.service'
 import { FiltersService } from '../filters/filters.service'
 import { CreateMainCategoryDTO } from './data-transfer/create.main-category.dto'
@@ -35,9 +34,7 @@ export class MainCategoryService {
         throw new BadRequestException(
           'Невозможно создать, категория уже существует',
         )
-      const uniqueName = this.createUniqueId(dto.name)
-        ? slugify(dto.name, { lower: true, locale: 'eng' })
-        : null
+      const uniqueName = createSlugName(dto.name)
       await this.prismaService.mainCategory.create({
         data: {
           name: dto.name.trim(),
@@ -61,7 +58,7 @@ export class MainCategoryService {
   async update(id: number, dto: UpdateMainCategoryDTO) {
     try {
       await this.findOneById(id)
-      const uniqueName = this.createUniqueId(dto.name)
+      const uniqueName = createSlugName(dto.name)
       await this.prismaService.mainCategory.update({
         where: { id },
         data: {
@@ -185,35 +182,19 @@ export class MainCategoryService {
 
   /**
    *
-   * @param name
-   * @returns Возврощает уникальное значение из переданного
-   */
-  private createUniqueId(name: string) {
-    const UNIQUE_ID = generateProductId(3)
-    const slugName = name ? slugify(name, { lower: true, locale: 'eng' }) : null
-
-    return `${slugName}-${UNIQUE_ID}`
-  }
-
-  /**
-   *
    * @param id Параметр Id :number
    * @returns Сообщение об успешном удалении
    */
   async delete(id: number) {
-    try {
-      const category = await this.findOneById(id)
-      if (category.childCategories.length || category.products.length) {
-        throw new BadRequestException(
-          'Удаление невозможно! В категории есть товары и подкатегории!',
-        )
-      }
-      await this.prismaService.mainCategory.delete({ where: { id } })
-      return {
-        message: 'Категория удалена',
-      }
-    } catch (error) {
-      throw new InternalServerErrorException(error)
+    const category = await this.findOneById(id)
+    if (category.categories?.length || category.products?.length)
+      throw new BadRequestException(
+        'Удаление невозможно! В категории есть товары и подкатегории!',
+      )
+    await this.prismaService.mainCategory.delete({ where: { id } })
+
+    return {
+      message: 'Категория удалена',
     }
   }
 }

@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common'
+import { createSlugName } from 'src/helpers/create.slug-name'
 import { PrismaService } from 'src/prisma.service'
 import { CreateChildCategoryDTO } from '../data-transfer/create-childs.dto'
 import { UpdateChildCategoryDTO } from '../data-transfer/update-childs.dto'
@@ -21,7 +22,7 @@ export class ChildsCategoryService {
     if (isExistInCategory)
       throw new BadRequestException(`${dto.name} категория уже существует`)
     // Иначе создаем
-    const uniqueName = this.secondCategoryService.generateUniqueName(dto.name)
+    const uniqueName = createSlugName(dto.name)
     await this.prismaService.childsCategories.create({
       data: {
         ...dto,
@@ -37,7 +38,7 @@ export class ChildsCategoryService {
   async update(id: number, dto: UpdateChildCategoryDTO) {
     await this.findById(id)
 
-    const uniqueName = this.secondCategoryService.generateUniqueName(dto.name)
+    const uniqueName = createSlugName(dto.name)
     await this.prismaService.childsCategories.update({
       where: { id },
       data: {
