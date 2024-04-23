@@ -218,6 +218,7 @@ export class ProductService {
           where: { specificationId: specification.id },
         })
       }
+
       await this.prismaSevice.productSpecification.deleteMany({
         where: { productId: id },
       })
@@ -239,6 +240,12 @@ export class ProductService {
       await this.prismaSevice.productImage.deleteMany({
         where: {
           productId: id,
+        },
+      })
+
+      await this.prismaSevice.orderItem.deleteMany({
+        where: {
+          productId: product.id,
         },
       })
 
