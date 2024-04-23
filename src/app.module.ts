@@ -9,6 +9,7 @@ import { ConfigModule } from '@nestjs/config'
 import { ServeStaticModule } from '@nestjs/serve-static'
 import { join } from 'path'
 import { AppController } from './app.controller'
+import { AppGateway } from './app.gateway.module'
 import { ApiNotFoundMiddleware } from './middlewares/NotFound.middleware'
 import { PrismaService } from './prisma.service'
 import { AuthModule } from './resources/auth/auth.module'
@@ -31,6 +32,7 @@ import { UserModule } from './resources/user/user.module'
       exclude: ['/api/(.*)'],
     }),
     ConfigModule.forRoot({ isGlobal: true }),
+    AppGateway,
     // WebSocketModule,
     PaymentModule,
     // MailerModule.forRoot({
