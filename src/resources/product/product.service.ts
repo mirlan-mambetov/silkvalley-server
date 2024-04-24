@@ -71,13 +71,14 @@ export class ProductService {
     try {
       await this.findOneById(id)
       const productData = this.savedFields<Prisma.ProductUpdateInput>(dto)
-      await this.prismaSevice.product.updateMany({
+      await this.prismaSevice.product.update({
         where: { id },
         data: {
           ...productData,
           mainCategoryId: Number(dto.mainCategoryId) || undefined,
           secondCategoryId: Number(dto.childCategoryId) || undefined,
-          sizes: dto.sizes,
+          // @ts-ignore
+          sizes: [dto.sizes],
         },
       })
       return {

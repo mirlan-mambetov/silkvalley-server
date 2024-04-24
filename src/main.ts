@@ -23,7 +23,11 @@ async function bootstrap() {
   app.setViewEngine('hbs')
   app.setGlobalPrefix('api/v1', { exclude: ['/'] })
   app.enableCors({
-    origin: ['https://silk-valley-client.vercel.app', 'http://localhost:3000'],
+    origin: [
+      'https://silk-valley-client.vercel.app',
+      'http://localhost:3000',
+      'https://silkvalley-dashboard.vercel.app',
+    ],
   })
   await app.listen(5000)
   console.log(`Application is running on: ${await app.getUrl()}`)

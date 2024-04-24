@@ -83,8 +83,6 @@ export class ProductController {
     )
   }
 
-  async findBySecondCategory(slug: string) {}
-
   /**
    *
    * @param id

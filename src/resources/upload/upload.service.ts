@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import * as fs from 'fs'
 import * as path from 'path'
+import * as sharp from 'sharp'
 import { BASE_UPLOAD_PATH } from 'src/constants/upload.constants'
 import { v4 as uuid } from 'uuid'
 
@@ -32,7 +33,7 @@ export class UploadService {
     )
     const results = await Promise.all(promises)
     const paths = results.map((result) => ({
-      filePath: result.filePath.replace('public', ''),
+      filePath: result.filePath,
     }))
     return {
       paths: paths.map((path) => path.filePath),
@@ -88,7 +89,7 @@ export class UploadService {
     return { paths, totalSize }
   }
 
-  private uploadDetail(
+  private async uploadDetail(
     file: Express.Multer.File,
     destinationPath?: string,
   ): Promise<{ filePath: string }> {
@@ -97,19 +98,16 @@ export class UploadService {
       : BASE_UPLOAD_PATH
     const uniqueName = uuid()
     const fileName = file.originalname.split('.')[0].replace(/\s+/g, '-')
-    const fileExtName = path.extname(file.originalname)
-    const fullName = `${dest}/${fileName}-${uniqueName}${fileExtName}`
-    return new Promise((resolve, reject) => {
-      if (!fs.existsSync(dest)) {
-        fs.mkdirSync(dest, { recursive: true })
-      }
-      fs.writeFile(`${fullName}`, file.buffer, (err) => {
-        if (err) reject(err)
-        else
-          resolve({
-            filePath: fullName.replace('public', ''),
-          })
-      })
-    })
+    const fullName = `${dest}/${fileName}-${uniqueName}.webp`
+    if (!fs.existsSync(dest)) {
+      fs.mkdirSync(dest, { recursive: true })
+    }
+    await sharp(file.buffer)
+      .toFormat('webp')
+      .webp({ quality: 75 })
+      .toFile(fullName)
+    return {
+      filePath: fullName.replace('public', ''),
+    }
   }
 }
