@@ -28,8 +28,10 @@ export class AuthService {
     const user = await this.prismaService.user.findUnique({
       where: { email: dto.email },
     })
+
     if (user) throw new BadRequestException('Такой E-mail уже используется')
     await this.userService.save(dto)
+
     return {
       message: 'Регистрация прошла успешно',
       success: true,
@@ -62,7 +64,7 @@ export class AuthService {
     const payload = { id: user.id, email: user.email, role: user.role }
 
     const accessToken = await this.jwtService.signAsync(payload, {
-      expiresIn: '1m',
+      expiresIn: '10h',
     })
     const refreshToken = await this.jwtService.signAsync(payload, {
       expiresIn: '7d',

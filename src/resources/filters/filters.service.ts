@@ -14,7 +14,7 @@ export class FiltersService {
     const productColors: string[] = []
     const productSizes: string[] = []
 
-    const mainCategory = await this.prismaService.mainCategory.findUnique({
+    const mainCategory = await this.prismaService.category.findUnique({
       where: { slug },
     })
     const secondCategory = await this.prismaService.secondCategory.findUnique({
@@ -36,35 +36,34 @@ export class FiltersService {
     const products = await this.prismaService.product.findMany({
       where: condition,
       select: {
-        images: true,
-        sizes: true,
+        attributes: true,
       },
     })
 
-    // Извлекаем цвета и размеры из каждого товара
-    products.forEach((product) => {
-      // Получаем все уникальные цвета изображений товара
-      product.images.forEach((image) => {
-        if (image.color && !productColors.includes(image.color)) {
-          productColors.push(image.color)
-        }
-      })
+    // // Извлекаем цвета и размеры из каждого товара
+    // products.forEach((product) => {
+    //   // Получаем все уникальные цвета изображений товара
+    //   product.images.forEach((image) => {
+    //     if (image.color && !productColors.includes(image.color)) {
+    //       productColors.push(image.color)
+    //     }
+    //   })
 
-      // Получаем все уникальные размеры товара
-      if (product.sizes) {
-        product.sizes.forEach((size) => {
-          if (size && !productSizes.includes(size)) {
-            productSizes.push(size)
-          }
-        })
-      }
-    })
+    //   // Получаем все уникальные размеры товара
+    //   if (product.sizes) {
+    //     product.sizes.forEach((size) => {
+    //       if (size && !productSizes.includes(size)) {
+    //         productSizes.push(size)
+    //       }
+    //     })
+    //   }
+    // })
 
-    // Собираем фильтры
-    filters = {
-      sizes: productSizes,
-      colors: productColors,
-    }
+    // // Собираем фильтры
+    // filters = {
+    //   sizes: productSizes,
+    //   colors: productColors,
+    // }
 
     return filters
   }

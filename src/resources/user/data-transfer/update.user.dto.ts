@@ -22,7 +22,7 @@ export class UpdateUserDTO {
   @IsOptional()
   avatar?: string
 
-  @IsEnum(UserRoles)
+  @IsEnum(UserRoles, { each: true })
   @IsOptional()
   role?: UserRoles[]
 }

@@ -25,28 +25,30 @@ enum EnumStatusOrder {
   PAYED
   CANCELED
 }
-
 //#### USER
-model User{
-
+model Administration{
   id  Int @id @default(autoincrement())
-
   name String
-  
-  email String @unique
- 
+  email String @unique()
   phoneNumber String @map("phone_number")
-
   password String
-
-  avatar String? @default("/uploads/user-avatar/ÐÐµÐ· Ð½Ð°Ð·Ð²Ð°Ð½Ð¸Ñ-4cf93b19-a2e2-4270-b1d5-b0d239074166.jpg")
-
+  avatar String? @default("/images/default-avatar.png")
   role UserRoles[] @default([USER])
-  
   createdAt DateTime @default(now())
-
   updatedAt DateTime @updatedAt
+  @@map("administrations")
+}
 
+model User{
+  id  Int @id @default(autoincrement())
+  name String
+  email String @unique
+  phoneNumber String @map("phone_number")
+  password String
+  avatar String? @default("/images/default-avatar.png")
+  role UserRoles[] @default([USER])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   orders Order[]
 }
 
@@ -55,16 +57,11 @@ model Order {
   id Int @id @default(autoincrement())
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
-
   status EnumStatusOrder @default(WAITING)
-
   items OrderItem[]
-
   total Int
-
   user User @relation(fields: [userId], references: [id])
   userId Int @map("user_id")
-
   @@map("orders")
 }
 
@@ -72,207 +69,122 @@ model OrderItem {
   id Int @id @default(autoincrement())
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
-
   name String
-  
   quantity Int
   price Int
-
   color String? 
-
   sizes String? 
-
   order Order @relation(fields: [orderId], references: [id])
   orderId Int @map("order_id")
-
   product Product @relation(fields: [productId], references: [id])
   productId Int @map("product_id")
-
   @@map("order_item")
 }
 
 //#### PRODUCT
 model Product {
   id  Int @id @default(autoincrement())
-
-  // Название товара [может в дайльнейшем будет переименовано на 'name']
   title String
-
-  // Подзаголовок
   subtitle String @map("sub_title")
-
-  // Описание
   description String 
-
-  // [ALIAS]
   alias String @unique
-
-  // Постер
   poster String
-
-  // Цена
   price Int
-
-  // Артикул
   articleNumber String @unique @map("article_number")
-
-  // Рейтинг товара
   rating Int?
-
-  // Видеоролик
   video String? 
-
-  // Скидка на товар
   discount Int?
-
-  // Размеры товара если одежда
-  sizes String[]
-
-  // Картинки изображения
-  images ProductImage[]
-
-  // Хитотвый товар
   isHit Boolean? @map("is_hit") @default(false)
-
-  // Новинка ли
   isNew Boolean? @map("is_new") @default(false)
-
-  // Аттрибуты товара связь
-  specifications ProductSpecification?
-
-  // Количество на складе
   quantity Int @default(1)
-
-  // Продан сколько раз
   sales Int? @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   orderItem OrderItem[] 
 
-  // Связь с основной с главными категориями
-  mainCategory MainCategory? @relation(fields: [mainCategoryId], references: [id])
-  mainCategoryId Int? @map("main_category_id")
+  specifications Specification[]
+  
+  attributes ProductAttributes[]
 
-  // Связь с подкатегориями
+  category Category? @relation(fields: [categoryid], references: [id])
+  categoryid Int? @map("category_id")
+
   secondCategory SecondCategory? @relation(fields: [secondCategoryId], references: [id])
   secondCategoryId Int? @map("second_category_id")
 
-  // Связь дочернимии категориями
   childsCategory ChildsCategories? @relation(fields: [childsCategoryId], references: [id])
   childsCategoryId Int? @map("childs_category_id")
 
-
-  createdAt DateTime @default(now())
-
-  updatedAt DateTime @updatedAt
-
-}
-//#### PRODUCT SPECIFICATIONS
-model ProductSpecification {
-  id            Int @id @default(autoincrement())
-
-  attributes Productattribute[]
-
-  productId     Int @map("product_id") @unique
-  product       Product  @relation(fields: [productId], references: [id])
-
-  createdAt DateTime @default(now())
-
-  updatedAt DateTime @updatedAt
-
-  @@map("product_specification")
+  @@map("product")
 }
 
 //#### PRODUCT ATTRIBUTES
-model Productattribute {
+model Specification {
   id            Int @id @default(autoincrement())
-
   name          String 
-
   value   String
-
-  specification ProductSpecification @relation(fields: [specificationId], references: [id])
-  specificationId Int @map("specification_id")
-
+  product Product @relation(references: [id], fields: [productId])
+  productId Int
   createdAt DateTime @default(now())
-
   updatedAt DateTime @updatedAt
-
-  @@map("attribute")
+  @@map("specification")
 }
 
-//#### PRODUCT IMAGES
-model ProductImage {
+model ProductAttributes{
   id            Int @id @default(autoincrement())
+  color String?
+  size String?
+  images String[]
 
-  color          String 
+  product Product @relation(references: [id], fields: [productId])
+  productId Int
 
-  image   String[]
-
-  product Product @relation(fields: [productId], references: [id])
-  productId Int @map("product_id") 
-
-  createdAt DateTime @default(now())
-
-  updatedAt DateTime @updatedAt
-
-  @@map("product_image")
+  @@map("product_attributes")
 }
 
-
-//#### MainCategory
-model MainCategory {
+model Category {
   id            Int @id @default(autoincrement())
-
   name String @unique
   slug String @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   categories SecondCategory[]
 
   products Product[]
 
-  createdAt DateTime @default(now())
-
-  updatedAt DateTime @updatedAt
-
   @@map("categories")
 }
 
-//#### SECOND CATEGORIES
 model SecondCategory {
   id            Int @id @default(autoincrement())
-
   name String
   slug String @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   products Product[]
-
-  mainCategory MainCategory @relation(fields: [mainCategoryId], references: [id])
-  mainCategoryId Int @map("main_category_id")
-
+  
+  category Category @relation(fields: [categoryId], references: [id])
+  categoryId Int @map("category_id")
+  
   childsCategories ChildsCategories[]
-
-  createdAt DateTime @default(now())
-
-  updatedAt DateTime @updatedAt
 
   @@map("second_category")
 }
 
-//#### MainCategory
 model ChildsCategories {
   id            Int @id @default(autoincrement())
-
   name String
   slug String @unique
-
-  products Product[]
-
-  parentCategory SecondCategory @relation(fields: [parentCategoryId], references: [id])
-  parentCategoryId Int @map("parent_category_id")
-
   createdAt DateTime @default(now())
-
   updatedAt DateTime @updatedAt
 
-  @@map("childs_categories")
+  products Product[]
+  
+  parentCategory SecondCategory @relation(fields: [parentCategoryId], references: [id])
+  parentCategoryId Int @map("parent_category_id")
+  
+  @@map("child_categories")
 }

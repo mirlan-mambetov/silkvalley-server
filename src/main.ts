@@ -19,14 +19,13 @@ async function bootstrap() {
       extname: 'hbs',
     }),
   )
-  // app.useGlobalFilters(new NotFoundExceptionFilter())
   app.setViewEngine('hbs')
   app.setGlobalPrefix('api/v1', { exclude: ['/'] })
   app.enableCors({
     origin: [
+      'https://silkvalley-dashboard.vercel.app',
       'https://silk-valley-client.vercel.app',
       'http://localhost:3000',
-      'https://silkvalley-dashboard.vercel.app',
     ],
   })
   await app.listen(5000)

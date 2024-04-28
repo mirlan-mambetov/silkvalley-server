@@ -2,14 +2,15 @@ import {
   BadRequestException,
   Inject,
   Injectable,
-  UnauthorizedException,
   forwardRef,
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import * as argon from 'argon2'
+import { checkUserRole } from 'src/helpers/checkRole'
 import { IUser } from 'src/interfaces/user.interface'
 import { PrismaService } from 'src/prisma.service'
 import { AuthService } from '../auth/auth.service'
+import { CreateUserDTO } from './data-transfer/create.user.dto'
 import { UpdateUserDTO } from './data-transfer/update.user.dto'
 
 @Injectable()
@@ -25,20 +26,28 @@ export class UserService {
    * @param user DTO USER
    * @returns
    */
-  async save(user: Omit<IUser, 'createdAt' | 'updatedAt' | 'id'>) {
+  async save(user: CreateUserDTO) {
     const hashedPassword = await this.hashedPassword(user.password)
-    let data = {
-      ...user,
-      password: hashedPassword,
-    }
-    if (user.role) {
-      data = {
-        // @ts-ignore
-        role: [user.role],
+    const findeduser = await this.findOneByEmail(user.email)
+    if (findeduser) {
+      const { admin } = checkUserRole(findeduser.role)
+      if (!admin) {
+        await this.prismaService.user.create({
+          data: {
+            ...user,
+            password: hashedPassword,
+            role: [user.role],
+          },
+        })
       }
     }
-
-    return await this.prismaService.user.create({ data })
+    return await this.prismaService.administration.create({
+      data: {
+        ...user,
+        password: hashedPassword,
+        role: [user.role],
+      },
+    })
   }
 
   /**
@@ -61,19 +70,31 @@ export class UserService {
       ? await this.hashedPassword(dto.password)
       : undefined
 
-    await this.prismaService.user.update({
-      where: {
-        id: userId,
-      },
-      data: {
-        ...dto,
-        email: dto?.email ? dto.email.trim().trimEnd() : undefined,
-        name: dto?.name ? dto.name.trim().trimEnd() : undefined,
-        password: hashedPassword,
-        // @ts-ignore
-        role: [dto.role],
-      },
-    })
+    let updatedData = {
+      ...dto,
+      email: dto?.email ? dto.email.trim().trimEnd() : undefined,
+      name: dto?.name ? dto.name.trim().trimEnd() : undefined,
+      password: hashedPassword,
+      role: dto.role,
+    }
+
+    const user = await this.findOneById(userId)
+    const { admin } = checkUserRole(user.role)
+    if (!admin) {
+      await this.prismaService.user.update({
+        where: {
+          id: userId,
+        },
+        data: updatedData,
+      })
+    } else {
+      await this.prismaService.administration.update({
+        where: {
+          id: userId,
+        },
+        data: updatedData,
+      })
+    }
     return {
       message: 'Пользователь успешно обновлен',
     }
@@ -85,11 +106,17 @@ export class UserService {
    * @returns User
    */
   async findOneById(id: number) {
-    const user = await this.prismaService.user.findUnique({
+    let user: IUser
+    const findedUser = await this.prismaService.user.findUnique({
       where: { id },
     })
-    if (!user)
-      throw new BadRequestException('Пользователь по такому ID не найден')
+    if (findedUser) {
+      const { admin } = checkUserRole(findedUser.role)
+      if (!admin) {
+        user = findedUser
+      }
+    }
+    user = await this.prismaService.administration.findUnique({ where: { id } })
     return user
   }
 
@@ -98,15 +125,47 @@ export class UserService {
    * @param unique Number or String
    * @returns User
    */
-  async findOneByEmail(email: string, selectObject?: Prisma.UserSelect) {
-    const user = await this.prismaService.user.findUnique({
+  async findAmindById(id: number) {
+    const user = await this.prismaService.administration.findUnique({
+      where: { id },
+    })
+    if (!user)
+      throw new BadRequestException(
+        'Пользователь (Администратор) по такому ID не найден',
+      )
+    return user
+  }
+  /**
+   *
+   * @param unique Number or String
+   * @returns User
+   */
+  async findOneByEmail(
+    email: string,
+    selectObject?: Prisma.UserSelect | Prisma.AdministrationSelect,
+  ) {
+    let user: IUser
+    const findedUser = await this.prismaService.user.findUnique({
       where: { email },
       select: {
+        ...this.returnUserFields(),
         ...selectObject,
       },
     })
-    if (!user)
-      throw new BadRequestException('Пользователь по такому E-mail не найден')
+
+    if (findedUser) {
+      const { admin } = checkUserRole(findedUser.role)
+      if (!admin) {
+        user = findedUser
+      }
+    }
+    user = await this.prismaService.administration.findUnique({
+      where: { email },
+      select: {
+        ...this.returnAdminsField(),
+        ...selectObject,
+      },
+    })
     return user
   }
 
@@ -116,30 +175,14 @@ export class UserService {
    * @returns User profile
    */
   async getUserProfile(email: string) {
-    try {
-      return await this.findOneByEmail(email, {
-        id: true,
-        name: true,
-        email: true,
-        avatar: true,
-        phoneNumber: true,
-        role: true,
-        createdAt: true,
-        updatedAt: true,
-        orders: {
-          include: {
-            items: {
-              select: {
-                id: true,
-                name: true,
-              },
-            },
-          },
-        },
-      })
-    } catch (error) {
-      throw new UnauthorizedException(error)
+    const user = await this.findOneByEmail(email)
+    if (user) {
+      const { admin } = checkUserRole(user.role)
+      if (!admin) {
+        return user
+      }
     }
+    return await this.findOneByEmail(email)
   }
 
   /**
@@ -148,7 +191,12 @@ export class UserService {
    * @returns User
    */
   async findAllUsers() {
-    return await this.prismaService.user.findMany()
+    const users = await this.prismaService.user.findMany()
+    const admins = await this.prismaService.administration.findMany()
+    return {
+      users,
+      admins,
+    }
   }
 
   /**
@@ -164,5 +212,40 @@ export class UserService {
   private async hashedPassword(password: string) {
     const hashedPassword = await argon.hash(password, { hashLength: 10 })
     return hashedPassword
+  }
+
+  private returnUserFields(): Prisma.UserSelect {
+    return {
+      id: true,
+      name: true,
+      email: true,
+      avatar: true,
+      phoneNumber: true,
+      role: true,
+      createdAt: true,
+      updatedAt: true,
+      orders: {
+        include: {
+          items: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      },
+    }
+  }
+  private returnAdminsField(): Prisma.AdministrationSelect {
+    return {
+      id: true,
+      name: true,
+      email: true,
+      avatar: true,
+      phoneNumber: true,
+      role: true,
+      createdAt: true,
+      updatedAt: true,
+    }
   }
 }

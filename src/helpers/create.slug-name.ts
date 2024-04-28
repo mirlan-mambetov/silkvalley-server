@@ -1,9 +1,9 @@
 import slugify from 'slugify'
-import { generateProductId } from './generate.id'
+import { v4 as uuidV4 } from 'uuid'
 
 export const createSlugName = (name: string) => {
-  const UNIQUE_ID = generateProductId(3)
-  const slugName = name ? slugify(name, { lower: true, locale: 'eng' }) : null
-
+  const template = name.replace(/\./g, '')
+  const UNIQUE_ID = uuidV4().slice(0, 2)
+  const slugName = slugify(template, { lower: true, locale: 'eng' })
   return `${slugName}-${UNIQUE_ID}`
 }

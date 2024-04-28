@@ -27,7 +27,7 @@ export class MainCategoryService {
    */
   async create(dto: CreateMainCategoryDTO) {
     try {
-      const isExist = await this.prismaService.mainCategory.findUnique({
+      const isExist = await this.prismaService.category.findUnique({
         where: { name: dto.name },
       })
       if (isExist)
@@ -35,7 +35,7 @@ export class MainCategoryService {
           'Невозможно создать, категория уже существует',
         )
       const uniqueName = createSlugName(dto.name)
-      await this.prismaService.mainCategory.create({
+      await this.prismaService.category.create({
         data: {
           name: dto.name.trim(),
           slug: uniqueName,
@@ -59,7 +59,7 @@ export class MainCategoryService {
     try {
       await this.findOneById(id)
       const uniqueName = createSlugName(dto.name)
-      await this.prismaService.mainCategory.update({
+      await this.prismaService.category.update({
         where: { id },
         data: {
           name: dto.name.trim(),
@@ -79,7 +79,7 @@ export class MainCategoryService {
    * @returns Возврощает все категоории плюс связи с Attributes & Products
    */
   async findAll() {
-    return await this.prismaService.mainCategory.findMany({
+    return await this.prismaService.category.findMany({
       ...returnCategoryFields,
     })
   }
@@ -129,7 +129,7 @@ export class MainCategoryService {
       filter = { slug: uniqueName.slug }
     }
     try {
-      category = await this.prismaService.mainCategory.findUnique({
+      category = await this.prismaService.category.findUnique({
         where: {
           ...filter,
         },
@@ -191,7 +191,7 @@ export class MainCategoryService {
       throw new BadRequestException(
         'Удаление невозможно! В категории есть товары и подкатегории!',
       )
-    await this.prismaService.mainCategory.delete({ where: { id } })
+    await this.prismaService.category.delete({ where: { id } })
 
     return {
       message: 'Категория удалена',

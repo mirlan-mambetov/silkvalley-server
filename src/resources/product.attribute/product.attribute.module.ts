@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common'
 import { PrismaService } from 'src/prisma.service'
 import { FiltersService } from '../filters/filters.service'
-import { ProductSpecificationService } from '../product.specification/product.specification.service'
 import { ProductService } from '../product/product.service'
 import { UploadService } from '../upload/upload.service'
 import { ProductAttributeController } from './product.attribute.controller'
@@ -14,7 +13,6 @@ import { ProductAttributeService } from './product.attribute.service'
     PrismaService,
     UploadService,
     ProductAttributeService,
-    ProductSpecificationService,
     FiltersService,
   ],
 })

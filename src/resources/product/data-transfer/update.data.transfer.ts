@@ -47,13 +47,13 @@ export class UpdateProductDTO {
 
   @IsOptional()
   @IsNumber()
-  mainCategoryId?: number
+  categoryId?: number
 
   @IsOptional()
   @IsNumber()
-  childCategoryId?: number
+  secondCategoryId?: number
 
   @IsOptional()
-  @IsString()
-  sizes?: string[]
+  @IsNumber()
+  childsCategoryId?: number
 }

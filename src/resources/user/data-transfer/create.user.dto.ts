@@ -20,5 +20,5 @@ export class CreateUserDTO {
 
   @IsEnum(UserRoles)
   @IsOptional()
-  role?: UserRoles[]
+  role?: UserRoles
 }

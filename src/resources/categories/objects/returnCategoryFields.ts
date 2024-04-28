@@ -1,11 +1,11 @@
 import { Prisma } from '@prisma/client'
 
-export const returnCategoryFields: Prisma.MainCategoryFindManyArgs = {
+export const returnCategoryFields: Prisma.CategoryFindManyArgs = {
   include: {
     categories: {
       include: {
-        childsCategories: true
-      }
+        childsCategories: true,
+      },
     },
     products: {
       select: {

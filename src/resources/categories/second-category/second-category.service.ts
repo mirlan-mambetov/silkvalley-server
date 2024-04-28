@@ -25,17 +25,17 @@ export class SecondCategoryService {
   async create(mainCategoryId: number, dto: CreateChildCategoryDTO) {
     try {
       const uniqueName = createSlugName(dto.name)
-      const mainCategory =
+      const category =
         await this.mainCategoryService.findOneById(mainCategoryId)
       await this.prismaService.secondCategory.create({
         data: {
           ...dto,
-          mainCategoryId: mainCategory.id,
+          categoryId: category.id,
           slug: uniqueName,
         },
       })
       return {
-        message: `Подкатегория к ${mainCategory.name} добавлена`,
+        message: `Подкатегория к ${category.name} добавлена`,
       }
     } catch (error) {
       throw new InternalServerErrorException(error)
@@ -122,7 +122,7 @@ export class SecondCategoryService {
               },
             },
           },
-          mainCategory: {
+          category: {
             select: {
               id: true,
               name: true,
@@ -146,7 +146,7 @@ export class SecondCategoryService {
     try {
       return await this.prismaService.secondCategory.findMany({
         include: {
-          mainCategory: {
+          category: {
             select: {
               id: true,
               name: true,
@@ -169,12 +169,12 @@ export class SecondCategoryService {
    * @param mainCategoryId
    * @returns
    */
-  async findByMainCategoryId(mainCategoryId: number) {
+  async findByMainCategoryId(categoryId: number) {
     try {
       return await this.prismaService.secondCategory.findMany({
-        where: { mainCategoryId },
+        where: { categoryId },
         include: {
-          mainCategory: {
+          category: {
             select: {
               id: true,
               name: true,

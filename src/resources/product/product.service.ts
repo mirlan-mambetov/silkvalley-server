@@ -5,11 +5,10 @@ import {
   NotFoundException,
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
-import slugify from 'slugify'
+import { createSlugName } from 'src/helpers/create.slug-name'
 import { generateProductId } from 'src/helpers/generate.id'
 import { IProduct } from 'src/interfaces/Product.interface'
 import { PrismaService } from 'src/prisma.service'
-import { FiltersService } from '../filters/filters.service'
 import { UploadService } from '../upload/upload.service'
 import { CreateProductDTO } from './data-transfer/create.data.transfer'
 import { UpdateProductDTO } from './data-transfer/update.data.transfer'
@@ -23,7 +22,6 @@ export class ProductService {
   constructor(
     private readonly prismaSevice: PrismaService,
     private readonly uploadService: UploadService,
-    private readonly filterService: FiltersService,
   ) {}
 
   /**
@@ -39,8 +37,8 @@ export class ProductService {
 
       const data: any = {
         ...productData,
-        mainCategory: {
-          connect: { id: dto.mainCategoryId },
+        category: {
+          connect: { id: dto.categoryId },
         },
         secondCategory: {
           connect: { id: dto.secondCategoryId },
@@ -56,8 +54,8 @@ export class ProductService {
       return {
         message: 'Товар успешно добавлен',
       }
-    } catch (err) {
-      throw new BadRequestException(err)
+    } catch (error) {
+      throw new BadRequestException(error)
     }
   }
 
@@ -73,13 +71,7 @@ export class ProductService {
       const productData = this.savedFields<Prisma.ProductUpdateInput>(dto)
       await this.prismaSevice.product.update({
         where: { id },
-        data: {
-          ...productData,
-          mainCategoryId: Number(dto.mainCategoryId) || undefined,
-          secondCategoryId: Number(dto.childCategoryId) || undefined,
-          // @ts-ignore
-          sizes: [dto.sizes],
-        },
+        data: productData,
       })
       return {
         message: 'Товар успешно обновлен',
@@ -121,8 +113,8 @@ export class ProductService {
           id,
         },
         include: {
-          specifications: { include: { attributes: true } },
-          mainCategory: { select: { name: true } },
+          attributes: true,
+          category: { select: { name: true } },
           secondCategory: { select: { name: true } },
           childsCategory: { select: { name: true } },
         },
@@ -175,10 +167,8 @@ export class ProductService {
    * @returns Поля для создания или обновления продукта.
    */
   private savedFields<T>(dto: IProduct): T {
-    const aliasName = dto.title
-      ? slugify(dto.title, { lower: true, locale: 'eng' })
-      : null
-    const PRODUCT_ID = generateProductId(5)
+    const aliasName = createSlugName(dto.title)
+    const PRODUCT_ID = generateProductId(2)
     const ALIAS_ID = generateProductId(3)
 
     const fields: Prisma.ProductCreateInput | Prisma.ProductUpdateInput = {
@@ -209,40 +199,8 @@ export class ProductService {
     try {
       const product = await this.findOneById(id)
 
-      // DELETE SPECIFICATIONS
-      const specifications =
-        await this.prismaSevice.productSpecification.findMany({
-          where: { productId: id },
-        })
-      for (const specification of specifications) {
-        await this.prismaSevice.productattribute.deleteMany({
-          where: { specificationId: specification.id },
-        })
-      }
-
-      await this.prismaSevice.productSpecification.deleteMany({
-        where: { productId: id },
-      })
-
       // DELETE PRODUCT POSTER
       await this.uploadService.deleteFile(product.poster)
-
-      // DELETE IMAGES
-      const images = await this.prismaSevice.productImage.findMany({
-        where: {
-          productId: id,
-        },
-      })
-      for await (const image of images) {
-        for (let path of image.image) {
-          await this.uploadService.deleteFile(path)
-        }
-      }
-      await this.prismaSevice.productImage.deleteMany({
-        where: {
-          productId: id,
-        },
-      })
 
       await this.prismaSevice.orderItem.deleteMany({
         where: {

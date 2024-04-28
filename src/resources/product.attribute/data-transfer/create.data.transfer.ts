@@ -1,11 +1,14 @@
-import { IsNotEmpty, IsString } from 'class-validator'
+import { IsArray, IsNotEmpty, IsString } from 'class-validator'
 
-export class ICreateAttributeDTO {
+export class CreateAttributeDTO {
   @IsNotEmpty()
   @IsString()
-  name: string
+  color: string
 
   @IsNotEmpty()
   @IsString()
-  value: string
+  size: string
+
+  @IsArray()
+  images: string[]
 }

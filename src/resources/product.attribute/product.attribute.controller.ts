@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   HttpCode,
   HttpStatus,
   Param,
@@ -11,7 +12,7 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common'
-import { ICreateAttributeDTO } from './data-transfer/create.data.transfer'
+import { CreateAttributeDTO } from './data-transfer/create.data.transfer'
 import { IUpdateAttributeDTO } from './data-transfer/update.data.transfer'
 import { ProductAttributeService } from './product.attribute.service'
 
@@ -23,7 +24,7 @@ export class ProductAttributeController {
 
   /**
    *
-   * @param specificationId
+   * @param ProductId
    * @param dto
    * @returns
    */
@@ -31,10 +32,10 @@ export class ProductAttributeController {
   @HttpCode(HttpStatus.CREATED)
   @UsePipes(new ValidationPipe())
   async create(
-    @Param('id', ParseIntPipe) specificationId: number,
-    @Body() dto: ICreateAttributeDTO,
+    @Param('id', ParseIntPipe) productId: number,
+    @Body() dto: CreateAttributeDTO,
   ) {
-    return await this.productAttributeService.create(specificationId, dto)
+    return await this.productAttributeService.create(productId, dto)
   }
 
   /**
@@ -48,9 +49,20 @@ export class ProductAttributeController {
   @UsePipes(new ValidationPipe())
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() dto: IUpdateAttributeDTO[],
+    @Body() dto: IUpdateAttributeDTO,
   ) {
     return await this.productAttributeService.update(id, dto)
+  }
+
+  /**
+   *
+   * @param id
+   * @returns
+   */
+  @Get('by-id/:id')
+  @HttpCode(HttpStatus.OK)
+  async findById(@Param('id', ParseIntPipe) id: number) {
+    return await this.productAttributeService.findById(id)
   }
 
   /**

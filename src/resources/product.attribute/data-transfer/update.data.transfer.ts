@@ -1,13 +1,17 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator'
+import { IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator'
 
 export class IUpdateAttributeDTO {
   @IsOptional()
   @IsNotEmpty()
   @IsString()
-  name: string
+  color?: string
 
   @IsOptional()
   @IsNotEmpty()
   @IsString()
-  value: string
+  size?: string
+
+  @IsOptional()
+  @IsArray()
+  images?: string[]
 }

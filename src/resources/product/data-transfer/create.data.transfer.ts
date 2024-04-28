@@ -34,7 +34,7 @@ export class CreateProductDTO {
   @IsNumber()
   price: number
 
-  @IsNotEmpty({ message: 'Изображение обязательна' })
+  @IsNotEmpty({ message: 'Изображение обязательно' })
   @IsString({ message: 'Выберите изображение для постера!' })
   poster: string
 
@@ -60,7 +60,7 @@ export class CreateProductDTO {
 
   @IsOptional()
   @IsNumber()
-  mainCategoryId?: number
+  categoryId?: number
 
   @IsOptional()
   @IsNumber()
@@ -73,8 +73,4 @@ export class CreateProductDTO {
   @IsOptional()
   @IsNumber()
   quantity?: number
-
-  @IsOptional()
-  @IsString()
-  sizes?: string[]
 }

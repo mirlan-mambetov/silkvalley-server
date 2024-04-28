@@ -4,15 +4,17 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common'
 import { PrismaService } from 'src/prisma.service'
-import { ProductSpecificationService } from '../product.specification/product.specification.service'
-import { ICreateAttributeDTO } from './data-transfer/create.data.transfer'
+import { ProductService } from '../product/product.service'
+import { UploadService } from '../upload/upload.service'
+import { CreateAttributeDTO } from './data-transfer/create.data.transfer'
 import { IUpdateAttributeDTO } from './data-transfer/update.data.transfer'
 
 @Injectable()
 export class ProductAttributeService {
   constructor(
     private readonly prismaService: PrismaService,
-    private readonly specificationService: ProductSpecificationService,
+    private readonly productService: ProductService,
+    private readonly uploadService: UploadService,
   ) {}
 
   /**
@@ -21,14 +23,17 @@ export class ProductAttributeService {
    * @param dto
    * @returns
    */
-  async create(specificationId: number, dto: ICreateAttributeDTO) {
+  async create(productId: number, dto: CreateAttributeDTO) {
     try {
-      const specifications =
-        await this.specificationService.findById(specificationId)
-      await this.prismaService.productattribute.create({
+      const product = await this.productService.findOneById(productId)
+      await this.prismaService.productAttributes.create({
         data: {
           ...dto,
-          specificationId: specifications.id,
+          product: {
+            connect: {
+              id: product.id,
+            },
+          },
         },
       })
       return {
@@ -45,22 +50,15 @@ export class ProductAttributeService {
    * @param dto
    * @returns String Message
    */
-  async update(specificationId: number, dto: IUpdateAttributeDTO[]) {
+  async update(id: number, dto: IUpdateAttributeDTO) {
     try {
-      const specification =
-        await this.specificationService.findById(specificationId)
-      const updateData = specification.attributes.map((attribute, index) => ({
+      const attribute = await this.findById(id)
+      await this.prismaService.productAttributes.update({
         where: { id: attribute.id },
         data: {
-          name: dto[index].name,
-          value: dto[index].value,
+          ...dto,
         },
-      }))
-      await Promise.all(
-        updateData.map(async (data) => {
-          await this.prismaService.productattribute.updateMany(data)
-        }),
-      )
+      })
       return {
         message: 'Аттрибут обновлен',
       }
@@ -77,12 +75,9 @@ export class ProductAttributeService {
    */
   async findById(id: number) {
     try {
-      const attribute = await this.prismaService.productattribute.findUnique({
+      const attribute = await this.prismaService.productAttributes.findUnique({
         where: {
           id,
-        },
-        select: {
-          specification: true,
         },
       })
       if (!attribute) throw new BadRequestException('Атрибут не найден')
@@ -99,9 +94,16 @@ export class ProductAttributeService {
    */
   async deleteOne(id: number) {
     try {
-      await this.prismaService.productattribute.delete({
+      const attribute = await this.findById(id)
+
+      for await (const img of attribute.images) {
+        await this.uploadService.deleteFile(img)
+      }
+
+      await this.prismaService.productAttributes.delete({
         where: { id },
       })
+
       return {
         message: 'Атрибут удален',
       }

@@ -4,7 +4,6 @@ import {
   NestModule,
   RequestMethod,
 } from '@nestjs/common'
-// import { ServeStaticModule } from '@nestjs/serve-static'
 import { ConfigModule } from '@nestjs/config'
 import { ServeStaticModule } from '@nestjs/serve-static'
 import { join } from 'path'
@@ -18,9 +17,8 @@ import { MainCategoryModule } from './resources/categories/main.category.module'
 import { SecondCategoryModule } from './resources/categories/second-category/second-category.module'
 import { FiltersModule } from './resources/filters/filters.module'
 import { PaymentModule } from './resources/payment/payment.module'
-import { ProductImageModule } from './resources/product-image/product-image.module'
 import { ProductAttributeModule } from './resources/product.attribute/product.attribute.module'
-import { ProductSpecificationModule } from './resources/product.specification/product.specification.module'
+import { ProductSpecificationModule } from './resources/product/product-specification/product-specification.module'
 import { ProductModule } from './resources/product/product.module'
 import { UploadModule } from './resources/upload/upload.module'
 import { UserModule } from './resources/user/user.module'
@@ -40,10 +38,9 @@ import { UserModule } from './resources/user/user.module'
     // }),
     FiltersModule,
     ProductModule,
-    ProductSpecificationModule,
     ProductAttributeModule,
+    ProductSpecificationModule,
     UploadModule,
-    ProductImageModule,
     MainCategoryModule,
     SecondCategoryModule,
     AuthModule,
