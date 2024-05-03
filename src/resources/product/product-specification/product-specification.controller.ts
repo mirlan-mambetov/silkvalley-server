@@ -46,6 +46,12 @@ export class ProductSpecificationController {
     return await this.productSpecificationService.findById(id)
   }
 
+  @Get('by-product/:id')
+  @HttpCode(HttpStatus.OK)
+  async findByProductId(@Param('id', ParseIntPipe) productId: number) {
+    return await this.productSpecificationService.findByProductId(productId)
+  }
+
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
   async delete(@Param('id', ParseIntPipe) id: number) {

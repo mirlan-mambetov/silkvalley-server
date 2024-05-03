@@ -26,6 +26,7 @@ async function bootstrap() {
       'https://silkvalley-dashboard.vercel.app',
       'https://silk-valley-client.vercel.app',
       'http://localhost:3000',
+      'http://localhost:3001',
     ],
   })
   await app.listen(5000)

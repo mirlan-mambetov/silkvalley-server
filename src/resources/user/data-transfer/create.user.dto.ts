@@ -18,7 +18,7 @@ export class CreateUserDTO {
   @IsOptional()
   avatar: string
 
-  @IsEnum(UserRoles)
+  @IsEnum(UserRoles, { each: true })
   @IsOptional()
-  role?: UserRoles
+  role?: UserRoles[]
 }

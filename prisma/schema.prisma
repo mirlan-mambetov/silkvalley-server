@@ -25,6 +25,13 @@ enum EnumStatusOrder {
   PAYED
   CANCELED
 }
+
+//#### ORDER STATUS WITH ENUM
+enum EnumPaymentMethod {
+  CACHE
+  CARD
+  MBANK
+}
 //#### USER
 model Administration{
   id  Int @id @default(autoincrement())
@@ -59,7 +66,8 @@ model Order {
   updatedAt DateTime @updatedAt @map("updated_at")
   status EnumStatusOrder @default(WAITING)
   items OrderItem[]
-  total Int
+  totalCache Int
+  payment_type EnumPaymentMethod? @map("payment_type")
   user User @relation(fields: [userId], references: [id])
   userId Int @map("user_id")
   @@map("orders")

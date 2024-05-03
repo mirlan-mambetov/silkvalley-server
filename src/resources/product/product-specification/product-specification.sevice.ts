@@ -10,6 +10,12 @@ export class ProductSpecificationService {
     private readonly productService: ProductService,
   ) {}
 
+  /**
+   *
+   * @param productId
+   * @param dto
+   * @returns
+   */
   async create(productId: number, dto: SpecificationDTO[]) {
     const product = await this.productService.findOneById(productId)
     for await (const data of dto) {
@@ -25,6 +31,11 @@ export class ProductSpecificationService {
     }
   }
 
+  /**
+   *
+   * @param dto
+   * @returns
+   */
   async update(dto: SpecificationUpdateDTO[]) {
     try {
       await this.prismaService.$transaction(async (prisma) => {
@@ -67,13 +78,39 @@ export class ProductSpecificationService {
     }
   }
 
+  /**
+   *
+   * @returns
+   */
   async findAll() {
     return await this.prismaService.specification.findMany()
   }
 
+  /**
+   *
+   * @param id
+   * @returns
+   */
   async findById(id: number) {
     const specification = await this.prismaService.specification.findUnique({
       where: { id },
+    })
+    if (!specification) throw new BadRequestException('Спецификация не найдена')
+    return specification
+  }
+
+  /**
+   *
+   * @param productId
+   * @returns
+   */
+  async findByProductId(productId: number) {
+    const specification = await this.prismaService.specification.findMany({
+      where: {
+        product: {
+          id: productId,
+        },
+      },
     })
     if (!specification) throw new BadRequestException('Спецификация не найдена')
     return specification

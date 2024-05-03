@@ -63,7 +63,7 @@ export class PaymentService {
             sizes: product.selectedSize ? product.selectedSize : undefined,
           })),
         },
-        total: dto.totalPrice,
+        totalCache: dto.totalPrice,
         status: dto.status,
         user: {
           connect: {

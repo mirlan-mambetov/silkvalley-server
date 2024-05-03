@@ -36,7 +36,6 @@ export class UserService {
           data: {
             ...user,
             password: hashedPassword,
-            role: [user.role],
           },
         })
       }
@@ -45,7 +44,6 @@ export class UserService {
       data: {
         ...user,
         password: hashedPassword,
-        role: [user.role],
       },
     })
   }
