@@ -64,13 +64,33 @@ model Order {
   id Int @id @default(autoincrement())
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
+
+  orderId String
   status EnumStatusOrder @default(WAITING)
   items OrderItem[]
+  address OrderAddress? 
   totalCache Int
   payment_type EnumPaymentMethod? @map("payment_type")
   user User @relation(fields: [userId], references: [id])
   userId Int @map("user_id")
   @@map("orders")
+}
+model OrderAddress{
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  city String?
+	road String?
+	houseNumber String? @map("house_number")
+	postCode String? @map("post_code")
+	countryCode String? @map("country_code")
+	country String?
+	state String?
+	cityDistrict String? @map("city_district")
+	village String?
+	town String?
+  order  Order? @relation(fields: [orderId], references: [id])
+  orderId Int? @unique @map("order_id")
 }
 
 model OrderItem {

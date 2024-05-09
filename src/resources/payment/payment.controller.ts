@@ -20,13 +20,19 @@ export class PaymentController {
     return await this.paymentService.payment(body)
   }
 
+  @Post('canceled-order')
+  @HttpCode(HttpStatus.OK)
+  async cancelTransaction(@Body() body: { sessionId: string }) {
+    return await this.paymentService.cancelTransaction(body.sessionId)
+  }
+
   @Post('place-order')
   @HttpCode(HttpStatus.OK)
   @Auth()
   async placeOrder(
     @Body() dto: IPlaceOrderDTO,
-    @CurrentUser('id') userId: number,
+    @CurrentUser('email') email: string,
   ) {
-    return await this.paymentService.placeOrder(dto, userId)
+    return await this.paymentService.placeOrder(dto, email)
   }
 }

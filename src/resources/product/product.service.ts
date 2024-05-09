@@ -12,10 +12,7 @@ import { PrismaService } from 'src/prisma.service'
 import { UploadService } from '../upload/upload.service'
 import { CreateProductDTO } from './data-transfer/create.data.transfer'
 import { UpdateProductDTO } from './data-transfer/update.data.transfer'
-import {
-  returnProductFields,
-  returnProductUniqueFields,
-} from './objects/return.product.fields'
+import { returnProductUniqueFields } from './objects/return.product.fields'
 
 @Injectable()
 export class ProductService {
@@ -156,7 +153,11 @@ export class ProductService {
    * @returns
    */
   async findAll() {
-    return await this.prismaSevice.product.findMany(returnProductFields)
+    return await this.prismaSevice.product.findMany({
+      include: {
+        attributes: true,
+      },
+    })
   }
 
   async findSimilar() {}

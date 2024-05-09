@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Inject,
   Injectable,
+  InternalServerErrorException,
   UnauthorizedException,
   forwardRef,
 } from '@nestjs/common'
@@ -25,16 +26,25 @@ export class AuthService {
   ) {}
 
   async register(dto: RegisterDTO) {
-    const user = await this.prismaService.user.findUnique({
-      where: { email: dto.email },
-    })
+    try {
+      const user = await this.prismaService.user.findUnique({
+        where: { email: dto.email },
+      })
 
-    if (user) throw new BadRequestException('Такой E-mail уже используется')
-    await this.userService.save(dto)
+      if (user) throw new BadRequestException('Такой E-mail уже используется')
+      await this.userService.save(dto)
 
-    return {
-      message: 'Регистрация прошла успешно',
-      success: true,
+      return {
+        message: 'Регистрация прошла успешно',
+        success: true,
+      }
+    } catch (error) {
+      throw new InternalServerErrorException({
+        status: error.status,
+        name: error.name,
+        message:
+          'Неизвестная ошибка сервера. Возможные причины: 1 - не правильныe значения в полях. 2 - ожидаемые типы не соответствуют требованиям!',
+      })
     }
   }
 

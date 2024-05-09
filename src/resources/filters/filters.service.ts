@@ -3,67 +3,53 @@ import { Prisma } from '@prisma/client'
 import { EnumProductSort } from 'src/enums/Filter.enum'
 import { PrismaService } from 'src/prisma.service'
 import { QueryDTO } from '../data-transfer/query.dto'
+import { ProductService } from '../product/product.service'
 
 @Injectable()
 export class FiltersService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly productService: ProductService,
+  ) {}
 
   async productAttributes(slug: string) {
-    let filters = {}
-    let condition = {}
-    const productColors: string[] = []
-    const productSizes: string[] = []
-
-    const mainCategory = await this.prismaService.category.findUnique({
-      where: { slug },
-    })
-    const secondCategory = await this.prismaService.secondCategory.findUnique({
-      where: { slug },
-    })
-    const childsCategory = await this.prismaService.childsCategories.findUnique(
-      {
-        where: { slug },
+    let filters = []
+    const product = await this.prismaService.product.findMany({
+      where: {
+        OR: [
+          {
+            category: {
+              slug,
+            },
+          },
+          {
+            secondCategory: {
+              slug,
+            },
+          },
+          {
+            childsCategory: {
+              slug,
+            },
+          },
+        ],
       },
-    )
-
-    if (mainCategory) {
-      condition = { mainCategory: { slug } }
-    } else if (secondCategory) {
-      condition = { secondCategory: { slug } }
-    } else if (childsCategory) {
-      condition = { childsCategory: { slug } }
-    }
-    const products = await this.prismaService.product.findMany({
-      where: condition,
-      select: {
-        attributes: true,
-      },
+      include: { attributes: true },
     })
-
-    // // Извлекаем цвета и размеры из каждого товара
-    // products.forEach((product) => {
-    //   // Получаем все уникальные цвета изображений товара
-    //   product.images.forEach((image) => {
-    //     if (image.color && !productColors.includes(image.color)) {
-    //       productColors.push(image.color)
-    //     }
-    //   })
-
-    //   // Получаем все уникальные размеры товара
-    //   if (product.sizes) {
-    //     product.sizes.forEach((size) => {
-    //       if (size && !productSizes.includes(size)) {
-    //         productSizes.push(size)
-    //       }
-    //     })
-    //   }
-    // })
-
-    // // Собираем фильтры
-    // filters = {
-    //   sizes: productSizes,
-    //   colors: productColors,
-    // }
+    const seenAttributes = new Set() // Сет для хранения уникальных атрибутов
+    product.forEach((product) => {
+      product.attributes.forEach((attribute) => {
+        const key = `${attribute.size}_${attribute.color}` // Создание уникального ключа для атрибута
+        if (!seenAttributes.has(key)) {
+          // Проверка, не встречался ли атрибут ранее
+          seenAttributes.add(key) // Добавление атрибута в набор
+          filters.push({
+            color: attribute.color,
+            size: attribute.size,
+          })
+        }
+      })
+    })
 
     return filters
   }
@@ -72,22 +58,29 @@ export class FiltersService {
     const sorts = this.sortFilter(dto.sort)
     const filters = []
     if (dto.childsCategoryId)
-      filters.push({ childsCategoryId: Number(dto.childsCategoryId) })
+      filters.push({ childsCategory: { id: Number(dto.childsCategoryId) } })
     if (dto.secondCategoryId)
-      filters.push({ secondCategoryId: Number(dto.secondCategoryId) })
+      filters.push({ secondCategory: { id: Number(dto.secondCategoryId) } })
     if (dto.mainCategoryId)
-      filters.push({ mainCategoryId: Number(dto.mainCategoryId) })
+      filters.push({ category: { id: Number(dto.mainCategoryId) } })
     if (dto.maxPrice || dto.maxPrice)
       filters.push(this.priceFilter(dto.minPrice, dto.maxPrice))
     if (dto.selectedColor)
-      filters.push({ orderItem: { some: { color: dto.selectedColor } } })
-    if (dto.selectedSize)
-      filters.push({
-        orderItem: { some: { sizes: { contains: dto.selectedSize } } },
-      })
+      filters.push({ attributes: { some: { color: dto.selectedColor } } })
+    // if (dto.selectedSize)
+    //   filters.push({
+    //     attributes: { some: { size: { contains: dto.selectedSize } } },
+    //   })
     const products = await this.prismaService.product.findMany({
       where: {
         AND: filters,
+        attributes: {
+          some: {
+            size: {
+              equals: dto.selectedSize,
+            },
+          },
+        },
       },
       orderBy: sorts,
     })
