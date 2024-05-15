@@ -123,13 +123,10 @@ export class ChildsCategoryService {
 
   async findByAlias(alias: string) {
     const category = await this.prismaService.childsCategories.findUnique({
-      where: { id: 7 },
+      where: { slug: alias },
       include: {
-        products: {
-          select: {
-            id: true,
-          },
-        },
+        parentCategory: true,
+        products: true,
       },
     })
     if (!category)

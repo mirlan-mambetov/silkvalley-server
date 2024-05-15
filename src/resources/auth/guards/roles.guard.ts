@@ -16,7 +16,7 @@ export class RolesGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<{ user: User }>()
     const role = request.user.role
 
-    const admin = role.some((role) => role !== 'OWNER' || 'ADMIN')
+    const admin = role.some((role) => role !== 'OWNER' && 'ADMIN')
     if (admin) {
       throw new HttpException(
         'Недостаточно прав для доступа',

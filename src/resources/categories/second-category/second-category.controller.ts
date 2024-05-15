@@ -82,6 +82,7 @@ export class SecondCategoryController {
   @Get('by-alias/:alias')
   @HttpCode(HttpStatus.OK)
   async findByAlias(@Param('alias') alias: string) {
+    console.log(alias)
     return await this.secondCategoryService.findByAlias(alias)
   }
 

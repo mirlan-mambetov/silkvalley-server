@@ -8,7 +8,6 @@ import { ConfigModule } from '@nestjs/config'
 import { ServeStaticModule } from '@nestjs/serve-static'
 import { join } from 'path'
 import { AppController } from './app.controller'
-import { AppGateway } from './app.gateway.module'
 import { ApiNotFoundMiddleware } from './middlewares/NotFound.middleware'
 import { PrismaService } from './prisma.service'
 import { AuthModule } from './resources/auth/auth.module'
@@ -16,6 +15,7 @@ import { ChildsCategoryModule } from './resources/categories/childs-category/chi
 import { MainCategoryModule } from './resources/categories/main.category.module'
 import { SecondCategoryModule } from './resources/categories/second-category/second-category.module'
 import { FiltersModule } from './resources/filters/filters.module'
+import { AppGateWayModule } from './resources/gateway/app.gateway.module'
 import { PaymentModule } from './resources/payment/payment.module'
 import { ProductAttributeModule } from './resources/product.attribute/product.attribute.module'
 import { ProductSpecificationModule } from './resources/product/product-specification/product-specification.module'
@@ -30,7 +30,8 @@ import { UserModule } from './resources/user/user.module'
       exclude: ['/api/(.*)'],
     }),
     ConfigModule.forRoot({ isGlobal: true }),
-    AppGateway,
+    // SOCKET
+    AppGateWayModule,
     // WebSocketModule,
     PaymentModule,
     // MailerModule.forRoot({
