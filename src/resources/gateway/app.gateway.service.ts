@@ -7,7 +7,6 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets'
 import { Server, Socket } from 'socket.io'
-import { IUser } from 'src/interfaces/user.interface'
 import { UserService } from '../user/user.service'
 
 enum ClientEnumHost {
@@ -15,9 +14,6 @@ enum ClientEnumHost {
   DASHBOARD = 'http://localhost:3001',
 }
 
-interface IUserRequest extends IUser {
-  isOnline: boolean
-}
 interface IUserT {
   email: string
 }
@@ -44,7 +40,7 @@ export class AppGateWayService implements OnModuleInit {
       switch (origin) {
         case ClientEnumHost.CLIENT:
           const user = socket?.handshake.auth as IUserT
-          console.log(`Client queries: ${ClientEnumHost.CLIENT}`)
+          console.log(`Client socket: ${ClientEnumHost.CLIENT}`)
           if (user) {
             if (
               !this.currentUsers.some(
@@ -61,7 +57,7 @@ export class AppGateWayService implements OnModuleInit {
           console.log(
             `Current Users length ${Object.keys(this.currentUsers.length)}`,
           )
-          console.log(`Dashboard queries: ${ClientEnumHost.DASHBOARD}`)
+          console.log(`Dashboard socket: ${ClientEnumHost.DASHBOARD}`)
           return
         default:
           return console.log(`Users not on online`)
