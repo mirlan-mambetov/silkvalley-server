@@ -62,6 +62,8 @@ model User{
   onlineId Int? @unique
   isOnline Boolean @default(false)
 }
+
+// DELETED ON NEXT MIGRATION
 model OnlineUsers{
   id  Int @id @default(autoincrement())
   users User[]

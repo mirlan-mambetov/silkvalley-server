@@ -6,34 +6,11 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets'
-import { UserRoles } from '@prisma/client'
 import { Server, Socket } from 'socket.io'
-import { IBase } from 'src/interfaces/Base.interface'
+import { ClientEnumHost } from 'src/enums/App.gateway.enum'
+import { IOnlineUsers, IUserT } from 'src/interfaces/gateway.interface'
 import { OnlineUserService } from '../user/online-users/online.user.service'
 
-enum ClientEnumHost {
-  CLIENT = 'http://localhost:3000',
-  DASHBOARD = 'http://localhost:3001',
-}
-
-interface IUserT {
-  email: string
-}
-interface IOnlineUsers extends IBase {
-  id: number
-  createdAt: Date
-  updatedAt: Date
-  users: {
-    id: number
-    createdAt: Date
-    updatedAt: Date
-    name: string
-    email: string
-    phoneNumber: string
-    role: UserRoles[]
-    isOnline: boolean
-  }[]
-}
 @WebSocketGateway({
   cors: {
     origin: '*',
