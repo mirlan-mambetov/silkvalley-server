@@ -46,6 +46,7 @@ model Administration{
   @@map("administrations")
 }
 
+
 model User{
   id  Int @id @default(autoincrement())
   name String
@@ -57,6 +58,15 @@ model User{
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   orders Order[]
+  online OnlineUsers? @relation(fields: [onlineId], references: [id])
+  onlineId Int? @unique
+  isOnline Boolean @default(false)
+}
+model OnlineUsers{
+  id  Int @id @default(autoincrement())
+  users User[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 //#### ORDER

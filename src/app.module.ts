@@ -21,6 +21,7 @@ import { ProductAttributeModule } from './resources/product.attribute/product.at
 import { ProductSpecificationModule } from './resources/product/product-specification/product-specification.module'
 import { ProductModule } from './resources/product/product.module'
 import { UploadModule } from './resources/upload/upload.module'
+import { OnlineUserModule } from './resources/user/online-users/online.user.module'
 import { UserModule } from './resources/user/user.module'
 
 @Module({
@@ -32,6 +33,7 @@ import { UserModule } from './resources/user/user.module'
     ConfigModule.forRoot({ isGlobal: true }),
     // SOCKET
     AppGateWayModule,
+    OnlineUserModule,
     // WebSocketModule,
     PaymentModule,
     // MailerModule.forRoot({

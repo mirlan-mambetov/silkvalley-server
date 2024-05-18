@@ -99,16 +99,20 @@ export class UserService {
    * @returns User
    */
   async findOneByEmail(email: string, selectObject?: Prisma.UserSelect) {
-    const user = await this.prismaService.user.findUnique({
-      where: { email },
-      select: {
-        ...this.returnUserFields(),
-        ...selectObject,
-      },
-    })
+    try {
+      const user = await this.prismaService.user.findUnique({
+        where: { email },
+        select: {
+          ...this.returnUserFields(),
+          ...selectObject,
+        },
+      })
 
-    if (!user) throw new BadRequestException('Пользователеь не найден')
-    return user
+      if (!user) throw new BadRequestException('Пользователеь не найден')
+      return user
+    } catch (error) {
+      throw new BadRequestException(error)
+    }
   }
 
   /**

@@ -6,8 +6,10 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets'
+import { UserRoles } from '@prisma/client'
 import { Server, Socket } from 'socket.io'
-import { UserService } from '../user/user.service'
+import { IBase } from 'src/interfaces/Base.interface'
+import { OnlineUserService } from '../user/online-users/online.user.service'
 
 enum ClientEnumHost {
   CLIENT = 'http://localhost:3000',
@@ -16,6 +18,21 @@ enum ClientEnumHost {
 
 interface IUserT {
   email: string
+}
+interface IOnlineUsers extends IBase {
+  id: number
+  createdAt: Date
+  updatedAt: Date
+  users: {
+    id: number
+    createdAt: Date
+    updatedAt: Date
+    name: string
+    email: string
+    phoneNumber: string
+    role: UserRoles[]
+    isOnline: boolean
+  }[]
 }
 @WebSocketGateway({
   cors: {
@@ -26,38 +43,24 @@ export class AppGateWayService implements OnModuleInit {
   @WebSocketServer()
   server: Server
 
-  private currentUsers: IUserT[] = []
-
-  constructor(private readonly userService: UserService) {}
+  private currentOnlineUsers: IOnlineUsers[]
+  constructor(private readonly onlineUsers: OnlineUserService) {}
 
   async onModuleInit() {
     this.initializeSocketEventHandlers()
   }
 
-  private async initializeSocketEventHandlers() {
-    this.server.on('connection', (socket: Socket) => {
+  private initializeSocketEventHandlers() {
+    this.server.on('connection', async (socket: Socket) => {
       const origin = socket?.handshake.headers.origin as ClientEnumHost
       switch (origin) {
         case ClientEnumHost.CLIENT:
-          const user = socket?.handshake.auth as IUserT
           console.log(`Client socket: ${ClientEnumHost.CLIENT}`)
-          if (user) {
-            if (
-              !this.currentUsers.some(
-                (currentUser) => currentUser.email === user.email,
-              )
-            ) {
-              this.currentUsers.push({ email: user.email })
-            }
-            console.log(this.currentUsers)
-          }
           return
         case ClientEnumHost.DASHBOARD:
-          this.server.emit('online', this.currentUsers)
-          console.log(
-            `Current Users length ${Object.keys(this.currentUsers.length)}`,
-          )
           console.log(`Dashboard socket: ${ClientEnumHost.DASHBOARD}`)
+          const users = await this.onlineUsers.getOnlineUsers()
+          this.server.emit('online', { users })
           return
         default:
           return console.log(`Users not on online`)
@@ -66,33 +69,29 @@ export class AppGateWayService implements OnModuleInit {
   }
 
   @SubscribeMessage('logOut')
-  handleLogOutUser(
+  async handleLogOutUser(
     @MessageBody() user: IUserT,
     @ConnectedSocket() socket: Socket,
   ) {
-    console.log(`User ${user.email} is Offline`)
-
-    this.currentUsers = this.currentUsers.filter(
-      (item) => item.email !== user.email,
-    )
-    this.server.emit('online', this.currentUsers)
+    console.log(`OFFLINE ${user.email}`)
+    await this.onlineUsers.setOfflineStatus(user.email)
+    const users = await this.onlineUsers.getOnlineUsers()
+    this.server.emit('online', {
+      users,
+    })
   }
 
   @SubscribeMessage('logIn')
-  handleLogInUser(
+  async handleLogInUser(
     @MessageBody() user: IUserT,
     @ConnectedSocket() socket: Socket,
   ) {
-    if (user.email) {
-      console.log(`User ${user.email} is Online`)
-      if (
-        !this.currentUsers.some(
-          (currentUser) => currentUser.email === user.email,
-        )
-      ) {
-        this.currentUsers.push({ email: user.email })
-      }
-    }
-    this.server.emit('online', this.currentUsers)
+    console.log(`ONLINE ${user.email}`)
+    await this.onlineUsers.setOnline(user.email)
+    const users = await this.onlineUsers.getOnlineUsers()
+    this.server.emit('online', {
+      users,
+      message: `${user.email} в сети`,
+    })
   }
 }

@@ -32,6 +32,7 @@ export class AuthService {
       })
 
       if (user) throw new BadRequestException('Такой E-mail уже используется')
+
       await this.userService.save(dto)
 
       return {
