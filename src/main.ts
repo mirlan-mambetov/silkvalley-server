@@ -23,8 +23,8 @@ async function bootstrap() {
   app.setGlobalPrefix('api/v1', { exclude: ['/'] })
   app.enableCors({
     origin: [
-      'https://silkvalley-dashboard.vercel.app',
-      'https://silk-valley-client.vercel.app',
+      'https://dashboard.slkvalley.com',
+      'https://slkvalley.com',
       'http://localhost:3000',
       'http://localhost:3001',
     ],
