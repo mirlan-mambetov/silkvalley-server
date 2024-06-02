@@ -36,15 +36,15 @@ export class PaymentService {
             status: EnumStatusOrder.PAYED,
           },
         })
-      case PaymentEnumStatus.PAYMENT_INTENT_CLOSED:
-        await this.prismaService.order.update({
-          where: {
-            id: order.id,
-          },
-          data: {
-            status: EnumStatusOrder.CANCELED,
-          },
-        })
+      // case PaymentEnumStatus.PAYMENT_INTENT_CLOSED:
+      //   await this.prismaService.order.update({
+      //     where: {
+      //       id: order.id,
+      //     },
+      //     data: {
+      //       status: EnumStatusOrder.CANCELED,
+      //     },
+      //   })
     }
   }
 
