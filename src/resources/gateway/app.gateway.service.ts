@@ -13,9 +13,7 @@ import { OnlineUserService } from '../user/online-users/online.user.service'
 
 @WebSocketGateway({
   cors: {
-    origin: (_req, callback) => {
-      callback(null, true)
-    },
+    origin: ['https://dashboard.slkvalley.com', 'https://slkvalley.com'],
     credentials: true,
   },
 })

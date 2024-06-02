@@ -97,9 +97,7 @@ export class PaymentService {
             product_data: {
               name: product.title,
               description: product.description,
-              images: [
-                `https://637e-193-34-225-37.ngrok-free.app${product.poster}`,
-              ],
+              images: [`http://api.slkvalley.com${product.poster}`],
               metadata: {
                 size: product.selectedSize,
                 color: product.selectedColor,
@@ -115,8 +113,8 @@ export class PaymentService {
       mode: 'payment',
       // success_url: 'http://localhost:3000/cart',
       // cancel_url: 'http://localhost:3000',
-      success_url: 'http://localhost:3000/checkout',
-      cancel_url: 'http://localhost:3000',
+      success_url: 'https://slkvalley.com',
+      cancel_url: 'https://slkvalley.com',
       payment_intent_data: {
         description: `Order # ${order.id}`,
       },
