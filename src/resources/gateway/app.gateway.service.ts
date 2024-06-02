@@ -14,6 +14,7 @@ import { OnlineUserService } from '../user/online-users/online.user.service'
 @WebSocketGateway({
   cors: {
     origin: '*',
+    credentials: true,
   },
 })
 export class AppGateWayService implements OnModuleInit {
