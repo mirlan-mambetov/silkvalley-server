@@ -5,6 +5,7 @@
 /.env
 ./src/resource/[old]
 /public/uploads
+/.github
 
 # Logs
 logs
