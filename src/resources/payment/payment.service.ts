@@ -19,6 +19,7 @@ export class PaymentService {
   ) {}
 
   async payment(data: StripePaymentIntentSucceededEvent) {
+    console.log(data)
     console.log(data.data.object.description)
     switch (data.type) {
       case PaymentEnumStatus.PAYMENT_INTENT_SUCCESS:
