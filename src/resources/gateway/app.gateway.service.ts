@@ -12,12 +12,7 @@ import { IOnlineUsers, IUserT } from 'src/interfaces/gateway.interface'
 import { OnlineUserService } from '../user/online-users/online.user.service'
 
 @WebSocketGateway({
-  cors: {
-    origin: (_req, callback) => {
-      callback(null, true)
-    },
-    credentials: true,
-  },
+  cors: true,
 })
 export class AppGateWayService implements OnModuleInit {
   @WebSocketServer()

@@ -16,6 +16,7 @@ import { MainCategoryModule } from './resources/categories/main.category.module'
 import { SecondCategoryModule } from './resources/categories/second-category/second-category.module'
 import { FiltersModule } from './resources/filters/filters.module'
 import { AppGateWayModule } from './resources/gateway/app.gateway.module'
+import { OrderModule } from './resources/orders/order.module'
 import { PaymentModule } from './resources/payment/payment.module'
 import { ProductAttributeModule } from './resources/product.attribute/product.attribute.module'
 import { ProductSpecificationModule } from './resources/product/product-specification/product-specification.module'
@@ -30,7 +31,13 @@ import { UserModule } from './resources/user/user.module'
       rootPath: join(__dirname, '..', 'public'),
       exclude: ['/api/(.*)'],
     }),
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      envFilePath:
+        process.env.NODE_ENV === 'production'
+          ? '.env.production'
+          : '.env.development',
+      isGlobal: true,
+    }),
     // SOCKET
     AppGateWayModule,
     OnlineUserModule,
@@ -49,6 +56,7 @@ import { UserModule } from './resources/user/user.module'
     AuthModule,
     UserModule,
     ChildsCategoryModule,
+    OrderModule,
   ],
   controllers: [AppController],
   providers: [PrismaService],
