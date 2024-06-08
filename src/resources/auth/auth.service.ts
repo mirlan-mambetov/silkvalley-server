@@ -7,7 +7,7 @@ import {
   forwardRef,
 } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
-import { User } from '@prisma/client'
+import { Users } from '@prisma/client'
 import * as argon from 'argon2'
 import { IAuth } from 'src/interfaces/auth.interface'
 import { PrismaService } from 'src/prisma.service'
@@ -27,7 +27,7 @@ export class AuthService {
 
   async register(dto: RegisterDTO) {
     try {
-      const user = await this.prismaService.user.findUnique({
+      const user = await this.prismaService.users.findUnique({
         where: { email: dto.email },
       })
 
@@ -71,7 +71,7 @@ export class AuthService {
     }
   }
 
-  private async generateTokens(user: Partial<User>) {
+  private async generateTokens(user: Partial<Users>) {
     const payload = { id: user.id, email: user.email, role: user.role }
 
     const accessToken = await this.jwtService.signAsync(payload, {

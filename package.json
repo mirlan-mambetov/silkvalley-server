@@ -20,7 +20,12 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "prisma:push:dev": "dotenv -e .env.development -- npx prisma db push",
-    "prisma:push:prod": "dotenv -e .env.production  -- npx prisma db push"
+    "prisma:push:prod": "dotenv -e .env.production  -- npx prisma db push",
+    "prisma:migrate": "dotenv -e .env.development -- npx prisma migrate dev",
+    "prisma:migrate:preview": "dotenv -e .env.development npx prisma migrate deploy --preview-feature",
+    "prisma:migrate:deploy": "dotenv -e .env.development npx prisma migrate deploy",
+    "prisma:pull:dev": "dotenv -e .env.development -- npx prisma db pull",
+    "prisma:pull:prod": "dotenv -e .env.production -- npx prisma db pull"
   },
   "dependencies": {
     "@golevelup/nestjs-stripe": "^0.7.0",
@@ -43,6 +48,7 @@
     "dotenv-cli": "^7.4.2",
     "express-handlebars": "^7.1.2",
     "imagemin-webp": "^8.0.0",
+    "mailtrap": "^3.3.0",
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.9.13",
     "passport": "^0.6.0",
@@ -55,6 +61,7 @@
     "sharp": "^0.33.3",
     "slugify": "^1.6.6",
     "socket.io": "^4.7.5",
+    "stripe": "^15.10.0",
     "uuid": "^9.0.1"
   },
   "devDependencies": {

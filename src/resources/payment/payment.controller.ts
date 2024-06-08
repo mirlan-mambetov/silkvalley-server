@@ -16,8 +16,11 @@ export class PaymentController {
 
   @Post()
   @HttpCode(HttpStatus.OK)
-  async payment(@Body() body: StripePaymentIntentSucceededEvent) {
-    return await this.paymentService.payment(body)
+  async payment(
+    @Body() body: StripePaymentIntentSucceededEvent,
+    @CurrentUser('id') userId: number,
+  ) {
+    return await this.paymentService.payment(body, userId)
   }
 
   @Post('canceled-order')

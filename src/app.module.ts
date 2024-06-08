@@ -16,13 +16,15 @@ import { MainCategoryModule } from './resources/categories/main.category.module'
 import { SecondCategoryModule } from './resources/categories/second-category/second-category.module'
 import { FiltersModule } from './resources/filters/filters.module'
 import { AppGateWayModule } from './resources/gateway/app.gateway.module'
+import { MailModule } from './resources/mail/mail.module'
+import { NotificaitonModule } from './resources/notification/notification.module'
 import { OrderModule } from './resources/orders/order.module'
 import { PaymentModule } from './resources/payment/payment.module'
 import { ProductAttributeModule } from './resources/product.attribute/product.attribute.module'
 import { ProductSpecificationModule } from './resources/product/product-specification/product-specification.module'
 import { ProductModule } from './resources/product/product.module'
+import { SmsModule } from './resources/sms/sms.module'
 import { UploadModule } from './resources/upload/upload.module'
-import { OnlineUserModule } from './resources/user/online-users/online.user.module'
 import { UserModule } from './resources/user/user.module'
 
 @Module({
@@ -38,14 +40,30 @@ import { UserModule } from './resources/user/user.module'
           : '.env.development',
       isGlobal: true,
     }),
-    // SOCKET
-    AppGateWayModule,
-    OnlineUserModule,
-    // WebSocketModule,
-    PaymentModule,
     // MailerModule.forRoot({
-
+    //   transport: {
+    //     host: 'live.smtp.mailtrap.io',
+    //     port: 587,
+    //     auth: {
+    //       user: 'api',
+    //       pass: '6bea5a14cccd5ff7040507d36a084584',
+    //     },
+    //   },
+    //   defaults: {
+    //     from: 'Silk Valley.',
+    //   },
+    //   template: {
+    //     // dir: __dirname + '/templates',
+    //     adapter: new HandlebarsAdapter(),
+    //     options: {
+    //       strict: true,
+    //     },
+    //   },
     // }),
+    AppGateWayModule,
+    SmsModule,
+    MailModule,
+    PaymentModule,
     FiltersModule,
     ProductModule,
     ProductAttributeModule,
@@ -57,6 +75,7 @@ import { UserModule } from './resources/user/user.module'
     UserModule,
     ChildsCategoryModule,
     OrderModule,
+    NotificaitonModule,
   ],
   controllers: [AppController],
   providers: [PrismaService],

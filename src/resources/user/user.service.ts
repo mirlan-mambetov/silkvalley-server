@@ -28,7 +28,7 @@ export class UserService {
   async save(dto: CreateUserDTO) {
     try {
       const hashedPassword = await this.hashedPassword(dto.password)
-      await this.prismaService.user.create({
+      await this.prismaService.users.create({
         data: {
           ...dto,
           password: hashedPassword,
@@ -67,7 +67,7 @@ export class UserService {
       role: dto.role,
     }
 
-    await this.prismaService.user.update({
+    await this.prismaService.users.update({
       where: {
         id: userId,
       },
@@ -85,12 +85,14 @@ export class UserService {
    * @returns User
    */
   async findOneById(id: number) {
-    const user = await this.prismaService.user.findUnique({
+    const user = await this.prismaService.users.findUnique({
       where: { id },
+      include: {
+        orders: true,
+      },
     })
-    if (user) return user
-
-    return await this.prismaService.administration.findUnique({ where: { id } })
+    if (!user) throw new BadRequestException('Пользователь не найден')
+    return user
   }
 
   /**
@@ -98,13 +100,18 @@ export class UserService {
    * @param unique Number or String
    * @returns User
    */
-  async findOneByEmail(email: string, selectObject?: Prisma.UserSelect) {
+  async findOneByEmail(email: string, selectObject?: Prisma.UsersSelect) {
     try {
-      const user = await this.prismaService.user.findUnique({
+      const user = await this.prismaService.users.findUnique({
         where: { email },
         select: {
           ...this.returnUserFields(),
           ...selectObject,
+          notifications: {
+            orderBy: {
+              createdAt: 'desc',
+            },
+          },
         },
       })
 
@@ -130,7 +137,11 @@ export class UserService {
    * @returns User
    */
   async findAllUsers() {
-    return await this.prismaService.user.findMany()
+    return await this.prismaService.users.findMany({
+      include: {
+        notifications: true,
+      },
+    })
   }
 
   /**
@@ -139,7 +150,7 @@ export class UserService {
    * @returns
    */
   async delete(id: number) {
-    await this.prismaService.user.delete({ where: { id } })
+    await this.prismaService.users.delete({ where: { id } })
     return { message: 'Пользователь удален' }
   }
 
@@ -148,7 +159,7 @@ export class UserService {
     return hashedPassword
   }
 
-  private returnUserFields(): Prisma.UserSelect {
+  private returnUserFields(): Prisma.UsersSelect {
     return {
       id: true,
       name: true,
@@ -167,6 +178,9 @@ export class UserService {
             },
           },
           address: true,
+        },
+        orderBy: {
+          createdAt: 'desc',
         },
       },
     }

@@ -1,4 +1,7 @@
 # compiled output
+/.env.development
+/.env.production
+/.env.old
 /dist
 /node_modules
 /.vscode

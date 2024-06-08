@@ -6,6 +6,9 @@ import { ICardPayment } from 'src/interfaces/payment.interface'
 import { PrismaService } from 'src/prisma.service'
 import Stripe from 'stripe'
 import { v4 as uuid } from 'uuid'
+import { MailService } from '../mail/mail.service'
+import { NotificationService } from '../notification/notification.service'
+import { SmsService } from '../sms/sms.service'
 import { UserService } from '../user/user.service'
 import { StripePaymentIntentSucceededEvent } from './data-transfer/payment.dto'
 import { IPlaceOrderDTO } from './data-transfer/place.order.dto'
@@ -15,21 +18,26 @@ export class PaymentService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly userService: UserService,
+    private readonly smsService: SmsService,
+    private readonly mailService: MailService,
+    private readonly notificationService: NotificationService,
     @InjectStripeClient() private stripe: Stripe,
   ) {}
 
-  async payment(data: StripePaymentIntentSucceededEvent) {
+  async payment(data: StripePaymentIntentSucceededEvent, userId: number) {
     console.log(data)
     console.log(data.data.object.description)
+
+    const part = data.data.object.description
+    const parts = part.split('#')
+    const orderId = parts[1].trim()
+    const order = await this.prismaService.order.findUnique({
+      where: { id: +orderId },
+    })
+
     switch (data.type) {
       case PaymentEnumStatus.PAYMENT_INTENT_SUCCESS:
-        const part = data.data.object.description
-        const parts = part.split('#')
-        const orderId = parts[1].trim()
-        const order = await this.prismaService.order.findUnique({
-          where: { id: +orderId },
-        })
-        await this.prismaService.order.update({
+        const updatedSuccess = await this.prismaService.order.update({
           where: {
             id: order.id,
           },
@@ -37,15 +45,29 @@ export class PaymentService {
             status: EnumStatusOrder.PAYED,
           },
         })
+
+        // CREATE NOTIFICATION OF ORDER FILED
+        await this.notificationService.create({
+          text: `Ваш заказ # ${order.orderId} Проведен успешно!.`,
+          userId: updatedSuccess.userId,
+          typeOfNotification: 'ORDER',
+        })
         break
+
       case PaymentEnumStatus.PAYMENT_INTENT_CLOSED:
-        await this.prismaService.order.update({
+        const updatedFiled = await this.prismaService.order.update({
           where: {
             id: order.id,
           },
           data: {
             status: EnumStatusOrder.CANCELED,
           },
+        })
+        // CREATE NOTIFICATION OF ORDER FILED
+        await this.notificationService.create({
+          text: `Ваш заказ # ${order.orderId} Проведен с ошибкой!.`,
+          userId: updatedFiled.userId,
+          typeOfNotification: 'ORDER',
         })
     }
   }
@@ -56,18 +78,49 @@ export class PaymentService {
     // CREATE ORDER
 
     switch (dto.paymentMethod) {
-      case 'CACHE':
-        const orderWithCache = await this.createOrder(user.id, dto)
+      case EnumPaymentMethod.CACHE:
+        const cacheOrder = await this.createOrder(user.id, dto)
+        // CREATE NOTIFICATION OF ORDER FILED
+        const cacheNotify = await this.notificationService.create({
+          text: `Ваш заказ # ${cacheOrder.orderId} Проведен успешно!.`,
+          userId: cacheOrder.userId,
+          typeOfNotification: 'ORDER',
+        })
+
+        this.mailService.sendEmail(
+          user.email,
+          user.name,
+          `Заказ ${cacheOrder.orderId} принят на обработку! Метод оплаты наличными. Ожидайте.`,
+        )
+        // await this.smsService.sendSms(
+        //   `996${user.phoneNumber}`,
+        //   `Заказ ${cacheOrder.id} принят на обработку! Метод оплаты наличными. Ожидайте.`,
+        // )
+        // RETURN ORDER INFORMATION
         return {
-          message: `Заказ ${orderWithCache.id} принят на обработку! Метод оплаты наличными. Ожидайте.`,
+          message: `Заказ ${cacheOrder.orderId} принят на обработку! Метод оплаты наличными. Ожидайте.`,
+          orderId: cacheOrder.id,
+          notifyId: cacheNotify.id,
         }
-      case 'CARD':
-        const orderWithCard = await this.createOrder(user.id, dto)
+
+      case EnumPaymentMethod.CARD:
+        const cardOrder = await this.createOrder(user.id, dto)
         const paymentWithCard = await this.placeOrderWithCard({
-          order: orderWithCard,
+          order: cardOrder,
           products: dto.products,
         })
-        return paymentWithCard
+
+        const cardNotify = await this.notificationService.create({
+          text: `Ваш заказ # ${cardOrder.orderId} Проведен успешно!.`,
+          userId: cardOrder.userId,
+          typeOfNotification: 'ORDER',
+        })
+
+        return {
+          detail_order: paymentWithCard,
+          orderId: cardOrder.id,
+          notifyId: cardNotify.id,
+        }
       default:
         return {
           message: 'Не выбран метод оплаты',
@@ -134,7 +187,7 @@ export class PaymentService {
     const ORDER_ID = uuid()
     const order = await this.prismaService.order.create({
       data: {
-        payment_type: EnumPaymentMethod.CARD,
+        payment_type: dto.paymentMethod,
         items: {
           create: dto.products.map((product) => ({
             price: product.price,
@@ -156,23 +209,22 @@ export class PaymentService {
       },
     })
     // INSERT ORDER ADDRESS
+
     await this.prismaService.orderAddress.create({
       data: {
-        city: dto.address.city,
-        road: dto.address.road,
-        houseNumber: dto.address.house_number,
-        postCode: dto.address.postCode,
-        countryCode: dto.address.country_code,
-        country: dto.address.country,
-        state: dto.address.state,
-        cityDistrict: dto.address.city_district,
-        village: dto.address.village,
-        town: dto.address.town,
+        name: dto.address.name,
         order: {
           connect: {
             id: order.id,
           },
         },
+      },
+    })
+
+    await this.prismaService.location.create({
+      data: {
+        orderId: order.id,
+        ...dto.address.location,
       },
     })
     return order

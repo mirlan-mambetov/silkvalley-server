@@ -1,72 +1,66 @@
 import { OnModuleInit } from '@nestjs/common'
 import {
-  ConnectedSocket,
-  MessageBody,
-  SubscribeMessage,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets'
 import { Server, Socket } from 'socket.io'
 import { ClientEnumHost } from 'src/enums/App.gateway.enum'
-import { IOnlineUsers, IUserT } from 'src/interfaces/gateway.interface'
-import { OnlineUserService } from '../user/online-users/online.user.service'
 
 @WebSocketGateway({
   cors: true,
 })
-export class AppGateWayService implements OnModuleInit {
+export class AppGateWayService
+  implements OnModuleInit, OnGatewayConnection, OnGatewayDisconnect
+{
   @WebSocketServer()
   server: Server
 
-  private currentOnlineUsers: IOnlineUsers[]
-  constructor(private readonly onlineUsers: OnlineUserService) {}
+  private usersOnline: any[] = []
 
   async onModuleInit() {
-    this.initializeSocketEventHandlers()
+    console.log('App Gateway initializied')
   }
 
-  private initializeSocketEventHandlers() {
-    this.server.on('connection', async (socket: Socket) => {
-      const origin = socket?.handshake.headers.origin as ClientEnumHost
-      switch (origin) {
-        case ClientEnumHost.CLIENT:
-          console.log(`Client socket: ${ClientEnumHost.CLIENT}`)
-          return
-        case ClientEnumHost.DASHBOARD:
-          console.log(`Dashboard socket: ${ClientEnumHost.DASHBOARD}`)
-          const users = await this.onlineUsers.getOnlineUsers()
-          this.server.emit('online', { users })
-          return
-        default:
-          return console.log(`Users not on online`)
-      }
-    })
+  async handleConnection(client: Socket, ...args: any[]) {
+    const origin = client.handshake.headers.origin as ClientEnumHost
+    switch (origin) {
+      case ClientEnumHost.CLIENT:
+        console.log(`Silk Valley: ${ClientEnumHost.CLIENT}`)
+        const user = client.handshake.auth
+        if (user?.userId) {
+          console.log(`User ${user.userId} is ONLINE`)
+          this.usersOnline.push({ userId: user.userId })
+        }
+      case ClientEnumHost.DASHBOARD:
+        console.log(`Dashboard socket: ${ClientEnumHost.DASHBOARD}`)
+        this.server.emit('online', this.usersOnline)
+        break
+      default:
+        console.log('Unknown origin host')
+        break
+    }
   }
 
-  @SubscribeMessage('logOut')
-  async handleLogOutUser(
-    @MessageBody() user: IUserT,
-    @ConnectedSocket() socket: Socket,
-  ) {
-    console.log(`OFFLINE ${user.email}`)
-    await this.onlineUsers.setOfflineStatus(user.email)
-    const users = await this.onlineUsers.getOnlineUsers()
-    this.server.emit('online', {
-      users,
-    })
-  }
+  handleDisconnect(client: any) {
+    const origin = client.handshake.headers.origin as ClientEnumHost
+    const user = client.handshake.auth
 
-  @SubscribeMessage('logIn')
-  async handleLogInUser(
-    @MessageBody() user: IUserT,
-    @ConnectedSocket() socket: Socket,
-  ) {
-    console.log(`ONLINE ${user.email}`)
-    await this.onlineUsers.setOnline(user.email)
-    const users = await this.onlineUsers.getOnlineUsers()
-    this.server.emit('online', {
-      users,
-      message: `${user.email} в сети`,
-    })
+    switch (origin) {
+      case ClientEnumHost.CLIENT:
+        if (user?.userId) {
+          this.usersOnline = this.usersOnline.filter(
+            (u) => u.userId !== user.userId,
+          )
+          console.log(`User ${user.userId} is OFFLINE`)
+        }
+      case ClientEnumHost.DASHBOARD:
+        this.server.emit('online', this.usersOnline)
+        break
+
+      default:
+        console.log('Unknown origin host')
+    }
   }
 }

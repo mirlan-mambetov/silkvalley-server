@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,7 +7,206 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// USER ROLES ENUM
+model Users {
+  id            Int            @id @default(autoincrement())
+  name          String
+  email         String         @unique
+  phoneNumber   String         @map("phone_number")
+  password      String
+  avatar        String?        @default("/images/default-avatar.png")
+  role          UserRoles[]    @default([USER])
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  onlineId      Int?           @unique @map("is_online_id")
+  isOnline      Boolean        @default(false) @map("is_online")
+  testField     String?        @default("") @map("test_field")
+  notifications Notification[]
+  orders        Order[]
+
+  @@map("users")
+}
+
+model Notification {
+  id           Int                  @id @default(autoincrement())
+  text         String
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  expire       Boolean              @default(false)
+  typeOfNotify EnumTypeNotification @map("type_notification")
+  user         Users?                @relation(fields: [userId], references: [id])
+  userId       Int?                 @map("user_id")
+
+  @@map("notification")
+}
+
+model PointsDeliver{
+  id           Int                  @id @default(autoincrement())
+
+  name String
+
+  location Location?
+
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+
+  @@map("points_deliver")
+}
+
+
+
+model Order {
+  id           Int                @id @default(autoincrement())
+  createdAt    DateTime           @default(now()) @map("created_at")
+  updatedAt    DateTime           @updatedAt @map("updated_at")
+  orderId      String
+  status       EnumStatusOrder    @default(WAITING)
+  totalCache   Int
+  payment_type EnumPaymentMethod? @map("payment_type")
+  userId       Int                @map("user_id")
+  address      OrderAddress?
+  items        OrderItem[]
+  user         Users               @relation(fields: [userId], references: [id])
+
+  @@map("orders")
+}
+
+model OrderAddress {
+  id           Int      @id @default(autoincrement())
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  name String
+  location Location?
+  orderId      Int?     @unique @map("order_id")
+  order        Order?   @relation(fields: [orderId], references: [id])
+
+  @@map("orders_address")
+}
+
+model Location{
+  id           Int      @id @default(autoincrement())
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  lat Float
+  lng Float
+
+  order OrderAddress? @relation(fields: [orderId], references: [id])
+  orderId Int?  @unique @map("order_id")
+
+  pointsDelivery PointsDeliver? @relation(fields: [pointsDeliveryId],references: [id])
+  pointsDeliveryId Int? @map("points_delivery_location") @unique
+}
+
+model OrderItem {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  name      String
+  quantity  Int
+  price     Int
+  color     String?
+  sizes     String?
+  orderId   Int      @map("order_id")
+  productId Int      @map("product_id")
+  order     Order    @relation(fields: [orderId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
+
+  @@map("order_item")
+}
+
+model Product {
+  id               Int                 @id @default(autoincrement())
+  title            String
+  subtitle         String              @map("sub_title")
+  description      String
+  alias            String              @unique
+  poster           String
+  price            Int
+  articleNumber    String              @unique @map("article_number")
+  rating           Int?
+  video            String?
+  discount         Int?
+  isHit            Boolean?            @default(false) @map("is_hit")
+  isNew            Boolean?            @default(false) @map("is_new")
+  quantity         Int                 @default(1)
+  sales            Int?                @default(0)
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  categoryid       Int?                @map("category_id")
+  secondCategoryId Int?                @map("second_category_id")
+  childsCategoryId Int?                @map("childs_category_id")
+  orderItem        OrderItem[]
+  category         Category?           @relation(fields: [categoryid], references: [id])
+  childsCategory   ChildsCategories?   @relation(fields: [childsCategoryId], references: [id])
+  secondCategory   SecondCategory?     @relation(fields: [secondCategoryId], references: [id])
+  attributes       ProductAttributes[]
+  specifications   Specification[]
+
+  @@map("product")
+}
+
+model Specification {
+  id        Int      @id @default(autoincrement())
+  name      String
+  value     String
+  productId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  product   Product  @relation(fields: [productId], references: [id])
+
+  @@map("specification")
+}
+
+model ProductAttributes {
+  id        Int      @id @default(autoincrement())
+  color     String?
+  size      String?
+  images    String[]
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id])
+
+  @@map("product_attributes")
+}
+
+model Category {
+  id         Int              @id @default(autoincrement())
+  name       String           @unique
+  slug       String           @unique
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+  products   Product[]
+  categories SecondCategory[]
+
+  @@map("categories")
+}
+
+model SecondCategory {
+  id               Int                @id @default(autoincrement())
+  name             String
+  slug             String             @unique
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  categoryId       Int                @map("category_id")
+  childsCategories ChildsCategories[]
+  products         Product[]
+  category         Category           @relation(fields: [categoryId], references: [id])
+
+  @@map("second_category")
+}
+
+model ChildsCategories {
+  id               Int            @id @default(autoincrement())
+  name             String
+  slug             String         @unique
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  parentCategoryId Int            @map("parent_category_id")
+  parentCategory   SecondCategory @relation(fields: [parentCategoryId], references: [id])
+  products         Product[]
+
+  @@map("child_categories")
+}
+
 enum UserRoles {
   USER
   ADMIN
@@ -19,211 +215,21 @@ enum UserRoles {
   OWNER
 }
 
-//#### ORDER STATUS WITH ENUM
 enum EnumStatusOrder {
   WAITING
   PAYED
   CANCELED
 }
 
-//#### ORDER STATUS WITH ENUM
 enum EnumPaymentMethod {
   CACHE
   CARD
   MBANK
 }
-//#### USER
-model Administration{
-  id  Int @id @default(autoincrement())
-  name String
-  email String @unique()
-  phoneNumber String @map("phone_number")
-  password String
-  avatar String? @default("/images/default-avatar.png")
-  role UserRoles[] @default([USER])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  @@map("administrations")
-}
 
-
-model User{
-  id  Int @id @default(autoincrement())
-  name String
-  email String @unique
-  phoneNumber String @map("phone_number")
-  password String
-  avatar String? @default("/images/default-avatar.png")
-  role UserRoles[] @default([USER])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  orders Order[]
-  online OnlineUsers? @relation(fields: [onlineId], references: [id])
-  onlineId Int? @unique
-  isOnline Boolean @default(false)
-}
-
-// DELETED ON NEXT MIGRATION
-model OnlineUsers{
-  id  Int @id @default(autoincrement())
-  users User[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-//#### ORDER
-model Order {
-  id Int @id @default(autoincrement())
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  orderId String
-  status EnumStatusOrder @default(WAITING)
-  items OrderItem[]
-  address OrderAddress? 
-  totalCache Int
-  payment_type EnumPaymentMethod? @map("payment_type")
-  user User @relation(fields: [userId], references: [id])
-  userId Int @map("user_id")
-  @@map("orders")
-}
-model OrderAddress{
-  id Int @id @default(autoincrement())
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  city String?
-	road String?
-	houseNumber String? @map("house_number")
-	postCode String? @map("post_code")
-	countryCode String? @map("country_code")
-	country String?
-	state String?
-	cityDistrict String? @map("city_district")
-	village String?
-	town String?
-  order  Order? @relation(fields: [orderId], references: [id])
-  orderId Int? @unique @map("order_id")
-}
-
-model OrderItem {
-  id Int @id @default(autoincrement())
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  name String
-  quantity Int
-  price Int
-  color String? 
-  sizes String? 
-  order Order @relation(fields: [orderId], references: [id])
-  orderId Int @map("order_id")
-  product Product @relation(fields: [productId], references: [id])
-  productId Int @map("product_id")
-  @@map("order_item")
-}
-
-//#### PRODUCT
-model Product {
-  id  Int @id @default(autoincrement())
-  title String
-  subtitle String @map("sub_title")
-  description String 
-  alias String @unique
-  poster String
-  price Int
-  articleNumber String @unique @map("article_number")
-  rating Int?
-  video String? 
-  discount Int?
-  isHit Boolean? @map("is_hit") @default(false)
-  isNew Boolean? @map("is_new") @default(false)
-  quantity Int @default(1)
-  sales Int? @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  orderItem OrderItem[] 
-
-  specifications Specification[]
-  
-  attributes ProductAttributes[]
-
-  category Category? @relation(fields: [categoryid], references: [id])
-  categoryid Int? @map("category_id")
-
-  secondCategory SecondCategory? @relation(fields: [secondCategoryId], references: [id])
-  secondCategoryId Int? @map("second_category_id")
-
-  childsCategory ChildsCategories? @relation(fields: [childsCategoryId], references: [id])
-  childsCategoryId Int? @map("childs_category_id")
-
-  @@map("product")
-}
-
-//#### PRODUCT ATTRIBUTES
-model Specification {
-  id            Int @id @default(autoincrement())
-  name          String 
-  value   String
-  product Product @relation(references: [id], fields: [productId])
-  productId Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  @@map("specification")
-}
-
-model ProductAttributes{
-  id            Int @id @default(autoincrement())
-  color String?
-  size String?
-  images String[]
-
-  product Product @relation(references: [id], fields: [productId])
-  productId Int
-
-  @@map("product_attributes")
-}
-
-model Category {
-  id            Int @id @default(autoincrement())
-  name String @unique
-  slug String @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  categories SecondCategory[]
-
-  products Product[]
-
-  @@map("categories")
-}
-
-model SecondCategory {
-  id            Int @id @default(autoincrement())
-  name String
-  slug String @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  products Product[]
-  
-  category Category @relation(fields: [categoryId], references: [id])
-  categoryId Int @map("category_id")
-  
-  childsCategories ChildsCategories[]
-
-  @@map("second_category")
-}
-
-model ChildsCategories {
-  id            Int @id @default(autoincrement())
-  name String
-  slug String @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  products Product[]
-  
-  parentCategory SecondCategory @relation(fields: [parentCategoryId], references: [id])
-  parentCategoryId Int @map("parent_category_id")
-  
-  @@map("child_categories")
+enum EnumTypeNotification {
+  ORDER
+  PAYMENT_METHOD
+  PROMOTION
+  PROFILE
 }

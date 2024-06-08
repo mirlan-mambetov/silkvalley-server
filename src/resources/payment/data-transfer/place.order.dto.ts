@@ -12,51 +12,23 @@ export class IPlaceOrderDTO {
   @IsNumber()
   totalPrice: number
 
-  address: PlaceOrderAddressDto
+  address: IPointsDelivery
 
   isCanceld?: boolean
 }
+export interface IGeo {
+  lat: number
+  lng: number
+}
 
-export class PlaceOrderAddressDto {
+export class IPointsDelivery {
   @IsOptional()
   @IsString()
-  city?: string
-
-  @IsOptional()
-  @IsString()
-  road?: string
-
-  @IsOptional()
-  @IsString()
-  house_number?: string
+  name: string
 
   @IsOptional()
   @IsString()
-  postCode?: string
-
-  @IsOptional()
-  @IsString()
-  country_code?: string
-
-  @IsOptional()
-  @IsString()
-  country?: string
-
-  @IsOptional()
-  @IsString()
-  state?: string
-
-  @IsOptional()
-  @IsString()
-  city_district?: string
-
-  @IsOptional()
-  @IsString()
-  village?: string
-
-  @IsOptional()
-  @IsString()
-  town?: string
+  location: IGeo
 }
 
 export class IOrderProducts {
