@@ -12,8 +12,6 @@ import { ClientEnumHost } from 'src/enums/App.gateway.enum'
   cors: {
     origin: '*',
   },
-  methods: ['GET', 'POST'],
-  allowedHeaders: ['Access-Control-Allow-Origin'],
   credentials: true,
 })
 export class AppGateWayService
