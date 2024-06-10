@@ -9,7 +9,12 @@ import { Server, Socket } from 'socket.io'
 import { ClientEnumHost } from 'src/enums/App.gateway.enum'
 
 @WebSocketGateway({
-  cors: true,
+  cors: {
+    origin: '*',
+  },
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Access-Control-Allow-Origin'],
+  credentials: true,
 })
 export class AppGateWayService
   implements OnModuleInit, OnGatewayConnection, OnGatewayDisconnect
