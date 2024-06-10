@@ -31,7 +31,9 @@ export class AppGateWayService
         const user = client.handshake.auth
         if (user?.userId) {
           console.log(`User ${user.userId} is ONLINE`)
-          this.usersOnline.push({ userId: user.userId })
+          if (!this.usersOnline.some((user) => user.userId === user.userId)) {
+            this.usersOnline.push({ userId: user.userId })
+          }
         }
       case ClientEnumHost.DASHBOARD:
         console.log(`Dashboard socket: ${ClientEnumHost.DASHBOARD}`)
@@ -39,7 +41,6 @@ export class AppGateWayService
         break
       default:
         console.log('Unknown origin host')
-        break
     }
   }
 
