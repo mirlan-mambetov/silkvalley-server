@@ -4,7 +4,6 @@ import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { PrismaService } from 'src/prisma.service'
 import { AuthService } from '../auth/auth.service'
-import { MailService } from '../mail/mail.service'
 import { NotificationService } from '../notification/notification.service'
 import { ProductService } from '../product/product.service'
 import { SmsService } from '../sms/sms.service'
@@ -32,7 +31,6 @@ import { PaymentService } from './payment.service'
     UploadService,
     ProductService,
     SmsService,
-    MailService,
   ],
 })
 export class PaymentModule {}

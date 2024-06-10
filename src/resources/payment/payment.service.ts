@@ -6,7 +6,6 @@ import { ICardPayment } from 'src/interfaces/payment.interface'
 import { PrismaService } from 'src/prisma.service'
 import Stripe from 'stripe'
 import { v4 as uuid } from 'uuid'
-import { MailService } from '../mail/mail.service'
 import { NotificationService } from '../notification/notification.service'
 import { SmsService } from '../sms/sms.service'
 import { UserService } from '../user/user.service'
@@ -19,7 +18,6 @@ export class PaymentService {
     private readonly prismaService: PrismaService,
     private readonly userService: UserService,
     private readonly smsService: SmsService,
-    private readonly mailService: MailService,
     private readonly notificationService: NotificationService,
     @InjectStripeClient() private stripe: Stripe,
   ) {}
@@ -87,11 +85,11 @@ export class PaymentService {
           typeOfNotification: 'ORDER',
         })
 
-        this.mailService.sendEmail(
-          user.email,
-          user.name,
-          `Заказ ${cacheOrder.orderId} принят на обработку! Метод оплаты наличными. Ожидайте.`,
-        )
+        // this.mailService.sendEmail(
+        //   user.email,
+        //   user.name,
+        //   `Заказ ${cacheOrder.orderId} принят на обработку! Метод оплаты наличными. Ожидайте.`,
+        // )
         // await this.smsService.sendSms(
         //   `996${user.phoneNumber}`,
         //   `Заказ ${cacheOrder.id} принят на обработку! Метод оплаты наличными. Ожидайте.`,

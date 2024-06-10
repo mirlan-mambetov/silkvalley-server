@@ -95,6 +95,8 @@ model Location{
 
   pointsDelivery PointsDeliver? @relation(fields: [pointsDeliveryId],references: [id])
   pointsDeliveryId Int? @map("points_delivery_location") @unique
+
+  @@map("location")
 }
 
 model OrderItem {

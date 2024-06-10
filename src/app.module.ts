@@ -16,7 +16,6 @@ import { MainCategoryModule } from './resources/categories/main.category.module'
 import { SecondCategoryModule } from './resources/categories/second-category/second-category.module'
 import { FiltersModule } from './resources/filters/filters.module'
 import { AppGateWayModule } from './resources/gateway/app.gateway.module'
-import { MailModule } from './resources/mail/mail.module'
 import { NotificaitonModule } from './resources/notification/notification.module'
 import { OrderModule } from './resources/orders/order.module'
 import { PaymentModule } from './resources/payment/payment.module'
@@ -62,7 +61,6 @@ import { UserModule } from './resources/user/user.module'
     // }),
     AppGateWayModule,
     SmsModule,
-    MailModule,
     PaymentModule,
     FiltersModule,
     ProductModule,
