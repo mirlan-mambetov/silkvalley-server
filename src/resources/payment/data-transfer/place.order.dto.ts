@@ -1,7 +1,14 @@
-import { EnumPaymentMethod, EnumStatusOrder } from '@prisma/client'
-import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator'
+import { EnumPaymentMethod, EnumStatusOrder, Users } from '@prisma/client'
+import {
+  IsBoolean,
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator'
 
 export class IPlaceOrderDTO {
+  @IsEnum(EnumStatusOrder)
   status: EnumStatusOrder
 
   @IsEnum(EnumPaymentMethod)
@@ -14,7 +21,10 @@ export class IPlaceOrderDTO {
 
   address: IPointsDelivery
 
+  @IsBoolean()
   isCanceld?: boolean
+
+  user: Pick<Users, 'email' | 'name' | 'phoneNumber'>
 }
 export interface IGeo {
   lat: number
@@ -42,7 +52,7 @@ export class IOrderProducts {
   description: string
 
   @IsNumber()
-  productQuantity: number
+  quantityInCart: number
 
   @IsNumber()
   price: number

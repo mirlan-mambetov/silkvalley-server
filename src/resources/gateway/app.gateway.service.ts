@@ -6,7 +6,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets'
 import { Server, Socket } from 'socket.io'
-import { ClientEnumHost } from 'src/enums/App.gateway.enum'
+import { EnumClientHOST } from 'src/enums/App.gateway.enum'
 
 @WebSocketGateway({
   cors: {
@@ -27,10 +27,10 @@ export class AppGateWayService
   }
 
   async handleConnection(client: Socket, ...args: any[]) {
-    const origin = client.handshake.headers.origin as ClientEnumHost
+    const origin = client.handshake.headers.origin as EnumClientHOST
     switch (origin) {
-      case ClientEnumHost.CLIENT:
-        console.log(`Silk Valley: ${ClientEnumHost.CLIENT}`)
+      case EnumClientHOST.CLIENT:
+        console.log(`Silk Valley: ${EnumClientHOST.CLIENT}`)
         const user = client.handshake.auth
         if (user?.userId) {
           console.log(`User ${user.userId} is ONLINE`)
@@ -38,8 +38,8 @@ export class AppGateWayService
             this.usersOnline.push({ userId: user.userId })
           }
         }
-      case ClientEnumHost.DASHBOARD:
-        console.log(`Dashboard socket: ${ClientEnumHost.DASHBOARD}`)
+      case EnumClientHOST.DASHBOARD:
+        console.log(`Dashboard socket: ${EnumClientHOST.DASHBOARD}`)
         this.server.emit('online', this.usersOnline)
         break
       default:
@@ -48,18 +48,18 @@ export class AppGateWayService
   }
 
   handleDisconnect(client: any) {
-    const origin = client.handshake.headers.origin as ClientEnumHost
+    const origin = client.handshake.headers.origin as EnumClientHOST
     const user = client.handshake.auth
 
     switch (origin) {
-      case ClientEnumHost.CLIENT:
+      case EnumClientHOST.CLIENT:
         if (user?.userId) {
           this.usersOnline = this.usersOnline.filter(
             (u) => u.userId !== user.userId,
           )
           console.log(`User ${user.userId} is OFFLINE`)
         }
-      case ClientEnumHost.DASHBOARD:
+      case EnumClientHOST.DASHBOARD:
         this.server.emit('online', this.usersOnline)
         break
 
