@@ -1,8 +1,7 @@
 import {
   CanActivate,
   ExecutionContext,
-  HttpException,
-  HttpStatus,
+  ForbiddenException,
   Injectable,
 } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
@@ -16,12 +15,12 @@ export class RolesGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<{ user: Users }>()
     const role = request.user.role
 
-    const admin = role.some((role) => role !== 'OWNER' && 'ADMIN')
-    if (admin) {
-      throw new HttpException(
-        'Недостаточно прав для доступа',
-        HttpStatus.FORBIDDEN,
-      )
+    const admin = role.some(
+      (role) => role.includes('OWNER') || role.includes('ADMIN'),
+    )
+
+    if (!admin) {
+      throw new ForbiddenException('Недостаточно прав для доступа!')
     }
     return true
   }

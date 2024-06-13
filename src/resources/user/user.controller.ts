@@ -83,7 +83,7 @@ export class UserController {
    */
   @Get(':id')
   @HttpCode(HttpStatus.OK)
-  @Auth('ADMIN')
+  @Auth(['ADMIN', 'OWNER'])
   findOneById(@Param('id', ParseIntPipe) id: number) {
     return this.userSerivce.findOneById(id)
   }
@@ -95,7 +95,7 @@ export class UserController {
    */
   @Get('by-email/:email')
   @HttpCode(HttpStatus.OK)
-  @Auth('ADMIN')
+  @Auth(['USER', 'ADMIN', 'OWNER'])
   findOneByEmail(@Param('email') email: string) {
     return this.userSerivce.findOneByEmail(email)
   }
@@ -106,7 +106,7 @@ export class UserController {
    */
   @Get()
   @HttpCode(HttpStatus.OK)
-  @Auth('ADMIN')
+  @Auth(['OWNER', 'ADMIN'])
   findAllUsers() {
     return this.userSerivce.findAllUsers()
   }
@@ -117,7 +117,7 @@ export class UserController {
    * @returns Message
    */
   @Delete(':id')
-  @Auth('OWNER')
+  @Auth(['OWNER'])
   @HttpCode(HttpStatus.OK)
   delete(@Param('id', ParseIntPipe) id: number) {
     return this.userSerivce.delete(id)

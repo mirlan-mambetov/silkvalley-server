@@ -144,6 +144,8 @@ model Product {
   attributes       ProductAttributes[]
   specifications   Specification[]
 
+  promotion Promotion? @relation(fields: [promotionId], references: [id])
+  promotionId Int? @map("promotion_id")
   @@map("product")
 }
 
@@ -207,6 +209,21 @@ model ChildsCategories {
   products         Product[]
 
   @@map("child_categories")
+}
+
+model Promotion{
+  id               Int            @id @default(autoincrement())
+  title String
+  slug String @unique
+  subtitle String?
+  description String?
+  image String
+  discount Int?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  product Product[]
+  active Boolean @default(true)
+  @@map("promotion")
 }
 
 enum UserRoles {

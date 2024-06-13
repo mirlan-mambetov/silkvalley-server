@@ -22,6 +22,7 @@ import { PaymentModule } from './resources/payment/payment.module'
 import { ProductAttributeModule } from './resources/product.attribute/product.attribute.module'
 import { ProductSpecificationModule } from './resources/product/product-specification/product-specification.module'
 import { ProductModule } from './resources/product/product.module'
+import { PromotionModule } from './resources/promotion/promotion.module'
 import { SmsModule } from './resources/sms/sms.module'
 import { UploadModule } from './resources/upload/upload.module'
 import { UserModule } from './resources/user/user.module'
@@ -74,6 +75,7 @@ import { UserModule } from './resources/user/user.module'
     ChildsCategoryModule,
     OrderModule,
     NotificaitonModule,
+    PromotionModule,
   ],
   controllers: [AppController],
   providers: [PrismaService],
