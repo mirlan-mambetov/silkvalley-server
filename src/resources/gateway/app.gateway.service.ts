@@ -1,12 +1,15 @@
 import { OnModuleInit } from '@nestjs/common'
 import {
+  MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
+  SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets'
 import { Server, Socket } from 'socket.io'
 import { EnumClientHOST } from 'src/enums/App.gateway.enum'
+import { IPlaceOrderDTOgateway } from './dto/gateway.dto'
 
 @WebSocketGateway({
   cors: {
@@ -66,5 +69,10 @@ export class AppGateWayService
       default:
         console.log('Unknown origin host')
     }
+  }
+
+  @SubscribeMessage('placeOrder')
+  placeOrder(@MessageBody() message: IPlaceOrderDTOgateway) {
+    this.server.emit('sendOrder', message)
   }
 }
