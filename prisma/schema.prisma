@@ -65,6 +65,7 @@ model Order {
   userId       Int                @map("user_id")
   address      OrderAddress?
   items        OrderItem[]
+  testField Int?
   user         Users               @relation(fields: [userId], references: [id])
 
   @@map("orders")
