@@ -20,7 +20,7 @@ export class OrderController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  @Auth(['OWNER'])
+  @Auth(['ADMIN', 'OWNER'])
   findAll() {
     return this.orderService.findAll()
   }

@@ -12,6 +12,7 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common'
+import { Auth } from '../auth/decorators/auth.decorator'
 import { CreateMainCategoryDTO } from './data-transfer/create.main-category.dto'
 import { UpdateMainCategoryDTO } from './data-transfer/update.main-category.dto'
 import { MainCategoryService } from './main.category.service'
@@ -28,6 +29,7 @@ export class MainCategoryController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @UsePipes(new ValidationPipe())
+  @Auth(['ADMIN', 'OWNER'])
   async create(@Body() dto: CreateMainCategoryDTO) {
     return await this.mainCategoryService.create(dto)
   }
@@ -42,6 +44,7 @@ export class MainCategoryController {
   @Put(':id')
   @HttpCode(HttpStatus.OK)
   @UsePipes(new ValidationPipe())
+  @Auth(['ADMIN', 'OWNER'])
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateMainCategoryDTO,
@@ -102,6 +105,7 @@ export class MainCategoryController {
    */
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
+  @Auth(['ADMIN', 'OWNER'])
   async delete(@Param('id', ParseIntPipe) id: number) {
     return await this.mainCategoryService.delete(id)
   }

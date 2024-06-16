@@ -13,6 +13,7 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common'
+import { Auth } from '../auth/decorators/auth.decorator'
 import { CreateProductDTO } from './data-transfer/create.data.transfer'
 import { UpdateProductDTO } from './data-transfer/update.data.transfer'
 import { ProductService } from './product.service'
@@ -29,6 +30,7 @@ export class ProductController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @UsePipes(new ValidationPipe())
+  @Auth(['ADMIN', 'OWNER'])
   async create(@Body() dto: CreateProductDTO) {
     return await this.productService.create(dto)
   }
@@ -41,6 +43,7 @@ export class ProductController {
    */
   @Put(':id')
   @HttpCode(HttpStatus.OK)
+  @Auth(['ADMIN', 'OWNER'])
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateProductDTO,
@@ -121,6 +124,7 @@ export class ProductController {
    */
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
+  @Auth(['ADMIN', 'OWNER'])
   async delete(@Param('id', ParseIntPipe) id: number) {
     return await this.productService.delete(id)
   }

@@ -12,6 +12,7 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common'
+import { Auth } from '../auth/decorators/auth.decorator'
 import { CreateAttributeDTO } from './data-transfer/create.data.transfer'
 import { IUpdateAttributeDTO } from './data-transfer/update.data.transfer'
 import { ProductAttributeService } from './product.attribute.service'
@@ -31,6 +32,7 @@ export class ProductAttributeController {
   @Post(':id')
   @HttpCode(HttpStatus.CREATED)
   @UsePipes(new ValidationPipe())
+  @Auth(['ADMIN', 'OWNER'])
   async create(
     @Param('id', ParseIntPipe) productId: number,
     @Body() dto: CreateAttributeDTO,
@@ -47,6 +49,7 @@ export class ProductAttributeController {
   @Put(':id')
   @HttpCode(HttpStatus.OK)
   @UsePipes(new ValidationPipe())
+  @Auth(['ADMIN', 'OWNER'])
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: IUpdateAttributeDTO,
@@ -72,6 +75,7 @@ export class ProductAttributeController {
    */
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
+  @Auth(['ADMIN', 'OWNER'])
   async deleteOne(@Param('id', ParseIntPipe) id: number) {
     return await this.productAttributeService.deleteOne(id)
   }

@@ -12,6 +12,7 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common'
+import { Auth } from 'src/resources/auth/decorators/auth.decorator'
 import { CreateChildCategoryDTO } from '../data-transfer/create-childs.dto'
 import { UpdateChildCategoryDTO } from '../data-transfer/update-childs.dto'
 import { ChildsCategoryService } from './childs.category.service'
@@ -22,28 +23,24 @@ export class ChildsCategoryController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  // @Auth('SUPERUSER')
   async findAll() {
     return await this.childsCategoryService.findAll()
   }
 
   @Get(':id')
   @HttpCode(HttpStatus.OK)
-  // @Auth('SUPERUSER')
   async findById(@Param('id', ParseIntPipe) id: number) {
     return await this.childsCategoryService.findById(id)
   }
 
   @Get('by-alias/:alias')
   @HttpCode(HttpStatus.OK)
-  // @Auth('SUPERUSER')
   async findByAlias(@Param('alias') alias: string) {
     return await this.childsCategoryService.findByAlias(alias)
   }
 
   @Get('by-parent-id/:id')
   @HttpCode(HttpStatus.OK)
-  // @Auth('SUPERUSER')
   async findByParentId(@Param('id', ParseIntPipe) id: number) {
     return await this.childsCategoryService.findByParentId(id)
   }
@@ -51,7 +48,7 @@ export class ChildsCategoryController {
   @Post(':id')
   @HttpCode(HttpStatus.CREATED)
   @UsePipes(new ValidationPipe())
-  // @Auth('SUPERUSER')
+  @Auth(['ADMIN', 'OWNER'])
   async create(
     @Param('id', ParseIntPipe) parentId: number,
     @Body() dto: CreateChildCategoryDTO,
@@ -62,7 +59,7 @@ export class ChildsCategoryController {
   @Put(':id')
   @HttpCode(HttpStatus.OK)
   @UsePipes(new ValidationPipe())
-  // @Auth('SUPERUSER')
+  @Auth(['ADMIN', 'OWNER'])
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateChildCategoryDTO,
@@ -72,7 +69,7 @@ export class ChildsCategoryController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
-  // @Auth('SUPERUSER')
+  @Auth(['ADMIN', 'OWNER'])
   async delete(@Param('id', ParseIntPipe) id: number) {
     return await this.childsCategoryService.delete(id)
   }

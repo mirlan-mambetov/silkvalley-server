@@ -12,6 +12,7 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common'
+import { Auth } from 'src/resources/auth/decorators/auth.decorator'
 import { CreateChildCategoryDTO } from '../data-transfer/create-childs.dto'
 import { UpdateChildCategoryDTO } from '../data-transfer/update-childs.dto'
 import { SecondCategoryService } from './second-category.service'
@@ -29,6 +30,7 @@ export class SecondCategoryController {
   @Post(':categoryId')
   @HttpCode(HttpStatus.CREATED)
   @UsePipes(new ValidationPipe())
+  @Auth(['ADMIN', 'OWNER'])
   async create(
     @Param('categoryId', ParseIntPipe) categoryId: number,
     @Body() dto: CreateChildCategoryDTO,
@@ -45,6 +47,7 @@ export class SecondCategoryController {
   @Put(':id')
   @HttpCode(HttpStatus.OK)
   @UsePipes(new ValidationPipe())
+  @Auth(['ADMIN', 'OWNER'])
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateChildCategoryDTO,
@@ -103,6 +106,7 @@ export class SecondCategoryController {
    */
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
+  @Auth(['ADMIN', 'OWNER'])
   async delete(@Param('id', ParseIntPipe) id: number) {
     return await this.secondCategoryService.delete(id)
   }
