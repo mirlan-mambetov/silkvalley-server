@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  InternalServerErrorException,
-} from '@nestjs/common'
+import { Injectable, InternalServerErrorException } from '@nestjs/common'
 import { PrismaService } from 'src/prisma.service'
 import { ProductService } from '../product/product.service'
 import { UploadService } from '../upload/upload.service'
@@ -25,17 +21,17 @@ export class ProductAttributeService {
    */
   async create(productId: number, dto: CreateAttributeDTO) {
     try {
-      const product = await this.productService.findOneById(productId)
-      await this.prismaService.productAttributes.create({
-        data: {
-          ...dto,
-          product: {
-            connect: {
-              id: product.id,
-            },
-          },
-        },
-      })
+      // const product = await this.productService.findOneById(productId)
+      // await this.prismaService.productAttributes.create({
+      //   data: {
+      //     ...dto,
+      //     product: {
+      //       connect: {
+      //         id: product.id,
+      //       },
+      //     },
+      //   },
+      // })
       return {
         message: 'Аттрибут добавлен',
       }
@@ -53,12 +49,12 @@ export class ProductAttributeService {
   async update(id: number, dto: IUpdateAttributeDTO) {
     try {
       const attribute = await this.findById(id)
-      await this.prismaService.productAttributes.update({
-        where: { id: attribute.id },
-        data: {
-          ...dto,
-        },
-      })
+      // await this.prismaService.productAttributes.update({
+      //   where: { id: attribute.id },
+      //   data: {
+      //     ...dto,
+      //   },
+      // })
       return {
         message: 'Аттрибут обновлен',
       }
@@ -74,17 +70,17 @@ export class ProductAttributeService {
    * @description Вывод одного атрибута
    */
   async findById(id: number) {
-    try {
-      const attribute = await this.prismaService.productAttributes.findUnique({
-        where: {
-          id,
-        },
-      })
-      if (!attribute) throw new BadRequestException('Атрибут не найден')
-      return attribute
-    } catch (err) {
-      throw new InternalServerErrorException(err)
-    }
+    // try {
+    //   const attribute = await this.prismaService.productAttributes.findUnique({
+    //     where: {
+    //       id,
+    //     },
+    //   })
+    //   if (!attribute) throw new BadRequestException('Атрибут не найден')
+    //   return attribute
+    // } catch (err) {
+    //   throw new InternalServerErrorException(err)
+    // }
   }
 
   /**
@@ -94,19 +90,16 @@ export class ProductAttributeService {
    */
   async deleteOne(id: number) {
     try {
-      const attribute = await this.findById(id)
-
-      for await (const img of attribute.images) {
-        await this.uploadService.deleteFile(img)
-      }
-
-      await this.prismaService.productAttributes.delete({
-        where: { id },
-      })
-
-      return {
-        message: 'Атрибут удален',
-      }
+      // const attribute = await this.findById(id)
+      // for await (const img of attribute.images) {
+      //   await this.uploadService.deleteFile(img)
+      // }
+      // await this.prismaService.productAttributes.delete({
+      //   where: { id },
+      // })
+      // return {
+      //   message: 'Атрибут удален',
+      // }
     } catch (err) {
       throw new InternalServerErrorException(err)
     }

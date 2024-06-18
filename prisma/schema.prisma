@@ -17,9 +17,6 @@ model Users {
   role          UserRoles[]    @default([USER])
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
-  onlineId      Int?           @unique @map("is_online_id")
-  isOnline      Boolean        @default(false) @map("is_online")
-  testField     String?        @default("") @map("test_field")
   notifications Notification[]
   orders        Order[]
 
@@ -32,27 +29,22 @@ model Notification {
   createdAt    DateTime             @default(now())
   updatedAt    DateTime             @updatedAt
   expire       Boolean              @default(false)
-  typeOfNotify EnumTypeNotification @map("type_notification")
-  user         Users?                @relation(fields: [userId], references: [id])
   userId       Int?                 @map("user_id")
+  typeOfNotify EnumTypeNotification @map("type_notification")
+  user         Users?               @relation(fields: [userId], references: [id])
 
   @@map("notification")
 }
 
-model PointsDeliver{
-  id           Int                  @id @default(autoincrement())
-
-  name String
-
-  location Location?
-
-  createdAt    DateTime             @default(now())
-  updatedAt    DateTime             @updatedAt
+model PointsDeliver {
+  id        Int       @id @default(autoincrement())
+  name      String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  location  Location?
 
   @@map("points_deliver")
 }
-
-
 
 model Order {
   id           Int                @id @default(autoincrement())
@@ -63,39 +55,35 @@ model Order {
   totalCache   Int
   payment_type EnumPaymentMethod? @map("payment_type")
   userId       Int                @map("user_id")
-  address      OrderAddress?
   items        OrderItem[]
-  testField Int?
-  user         Users               @relation(fields: [userId], references: [id])
+  user         Users              @relation(fields: [userId], references: [id])
+  address      OrderAddress?
 
   @@map("orders")
 }
 
 model OrderAddress {
-  id           Int      @id @default(autoincrement())
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
-  name String
-  location Location?
-  orderId      Int?     @unique @map("order_id")
-  order        Order?   @relation(fields: [orderId], references: [id])
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  orderId   Int?      @unique @map("order_id")
+  name      String
+  location  Location?
+  order     Order?    @relation(fields: [orderId], references: [id])
 
   @@map("orders_address")
 }
 
-model Location{
-  id           Int      @id @default(autoincrement())
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
-
-  lat Float
-  lng Float
-
-  order OrderAddress? @relation(fields: [orderId], references: [id])
-  orderId Int?  @unique @map("order_id")
-
-  pointsDelivery PointsDeliver? @relation(fields: [pointsDeliveryId],references: [id])
-  pointsDeliveryId Int? @map("points_delivery_location") @unique
+model Location {
+  id               Int            @id @default(autoincrement())
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @updatedAt @map("updated_at")
+  lat              Float
+  lng              Float
+  orderId          Int?           @unique @map("order_id")
+  pointsDeliveryId Int?           @unique @map("points_delivery_location")
+  order            OrderAddress?  @relation(fields: [orderId], references: [id])
+  pointsDelivery   PointsDeliver? @relation(fields: [pointsDeliveryId], references: [id])
 
   @@map("location")
 }
@@ -104,126 +92,107 @@ model OrderItem {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
-  name      String
+  title      String
   quantity  Int
   price     Int
   color     String?
-  sizes     String?
-  orderId   Int      @map("order_id")
-  productId Int      @map("product_id")
+  size    String?
   order     Order    @relation(fields: [orderId], references: [id])
-  product   Product  @relation(fields: [productId], references: [id])
+  orderId   Int      @map("order_id")
+  product   ProductVariant  @relation(fields: [productId], references: [id])
+  productId Int      @map("product_id")
 
   @@map("order_item")
 }
 
 model Product {
   id               Int                 @id @default(autoincrement())
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+
   title            String
   subtitle         String              @map("sub_title")
   description      String
-  alias            String              @unique
+  slug             String              @unique
   poster           String
-  price            Int
+  category         Category?           @relation(fields: [categoryId], references: [id])
+  categoryId       Int?                @map("category_id")
+  variants ProductVariant[]
+
+  @@map("product")
+}
+
+model ProductVariant {
+  id           Int              @id @default(autoincrement())
+  color        Colors[]
+  price        Float
+  size         String
   articleNumber    String              @unique @map("article_number")
+  stock Int
+  product      Product          @relation(fields: [productId], references: [id])
+  productId    Int
+  specifications   Specification[]
   rating           Int?
-  video            String?
   discount         Int?
   isHit            Boolean?            @default(false) @map("is_hit")
   isNew            Boolean?            @default(false) @map("is_new")
-  quantity         Int                 @default(1)
   sales            Int?                @default(0)
-  createdAt        DateTime            @default(now())
-  updatedAt        DateTime            @updatedAt
-  categoryid       Int?                @map("category_id")
-  secondCategoryId Int?                @map("second_category_id")
-  childsCategoryId Int?                @map("childs_category_id")
+  video            String?
+  promotionId      Int?                @map("promotion_id")
+  promotion        Promotion?          @relation(fields: [promotionId], references: [id])
   orderItem        OrderItem[]
-  category         Category?           @relation(fields: [categoryid], references: [id])
-  childsCategory   ChildsCategories?   @relation(fields: [childsCategoryId], references: [id])
-  secondCategory   SecondCategory?     @relation(fields: [secondCategoryId], references: [id])
-  attributes       ProductAttributes[]
-  specifications   Specification[]
 
-  promotion Promotion? @relation(fields: [promotionId], references: [id])
-  promotionId Int? @map("promotion_id")
-  @@map("product")
+  @@map("product_variant")
+}
+model Colors{
+  id           Int              @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  color String
+  images String[]
+
+  variant ProductVariant? @relation(fields: [variantId],references: [id])
+  variantId Int? @map("variant_id")
+  @@map("colors")
+}
+model Category {
+  id             Int        @id @default(autoincrement())
+  name           String     @unique
+  slug           String     @unique
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  parentId       Int?       
+  parentCategory Category?  @relation("CategoryToCategory", fields: [parentId], references: [id])
+  childs         Category[] @relation("CategoryToCategory")
+  products       Product[]
+
+  @@map("category")
 }
 
 model Specification {
   id        Int      @id @default(autoincrement())
   name      String
   value     String
-  productId Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  product   Product  @relation(fields: [productId], references: [id])
-
+  variants  ProductVariant? @relation(fields: [variantsId],references: [id])
+  variantsId Int?  @map("variants_id")
   @@map("specification")
 }
 
-model ProductAttributes {
-  id        Int      @id @default(autoincrement())
-  color     String?
-  size      String?
-  images    String[]
-  productId Int
-  product   Product  @relation(fields: [productId], references: [id])
-
-  @@map("product_attributes")
-}
-
-model Category {
-  id         Int              @id @default(autoincrement())
-  name       String           @unique
-  slug       String           @unique
-  createdAt  DateTime         @default(now())
-  updatedAt  DateTime         @updatedAt
-  products   Product[]
-  categories SecondCategory[]
-
-  @@map("categories")
-}
-
-model SecondCategory {
-  id               Int                @id @default(autoincrement())
-  name             String
-  slug             String             @unique
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
-  categoryId       Int                @map("category_id")
-  childsCategories ChildsCategories[]
-  products         Product[]
-  category         Category           @relation(fields: [categoryId], references: [id])
-
-  @@map("second_category")
-}
-
-model ChildsCategories {
-  id               Int            @id @default(autoincrement())
-  name             String
-  slug             String         @unique
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
-  parentCategoryId Int            @map("parent_category_id")
-  parentCategory   SecondCategory @relation(fields: [parentCategoryId], references: [id])
-  products         Product[]
-
-  @@map("child_categories")
-}
-
-model Promotion{
-  id               Int            @id @default(autoincrement())
-  title String
-  slug String @unique
-  subtitle String?
+model Promotion {
+  id          Int       @id @default(autoincrement())
+  title       String
+  subtitle    String?
   description String?
-  image String
-  discount Int?
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
-  product Product[]
-  active Boolean @default(true)
+  discount    Int?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  active      Boolean   @default(true)
+  slug        String    @unique
+  image       String
+  product     ProductVariant[]
+
   @@map("promotion")
 }
 

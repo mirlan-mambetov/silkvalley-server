@@ -1,8 +1,7 @@
-export const generateSlug = (name: string) => {
-  const slugName = name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)+/g, '')
+import slugify from 'slugify'
 
-  return { slugName }
+export const generateSlug = (name: string) => {
+  const slug = slugify(name, { locale: 'en-EN', lower: true, trim: true })
+
+  return slug
 }

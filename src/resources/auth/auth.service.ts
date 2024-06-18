@@ -27,18 +27,16 @@ export class AuthService {
 
   async register(dto: RegisterDTO) {
     try {
-      const user = await this.prismaService.users.findUnique({
-        where: { email: dto.email },
-      })
+      const user = await this.userService.findOneByEmail(dto.email)
 
-      if (user) throw new BadRequestException('Такой E-mail уже используется')
-
-      await this.userService.save(dto)
-
-      return {
-        message: 'Регистрация прошла успешно',
-        success: true,
+      if (!user) {
+        await this.userService.save(dto)
+        return {
+          message: 'Регистрация прошла успешно',
+          success: true,
+        }
       }
+      return new BadRequestException('Такой E-mail уже используется')
     } catch (error) {
       throw new InternalServerErrorException({
         status: error.status,

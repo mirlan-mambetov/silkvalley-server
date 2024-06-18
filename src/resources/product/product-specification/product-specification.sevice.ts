@@ -18,14 +18,14 @@ export class ProductSpecificationService {
    */
   async create(productId: number, dto: SpecificationDTO[]) {
     const product = await this.productService.findOneById(productId)
-    for await (const data of dto) {
-      await this.prismaService.specification.createMany({
-        data: {
-          ...data,
-          productId: product.id,
-        },
-      })
-    }
+    // for await (const data of dto) {
+    //   await this.prismaService.specification.createMany({
+    //     data: {
+    //       ...data,
+
+    //     },
+    //   })
+    // }
     return {
       message: 'Спецификация добавлена',
     }
@@ -107,8 +107,8 @@ export class ProductSpecificationService {
   async findByProductId(productId: number) {
     const specification = await this.prismaService.specification.findMany({
       where: {
-        product: {
-          id: productId,
+        variants: {
+          productId: productId,
         },
       },
     })

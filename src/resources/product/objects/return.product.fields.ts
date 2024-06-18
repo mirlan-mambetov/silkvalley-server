@@ -2,7 +2,7 @@ import { Prisma } from '@prisma/client'
 
 export const returnProductFields: Prisma.ProductFindManyArgs = {
   include: {
-    attributes: true,
+    // attributes: true,
   },
   // При следующей миграции сделать сортировку по дате обновления
   // orderBy:{

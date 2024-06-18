@@ -174,7 +174,7 @@ export class UserService {
           items: {
             select: {
               id: true,
-              name: true,
+              title: true,
             },
           },
           address: true,

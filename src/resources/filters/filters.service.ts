@@ -14,42 +14,42 @@ export class FiltersService {
 
   async productAttributes(slug: string) {
     let filters = []
-    const product = await this.prismaService.product.findMany({
-      where: {
-        OR: [
-          {
-            category: {
-              slug,
-            },
-          },
-          {
-            secondCategory: {
-              slug,
-            },
-          },
-          {
-            childsCategory: {
-              slug,
-            },
-          },
-        ],
-      },
-      include: { attributes: true },
-    })
-    const seenAttributes = new Set() // Сет для хранения уникальных атрибутов
-    product.forEach((product) => {
-      product.attributes.forEach((attribute) => {
-        const key = `${attribute.size}_${attribute.color}` // Создание уникального ключа для атрибута
-        if (!seenAttributes.has(key)) {
-          // Проверка, не встречался ли атрибут ранее
-          seenAttributes.add(key) // Добавление атрибута в набор
-          filters.push({
-            color: attribute.color,
-            size: attribute.size,
-          })
-        }
-      })
-    })
+    // const product = await this.prismaService.product.findMany({
+    //   where: {
+    //     OR: [
+    //       {
+    //         category: {
+    //           slug,
+    //         },
+    //       },
+    //       {
+    //         secondCategory: {
+    //           slug,
+    //         },
+    //       },
+    //       {
+    //         childsCategory: {
+    //           slug,
+    //         },
+    //       },
+    //     ],
+    //   },
+    //   include: { attributes: true },
+    // })
+    // const seenAttributes = new Set() // Сет для хранения уникальных атрибутов
+    // product.forEach((product) => {
+    //   product.attributes.forEach((attribute) => {
+    //     const key = `${attribute.size}_${attribute.color}` // Создание уникального ключа для атрибута
+    //     if (!seenAttributes.has(key)) {
+    //       // Проверка, не встречался ли атрибут ранее
+    //       seenAttributes.add(key) // Добавление атрибута в набор
+    //       filters.push({
+    //         color: attribute.color,
+    //         size: attribute.size,
+    //       })
+    //     }
+    //   })
+    // })
 
     return filters
   }
@@ -71,33 +71,33 @@ export class FiltersService {
     //   filters.push({
     //     attributes: { some: { size: { contains: dto.selectedSize } } },
     //   })
-    const products = await this.prismaService.product.findMany({
-      where: {
-        AND: filters,
-        attributes: {
-          some: {
-            size: {
-              equals: dto.selectedSize,
-            },
-          },
-        },
-      },
-      orderBy: sorts,
-    })
-    return products
+    // const products = await this.prismaService.product.findMany({
+    //   where: {
+    //     AND: filters,
+    //     attributes: {
+    //       some: {
+    //         size: {
+    //           equals: dto.selectedSize,
+    //         },
+    //       },
+    //     },
+    //   },
+    //   orderBy: sorts,
+    // })
+    // return products
   }
 
-  sortFilter(sort: EnumProductSort): Prisma.ProductOrderByWithRelationInput[] {
-    switch (sort) {
-      case EnumProductSort.LOW_PRICE:
-        return [{ price: 'desc' }]
-      case EnumProductSort.HIGH_PRICE:
-        return [{ price: 'asc' }]
-      case EnumProductSort.NEWEST:
-        return [{ createdAt: 'asc' }]
-      case EnumProductSort.OLDEST:
-        return [{ createdAt: 'desc' }]
-    }
+  sortFilter(sort: EnumProductSort) {
+    // switch (sort) {
+    //   case EnumProductSort.LOW_PRICE:
+    //     return [{ price: 'desc' }]
+    //   case EnumProductSort.HIGH_PRICE:
+    //     return [{ price: 'asc' }]
+    //   case EnumProductSort.NEWEST:
+    //     return [{ createdAt: 'asc' }]
+    //   case EnumProductSort.OLDEST:
+    //     return [{ createdAt: 'desc' }]
+    // }
   }
 
   private priceFilter(minPrice?: number, maxPrice?: number) {

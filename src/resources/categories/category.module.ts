@@ -3,17 +3,17 @@ import { PrismaService } from 'src/prisma.service'
 import { FiltersService } from '../filters/filters.service'
 import { ProductService } from '../product/product.service'
 import { UploadService } from '../upload/upload.service'
-import { MainCategoryController } from './main.category.controller'
-import { MainCategoryService } from './main.category.service'
+import { CategoryController } from './category.controller'
+import { CategoryService } from './category.service'
 
 @Module({
-  controllers: [MainCategoryController],
+  controllers: [CategoryController],
   providers: [
     PrismaService,
-    MainCategoryService,
+    CategoryService,
     ProductService,
     UploadService,
     FiltersService,
   ],
 })
-export class MainCategoryModule {}
+export class CategoryModule {}

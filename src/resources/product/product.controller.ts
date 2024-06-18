@@ -7,15 +7,17 @@ import {
   HttpStatus,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
-  Put,
   Query,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common'
 import { Auth } from '../auth/decorators/auth.decorator'
-import { CreateProductDTO } from './data-transfer/create.data.transfer'
-import { UpdateProductDTO } from './data-transfer/update.data.transfer'
+import { CreateProductDto } from './data-transfer/create.data.transfer'
+import { CreateProductVariantDto } from './data-transfer/product-variant.dto'
+import { UpdateProductVariantDto } from './data-transfer/product-variant.update.dto'
+import { UpdateProductDto } from './data-transfer/update.data.transfer'
 import { ProductService } from './product.service'
 
 @Controller('product')
@@ -30,9 +32,28 @@ export class ProductController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @UsePipes(new ValidationPipe())
-  @Auth(['ADMIN', 'OWNER'])
-  async create(@Body() dto: CreateProductDTO) {
+  // @Auth(['ADMIN', 'OWNER'])
+  async create(@Body() dto: CreateProductDto) {
     return await this.productService.create(dto)
+  }
+
+  @Post('variant')
+  @HttpCode(HttpStatus.CREATED)
+  @UsePipes(new ValidationPipe())
+  // @Auth(['ADMIN', 'OWNER'])
+  async createVariant(@Body() dto: CreateProductVariantDto) {
+    return await this.productService.createProductVariant(dto)
+  }
+
+  @Patch('variant/:id')
+  @HttpCode(HttpStatus.CREATED)
+  @UsePipes(new ValidationPipe())
+  // @Auth(['ADMIN', 'OWNER'])
+  async updateVariant(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateProductVariantDto,
+  ) {
+    return await this.productService.updateProductVariant(id, dto)
   }
 
   /**
@@ -41,12 +62,12 @@ export class ProductController {
    * @param dto
    * @returns
    */
-  @Put(':id')
+  @Patch(':id')
   @HttpCode(HttpStatus.OK)
   @Auth(['ADMIN', 'OWNER'])
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() dto: UpdateProductDTO,
+    @Body() dto: UpdateProductDto,
   ) {
     return await this.productService.update(id, dto)
   }
@@ -101,10 +122,10 @@ export class ProductController {
    *
    * @returns
    */
-  @Get('')
+  @Get()
   @HttpCode(HttpStatus.OK)
   async findAll() {
-    return await this.productService.findAll()
+    return await this.productService.getAllProducts()
   }
 
   /**

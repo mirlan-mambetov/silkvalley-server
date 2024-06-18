@@ -11,9 +11,7 @@ import { AppController } from './app.controller'
 import { ApiNotFoundMiddleware } from './middlewares/NotFound.middleware'
 import { PrismaService } from './prisma.service'
 import { AuthModule } from './resources/auth/auth.module'
-import { ChildsCategoryModule } from './resources/categories/childs-category/childs.category.module'
-import { MainCategoryModule } from './resources/categories/main.category.module'
-import { SecondCategoryModule } from './resources/categories/second-category/second-category.module'
+import { CategoryModule } from './resources/categories/category.module'
 import { FiltersModule } from './resources/filters/filters.module'
 import { AppGateWayModule } from './resources/gateway/app.gateway.module'
 import { NotificaitonModule } from './resources/notification/notification.module'
@@ -68,11 +66,9 @@ import { UserModule } from './resources/user/user.module'
     ProductAttributeModule,
     ProductSpecificationModule,
     UploadModule,
-    MainCategoryModule,
-    SecondCategoryModule,
+    CategoryModule,
     AuthModule,
     UserModule,
-    ChildsCategoryModule,
     OrderModule,
     NotificaitonModule,
     PromotionModule,

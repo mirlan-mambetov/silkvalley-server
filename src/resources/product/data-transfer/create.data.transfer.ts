@@ -1,76 +1,19 @@
-import {
-  IsBoolean,
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  IsString,
-  Length,
-} from 'class-validator'
+import { IsInt, IsString } from 'class-validator'
+// product.dto.ts
 
-export class CreateProductDTO {
-  @IsNotEmpty({ message: 'Название обязательна' })
-  @Length(5, 350, {
-    message: 'Минимальная длина названии товара 5 символов. Максимальная 350',
-  })
-  @IsString({ message: 'Название товара не может быть пустым' })
+export class CreateProductDto {
+  @IsString()
   title: string
 
-  @IsNotEmpty({ message: 'Подзаголовок обязательна' })
-  @Length(5, 350, {
-    message:
-      'Минимальная длина подзаголовока товара 5 символов. Максимальная 350',
-  })
-  @IsString({ message: 'Подзаголовок не может быть пустым' })
+  @IsString()
   subtitle: string
 
-  @IsNotEmpty({ message: 'Описание обязательна' })
-  @Length(10, 500, {
-    message: 'Минимальная длина описание товара 10 символов. Максимальная 500',
-  })
-  @IsString({ message: 'Описание товара не может быть пустым' })
+  @IsString()
   description: string
 
-  @IsNotEmpty({ message: 'Цена обязательна' })
-  @IsNumber()
-  price: number
-
-  @IsNotEmpty({ message: 'Изображение обязательно' })
-  @IsString({ message: 'Выберите изображение для постера!' })
+  @IsString()
   poster: string
 
-  @IsOptional()
-  @IsNumber()
-  rating?: number
-
-  @IsOptional()
-  @IsString()
-  video?: string
-
-  @IsOptional()
-  @IsNumber()
-  discount?: number
-
-  @IsOptional()
-  @IsBoolean()
-  isHit?: boolean
-
-  @IsOptional()
-  @IsBoolean()
-  isNew?: boolean
-
-  @IsOptional()
-  @IsNumber()
-  categoryId?: number
-
-  @IsOptional()
-  @IsNumber()
-  secondCategoryId?: number
-
-  @IsOptional()
-  @IsNumber()
-  childsCategoryId?: number
-
-  @IsOptional()
-  @IsNumber()
-  quantity?: number
+  @IsInt()
+  categoryId: number
 }

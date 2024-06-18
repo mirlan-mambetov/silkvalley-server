@@ -1,59 +1,24 @@
-import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator'
+import { IsInt, IsOptional, IsString } from 'class-validator'
+// product.dto.ts
 
-export class UpdateProductDTO {
-  @IsOptional()
-  @IsString({ message: 'Название товара не может быть пустым' })
-  title: string
-
-  @IsOptional()
-  @IsString({ message: 'Подзаголовок не может быть пустым' })
-  subtitle: string
-
-  @IsOptional()
-  @IsString({ message: 'Описание товара не может быть пустым' })
-  description: string
-
-  @IsOptional()
-  @IsString({ message: 'Цена товара не может быть пустым' })
-  price: number
-
-  @IsOptional()
-  @IsString({ message: 'Выберите изображение для постера!' })
-  poster: string
-
-  @IsOptional()
-  @IsNumber()
-  rating?: number
-
-  @IsOptional()
+export class UpdateProductDto {
   @IsString()
-  video?: string
-
   @IsOptional()
-  @IsNumber()
-  discount?: number
+  title?: string
 
+  @IsString()
   @IsOptional()
-  @IsBoolean()
-  isHit?: boolean
+  subtitle?: string
 
+  @IsString()
   @IsOptional()
-  @IsBoolean()
-  isNew?: boolean
+  description?: string
 
+  @IsString()
   @IsOptional()
-  @IsNumber()
-  quantity?: number
+  poster?: string
 
+  @IsInt()
   @IsOptional()
-  @IsNumber()
   categoryId?: number
-
-  @IsOptional()
-  @IsNumber()
-  secondCategoryId?: number
-
-  @IsOptional()
-  @IsNumber()
-  childsCategoryId?: number
 }

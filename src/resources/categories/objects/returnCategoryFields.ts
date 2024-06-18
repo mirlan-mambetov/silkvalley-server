@@ -1,18 +1,7 @@
 import { Prisma } from '@prisma/client'
 
 export const returnCategoryFields: Prisma.CategoryFindManyArgs = {
-  include: {
-    categories: {
-      include: {
-        childsCategories: true,
-      },
-    },
-    products: {
-      select: {
-        id: true,
-      },
-    },
-  },
+  include: {},
 }
 export const returnCategoryUniqueFields = {
   include: {
