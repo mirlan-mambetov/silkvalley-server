@@ -217,6 +217,11 @@ export class ProductService {
     }
   }
 
+  /**
+   *
+   * @param dto
+   * @returns
+   */
   async updateSpecifications(dto: UpdateSpecificationDto) {
     await this.prismaService.$transaction(async (prisma) => {
       for await (const specification of dto.specifications) {
@@ -372,25 +377,25 @@ export class ProductService {
    * @param id
    * @returns
    */
-  async delete(id: number) {
-    try {
-      // const product = await this.findOneById(id)
-      // // DELETE PRODUCT POSTER
-      // await this.uploadService.deleteFile(product.poster)
-      // await this.prismaService.orderItem.deleteMany({
-      //   where: {
-      //     productId: product.id,
-      //   },
-      // })
-      // // DELETE PRODUCT
-      // await this.prismaService.product.delete({
-      //   where: { id },
-      // })
-      // return {
-      //   message: `Товар ${product.title} удален! `,
-      // }
-    } catch (error) {
-      throw new InternalServerErrorException(error)
-    }
-  }
+  // async delete(id: number) {
+  //   try {
+  //     const product = await this.findOneById(id)
+  //     // DELETE PRODUCT POSTER
+  //     await this.uploadService.deleteFile(product.poster)
+  //     await this.prismaService.orderItem.deleteMany({
+  //       where: {
+  //         productId: product.id,
+  //       },
+  //     })
+  //     // DELETE PRODUCT
+  //     await this.prismaService.product.delete({
+  //       where: { id },
+  //     })
+  //     return {
+  //       message: `Товар ${product.title} удален! `,
+  //     }
+  //   } catch (error) {
+  //     throw new InternalServerErrorException(error)
+  //   }
+  // }
 }

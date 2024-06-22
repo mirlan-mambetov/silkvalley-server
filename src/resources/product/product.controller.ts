@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -13,7 +12,6 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common'
-import { Auth } from '../auth/decorators/auth.decorator'
 import { CreateProductDto } from './data-transfer/create.data.transfer'
 import {
   CreateColorDTO,
@@ -170,15 +168,15 @@ export class ProductController {
     return await this.productService.findSimilar()
   }
 
-  /**
-   *
-   * @param id
-   * @returns
-   */
-  @Delete(':id')
-  @HttpCode(HttpStatus.OK)
-  @Auth(['ADMIN', 'OWNER'])
-  async delete(@Param('id', ParseIntPipe) id: number) {
-    return await this.productService.delete(id)
-  }
+  // /**
+  //  *
+  //  * @param id
+  //  * @returns
+  //  */
+  // @Delete(':id')
+  // @HttpCode(HttpStatus.OK)
+  // @Auth(['ADMIN', 'OWNER'])
+  // async delete(@Param('id', ParseIntPipe) id: number) {
+  //   return await this.productService.delete(id)
+  // }
 }
