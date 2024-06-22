@@ -1,4 +1,4 @@
-import { IsInt, IsOptional, IsString } from 'class-validator'
+import { IsArray, IsInt, IsOptional, IsString } from 'class-validator'
 // product.dto.ts
 
 export class UpdateProductDto {
@@ -18,7 +18,8 @@ export class UpdateProductDto {
   @IsOptional()
   poster?: string
 
-  @IsInt()
+  @IsArray()
+  @IsInt({ each: true })
   @IsOptional()
-  categoryId?: number
+  categoryIds?: number[]
 }

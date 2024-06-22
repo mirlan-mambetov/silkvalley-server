@@ -1,18 +1,6 @@
-import {
-  IsArray,
-  IsBoolean,
-  IsInt,
-  IsNumber,
-  IsOptional,
-  IsString,
-} from 'class-validator'
-import { ColorsDTO, CreateSpecificationDto } from './product-variant.dto'
+import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator'
 
 export class UpdateProductVariantDto {
-  @IsArray()
-  @IsOptional()
-  color?: ColorsDTO
-
   @IsNumber()
   @IsOptional()
   price?: number
@@ -56,18 +44,4 @@ export class UpdateProductVariantDto {
   @IsNumber()
   @IsOptional()
   productId?: number
-
-  @IsArray()
-  @IsOptional()
-  specifications?: CreateSpecificationDto
-
-  @IsNumber()
-  @IsInt()
-  @IsOptional()
-  colorId: number
-
-  @IsNumber()
-  @IsInt()
-  @IsOptional()
-  specificationId: number
 }

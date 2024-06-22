@@ -1,14 +1,19 @@
-// product-variant.dto.ts
-
 import {
   IsArray,
   IsBoolean,
+  IsInt,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
 } from 'class-validator'
-export class ColorsDTO {
+
+export class CreateColorDTO {
+  @IsNotEmpty()
+  @IsNumber()
+  @IsInt()
+  variantId: number
+
   @IsString()
   @IsNotEmpty()
   color: string
@@ -17,19 +22,31 @@ export class ColorsDTO {
   @IsNotEmpty()
   images: string[]
 }
-export class CreateProductVariantDto {
-  @IsArray()
-  color: ColorsDTO[]
 
+export class UpdateColorDTO {
+  @IsNotEmpty()
   @IsNumber()
+  colorId: number
+
+  @IsString()
+  @IsNotEmpty()
+  @IsOptional()
+  color?: string
+
+  @IsArray()
+  @IsNotEmpty()
+  @IsOptional()
+  images?: string[]
+}
+
+export class CreateProductVariantDto {
   @IsNotEmpty()
   price: number
 
   @IsString()
-  @IsNotEmpty()
-  size: string
+  @IsOptional()
+  size?: string
 
-  @IsNumber()
   @IsNotEmpty()
   stock: number
 
@@ -58,21 +75,36 @@ export class CreateProductVariantDto {
   video?: string
 
   @IsNumber()
-  @IsOptional()
-  promotionId?: number
+  @IsNotEmpty()
+  @IsInt()
+  productId: number
+}
 
+export class CreateSpecificationDto {
+  @IsArray()
+  specifications: SpecificationDTO[]
+}
+
+export class UpdateSpecificationDto {
+  @IsArray()
+  specifications: {
+    id: number
+    name: string
+    value: string
+  }[]
+}
+
+export class SpecificationDTO {
+  @IsInt()
   @IsNumber()
   @IsNotEmpty()
-  productId: number
+  variantId: number
 
-  @IsArray()
   @IsNotEmpty()
-  specifications: CreateSpecificationDto[]
-}
-export class CreateSpecificationDto {
   @IsString()
   name: string
 
+  @IsNotEmpty()
   @IsString()
   value: string
 }

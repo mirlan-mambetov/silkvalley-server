@@ -9,13 +9,19 @@ import {
   ParseIntPipe,
   Patch,
   Post,
-  Query,
+  Put,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common'
 import { Auth } from '../auth/decorators/auth.decorator'
 import { CreateProductDto } from './data-transfer/create.data.transfer'
-import { CreateProductVariantDto } from './data-transfer/product-variant.dto'
+import {
+  CreateColorDTO,
+  CreateProductVariantDto,
+  CreateSpecificationDto,
+  UpdateColorDTO,
+  UpdateSpecificationDto,
+} from './data-transfer/product-variant.dto'
 import { UpdateProductVariantDto } from './data-transfer/product-variant.update.dto'
 import { UpdateProductDto } from './data-transfer/update.data.transfer'
 import { ProductService } from './product.service'
@@ -56,6 +62,50 @@ export class ProductController {
     return await this.productService.updateProductVariant(id, dto)
   }
 
+  @Post('variant/color')
+  @HttpCode(HttpStatus.CREATED)
+  @UsePipes(new ValidationPipe())
+  // @Auth(['ADMIN', 'OWNER'])
+  async createColor(@Body() dto: CreateColorDTO) {
+    return await this.productService.createColor(dto)
+  }
+
+  @Put('variant/color')
+  @HttpCode(HttpStatus.CREATED)
+  @UsePipes(new ValidationPipe())
+  // @Auth(['ADMIN',   'OWNER'])
+  async updateColor(@Body() dto: UpdateColorDTO) {
+    return await this.productService.updateColor(dto)
+  }
+
+  @Get('variant/color/:id')
+  @HttpCode(HttpStatus.OK)
+  async findColorById(@Param('id', ParseIntPipe) id: number) {
+    return await this.productService.findColorById(id)
+  }
+
+  @Get('variant/specification/:id')
+  @HttpCode(HttpStatus.OK)
+  async findSpecificationByVariantId(@Param('id', ParseIntPipe) id: number) {
+    return await this.productService.findSpecificationByVariantId(id)
+  }
+
+  @Post('variant/specification')
+  @HttpCode(HttpStatus.CREATED)
+  @UsePipes(new ValidationPipe())
+  // @Auth(['ADMIN', 'OWNER'])
+  async createSpecification(@Body() dto: CreateSpecificationDto) {
+    return await this.productService.createSpecifications(dto)
+  }
+
+  @Put('variant/specification')
+  @HttpCode(HttpStatus.CREATED)
+  @UsePipes(new ValidationPipe())
+  // @Auth(['ADMIN', 'OWNER'])
+  async updateSpecification(@Body() dto: UpdateSpecificationDto) {
+    return await this.productService.updateSpecifications(dto)
+  }
+
   /**
    *
    * @param id
@@ -64,7 +114,7 @@ export class ProductController {
    */
   @Patch(':id')
   @HttpCode(HttpStatus.OK)
-  @Auth(['ADMIN', 'OWNER'])
+  // @Auth(['ADMIN', 'OWNER'])
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateProductDto,
@@ -83,28 +133,10 @@ export class ProductController {
     return await this.productService.findOneByAlias(alias)
   }
 
-  /**
-   *
-   * @param slug
-   * @returns
-   * @deprecated This method is deprecated on api/v2
-   */
-  @Get('by-category')
+  @Get('variant/:id')
   @HttpCode(HttpStatus.OK)
-  async findByCategorySlug(
-    @Query()
-    {
-      mainCategorySlug,
-      secondCategorySlug,
-    }: {
-      mainCategorySlug: string
-      secondCategorySlug: string
-    },
-  ) {
-    return await this.productService.findByCategorySlug(
-      mainCategorySlug,
-      secondCategorySlug,
-    )
+  async findVariantById(@Param('id', ParseIntPipe) id: number) {
+    return await this.productService.getProductVariant(id)
   }
 
   /**

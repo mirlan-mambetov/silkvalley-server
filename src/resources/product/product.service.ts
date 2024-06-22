@@ -2,23 +2,28 @@ import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common'
-import { Prisma, Product, ProductVariant } from '@prisma/client'
-import { createSlugName } from 'src/helpers/create.slug-name'
+import { Product, ProductVariant } from '@prisma/client'
 import { generateProductId } from 'src/helpers/generate.id'
-import { IProduct } from 'src/interfaces/Product.interface'
 import { PrismaService } from 'src/prisma.service'
 import { generateSlug } from 'utils/generate-slug'
 import { UploadService } from '../upload/upload.service'
 import { CreateProductDto } from './data-transfer/create.data.transfer'
-import { CreateProductVariantDto } from './data-transfer/product-variant.dto'
+import {
+  CreateColorDTO,
+  CreateProductVariantDto,
+  CreateSpecificationDto,
+  UpdateColorDTO,
+  UpdateSpecificationDto,
+} from './data-transfer/product-variant.dto'
 import { UpdateProductVariantDto } from './data-transfer/product-variant.update.dto'
 import { UpdateProductDto } from './data-transfer/update.data.transfer'
 
 @Injectable()
 export class ProductService {
   constructor(
-    private readonly prismaSevice: PrismaService,
+    private readonly prismaService: PrismaService,
     private readonly uploadService: UploadService,
   ) {}
 
@@ -31,13 +36,24 @@ export class ProductService {
    */
   async create(dto: CreateProductDto) {
     try {
+      const { categoryIds, ...productData } = dto
       const slugName = generateSlug(dto.title)
-      return await this.prismaSevice.product.create({
+      await this.prismaService.product.create({
         data: {
-          ...dto,
+          ...productData,
           slug: slugName,
+          categories: categoryIds
+            ? {
+                create: categoryIds.map((categoryId) => ({
+                  category: { connect: { id: categoryId } },
+                })),
+              }
+            : undefined,
         },
       })
+      return {
+        message: 'Товар успешно добавлен',
+      }
     } catch (error) {
       throw new BadRequestException(error)
     }
@@ -51,21 +67,58 @@ export class ProductService {
    */
   async update(id: number, dto: UpdateProductDto) {
     try {
-      let slugName: string
-      if (dto.title) {
-        slugName = generateSlug(dto.title)
-      }
-      return await this.prismaSevice.product.update({
-        where: {
-          id,
-        },
+      const { categoryIds, ...productData } = dto
+      // Обновляем данные продукта
+      await this.prismaService.product.update({
+        where: { id },
         data: {
-          ...dto,
-          slug: slugName,
+          ...productData,
         },
       })
+
+      if (categoryIds.length) {
+        // Обновляем основные данные продукта
+        const currentCategories =
+          await this.prismaService.productCategory.findMany({
+            where: { productId: id },
+          })
+        const currentCategoryIds = currentCategories.map(
+          (cat) => cat.categoryId,
+        )
+        const categoriesToAdd = categoryIds.filter(
+          (catId) => !currentCategoryIds.includes(catId),
+        )
+        const categoriesToRemove = currentCategoryIds.filter(
+          (catId) => !categoryIds.includes(catId),
+        )
+        // Начинаем транзакцию
+        await this.prismaService.$transaction(async (prisma) => {
+          // Удаляем ненужные связи
+          if (categoriesToRemove.length > 0) {
+            await prisma.productCategory.deleteMany({
+              where: {
+                productId: id,
+                categoryId: { in: categoriesToRemove },
+              },
+            })
+          }
+
+          // Создаем новые связи
+          if (categoriesToAdd.length > 0) {
+            await prisma.productCategory.createMany({
+              data: categoriesToAdd.map((categoryId) => ({
+                productId: id,
+                categoryId,
+              })),
+            })
+          }
+        })
+      }
+      return {
+        message: 'Товар успешно отредактирован',
+      }
     } catch (error) {
-      throw new BadRequestException(error)
+      throw new BadRequestException(error.message)
     }
   }
 
@@ -74,7 +127,7 @@ export class ProductService {
    * @returns ALL PRODUCTS
    */
   async getAllProducts(): Promise<Product[]> {
-    return await this.prismaSevice.product.findMany({
+    return await this.prismaService.product.findMany({
       include: {
         variants: {
           include: {
@@ -82,7 +135,14 @@ export class ProductService {
             specifications: true,
           },
         },
-        category: true,
+        categories: {
+          include: {
+            category: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
       },
     })
   }
@@ -94,18 +154,86 @@ export class ProductService {
    */
   async createProductVariant(dto: CreateProductVariantDto) {
     const articleNumber = generateProductId()
-    return await this.prismaSevice.productVariant.create({
+    await this.prismaService.productVariant.create({
       data: {
         ...dto,
         articleNumber,
-        color: {
-          create: dto.color,
-        },
-        specifications: {
-          create: dto.specifications,
-        },
       },
     })
+    return {
+      message: 'Вариант добавлен',
+    }
+  }
+
+  /**
+   *
+   * @param dto
+   */
+  async createColor(dto: CreateColorDTO) {
+    await this.prismaService.colors.create({
+      data: {
+        ...dto,
+        variantId: dto.variantId,
+      },
+    })
+    return {
+      message: 'Цвета добавлены',
+    }
+  }
+
+  /**
+   *
+   * @param dto
+   * @returns
+   */
+  async updateColor(dto: UpdateColorDTO) {
+    await this.prismaService.colors.update({
+      where: { id: dto.colorId },
+      data: {
+        color: dto.color,
+        images: dto.images,
+      },
+    })
+    return {
+      message: 'Цвета обновлены',
+    }
+  }
+
+  /**
+   *
+   * @param dto
+   * @returns
+   */
+  async createSpecifications(dto: CreateSpecificationDto) {
+    await this.prismaService.specification.createMany({
+      data: dto.specifications.map((s) => ({
+        name: s.name,
+        value: s.value,
+        variantsId: s.variantId,
+      })),
+    })
+    return {
+      message: 'Спецификации добавлены',
+    }
+  }
+
+  async updateSpecifications(dto: UpdateSpecificationDto) {
+    await this.prismaService.$transaction(async (prisma) => {
+      for await (const specification of dto.specifications) {
+        await prisma.specification.updateMany({
+          where: {
+            id: specification.id,
+          },
+          data: {
+            name: specification.name,
+            value: specification.value,
+          },
+        })
+      }
+    })
+    return {
+      message: 'Спецификации обновлены',
+    }
   }
 
   /**
@@ -115,30 +243,15 @@ export class ProductService {
    * @returns
    */
   async updateProductVariant(variantId: number, dto: UpdateProductVariantDto) {
-    return await this.prismaSevice.productVariant.update({
+    await this.prismaService.productVariant.update({
       where: { id: variantId },
       data: {
         ...dto,
-        color: dto.color
-          ? {
-              update: {
-                where: { id: dto.colorId },
-                data: dto.color,
-              },
-            }
-          : undefined,
-        specifications: dto.specifications
-          ? {
-              update: {
-                where: {
-                  id: dto.specificationId,
-                },
-                data: dto.specifications,
-              },
-            }
-          : undefined,
       },
     })
+    return {
+      message: 'Вариант обновлен',
+    }
   }
 
   /**
@@ -146,29 +259,48 @@ export class ProductService {
    * @param productId
    * @returns
    */
-  async getProductVariant(productId: number): Promise<ProductVariant[]> {
-    return this.prismaSevice.productVariant.findMany({
-      where: { productId },
+  async getProductVariant(id: number): Promise<ProductVariant[]> {
+    return this.prismaService.productVariant.findMany({
+      where: { id },
+      include: {
+        color: true,
+        specifications: true,
+      },
     })
   }
 
   /**
    *
-   * @param alias Вывод продукта по [alias]
+   * @param alias Вывод продукта по [SLUG]
    * @returns Возвращает один продукт, если найден
    */
-  async findOneByAlias(alias: string) {
-    // try {
-    //   const product = await this.prismaSevice.product.findUnique({
-    //     where: { alias },
-    //     ...returnProductUniqueFields,
-    //   })
-    //   if (!product)
-    //     throw new NotFoundException(`Продук по такому "${alias}" не найден`)
-    //   return product
-    // } catch (error) {
-    //   throw new NotFoundException(error.response)
-    // }
+  async findOneByAlias(slug: string) {
+    try {
+      const product = await this.prismaService.product.findUnique({
+        where: { slug },
+        include: {
+          categories: {
+            select: {
+              id: true,
+              categoryId: true,
+              category: true,
+              productId: true,
+            },
+          },
+          variants: {
+            include: {
+              color: true,
+              specifications: true,
+            },
+          },
+        },
+      })
+      if (!product)
+        throw new NotFoundException(`Продук по такому "${slug}" не найден`)
+      return product
+    } catch (error) {
+      throw new NotFoundException(error.response)
+    }
   }
 
   /**
@@ -177,92 +309,63 @@ export class ProductService {
    * @returns Возвращает один продукт, если найден
    */
   async findOneById(id: number) {
-    // try {
-    //   const product = await this.prismaSevice.product.findUnique({
-    //     where: {
-    //       id,
-    //     },
-    //     include: {
-    //       attributes: true,
-    //       category: { select: { name: true } },
-    //       // secondCategory: { select: { name: true } },
-    //       // childsCategory: { select: { name: true } },
-    //     },
-    //   })
-    //   if (!product)
-    //     throw new BadRequestException('Продукт по такому ID не найден')
-    //   return product
-    // } catch (error) {
-    //   throw new InternalServerErrorException(error)
-    // }
-  }
-
-  async findByCategorySlug(
-    mainCategorySlug?: string,
-    secondCategorySlug?: string,
-  ) {
-    // let whereCondition = {}
-    // if (mainCategorySlug) {
-    //   whereCondition = {
-    //     mainCategory: {
-    //       slug: mainCategorySlug,
-    //     },
-    //   }
-    // } else if (secondCategorySlug) {
-    //   whereCondition = {
-    //     secondCategory: {
-    //       slug: secondCategorySlug,
-    //     },
-    //   }
-    // }
-    // const products = await this.prismaSevice.product.findMany({
-    //   where: whereCondition,
-    // })
-    // return products
+    try {
+      const product = await this.prismaService.product.findUnique({
+        where: {
+          id,
+        },
+        include: {
+          categories: true,
+          variants: true,
+        },
+      })
+      if (!product)
+        throw new BadRequestException('Продукт по такому ID не найден')
+      return product
+    } catch (error) {
+      throw new InternalServerErrorException(error)
+    }
   }
 
   /**
    *
+   * @param id
    * @returns
    */
-  async findAll() {
-    // return await this.prismaSevice.product.findMany({
-    //   include: {
-    //     attributes: true,
-    //   },
-    // })
+  async findColorById(id: number) {
+    return await this.prismaService.colors.findUnique({
+      where: {
+        id,
+      },
+      select: {
+        color: true,
+        id: true,
+        images: true,
+      },
+    })
+  }
+
+  /**
+   *
+   * @param id
+   * @returns
+   */
+  async findSpecificationByVariantId(variantId: number) {
+    return await this.prismaService.specification.findMany({
+      where: {
+        variants: {
+          id: variantId,
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        value: true,
+      },
+    })
   }
 
   async findSimilar() {}
-
-  /**
-   * @description Генерирует поля для создания или обновления продукта на основе входных данных.
-   * @param dto Входные данные для создания или обновления продукта.
-   * @returns Поля для создания или обновления продукта.
-   */
-  private savedFields<T>(dto: IProduct): T {
-    const aliasName = createSlugName(dto.title)
-    const PRODUCT_ID = generateProductId(2)
-    const ALIAS_ID = generateProductId(3)
-
-    const fields: Prisma.ProductCreateInput | Prisma.ProductUpdateInput = {
-      // alias: `${aliasName}-${ALIAS_ID}` || undefined,
-      // articleNumber: PRODUCT_ID || undefined,
-      // description: dto.description ? dto.description.trim() : undefined,
-      // poster: dto.poster ? dto.poster : undefined,
-      // price: dto.price ? +dto.price : undefined,
-      // subtitle: dto.subtitle ? dto.subtitle.trim().toLowerCase() : undefined,
-      // title: dto.title ? dto.title.trim() : undefined,
-    }
-    // if (dto.discount !== undefined) fields.discount = dto.discount
-    // if (dto.isHit !== undefined) fields.isHit = dto.isHit
-    // if (dto.isNew !== undefined) fields.isNew = dto.isNew
-    // if (dto.rating !== undefined) fields.rating = dto.rating
-    // if (dto.video !== undefined) fields.video = dto.video
-    // if (dto.quantity !== undefined) fields.quantity = dto.quantity
-
-    return fields as T
-  }
 
   /**
    *
@@ -274,13 +377,13 @@ export class ProductService {
       // const product = await this.findOneById(id)
       // // DELETE PRODUCT POSTER
       // await this.uploadService.deleteFile(product.poster)
-      // await this.prismaSevice.orderItem.deleteMany({
+      // await this.prismaService.orderItem.deleteMany({
       //   where: {
       //     productId: product.id,
       //   },
       // })
       // // DELETE PRODUCT
-      // await this.prismaSevice.product.delete({
+      // await this.prismaService.product.delete({
       //   where: { id },
       // })
       // return {

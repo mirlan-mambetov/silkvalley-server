@@ -2,7 +2,6 @@ import {
   BadRequestException,
   Inject,
   Injectable,
-  InternalServerErrorException,
   UnauthorizedException,
   forwardRef,
 } from '@nestjs/common'
@@ -38,7 +37,7 @@ export class AuthService {
       }
       return new BadRequestException('Такой E-mail уже используется')
     } catch (error) {
-      throw new InternalServerErrorException({
+      throw new BadRequestException({
         status: error.status,
         name: error.name,
         message:

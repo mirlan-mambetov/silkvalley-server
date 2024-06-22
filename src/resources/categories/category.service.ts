@@ -3,6 +3,7 @@ import {
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common'
+import { Prisma } from '@prisma/client'
 import { PrismaService } from 'src/prisma.service'
 import { generateSlug } from 'utils/generate-slug'
 import { FiltersService } from '../filters/filters.service'
@@ -39,21 +40,15 @@ export class CategoryService {
 
   async createChild(dto: CreateChildDTO) {
     try {
-      const isExist = await this.prismaService.category.findUnique({
-        where: { name: dto.name },
+      const slugName = generateSlug(dto.name)
+      const child = await this.prismaService.category.create({
+        data: {
+          name: dto.name,
+          slug: slugName,
+          parentId: dto.parentId,
+        },
       })
-      if (!isExist) {
-        const child = await this.prismaService.category.create({
-          data: {
-            name: dto.name,
-            slug: generateSlug(dto.name),
-            parentId: dto.parentId,
-          },
-        })
-        return child
-      }
-      throw new BadRequestException('Категория уже существует')
-      // await this.prismaService.category.createMany({ data: child })
+      return child
     } catch (error) {
       throw new BadRequestException(error)
     }
@@ -93,10 +88,7 @@ export class CategoryService {
       where: {
         parentId: null,
       },
-      include: {
-        childs: true,
-        products: true,
-      },
+      ...this.returnManyArguments(),
     })
   }
 
@@ -114,7 +106,7 @@ export class CategoryService {
    * @returns Возвращает категорию по ID
    */
   async findOneById(id: number) {
-    return await this.prismaService.category.findUnique({
+    const category = await this.prismaService.category.findUnique({
       where: { id },
       include: {
         childs: {
@@ -126,9 +118,15 @@ export class CategoryService {
             },
           },
         },
-        products: true,
+        products: {
+          select: {
+            product: true,
+          },
+        },
       },
     })
+    if (!category) throw new BadRequestException('Категория не найдена')
+    return category
   }
 
   /**
@@ -142,17 +140,11 @@ export class CategoryService {
         where: {
           parentId,
         },
-        include: {
-          childs: {
-            include: {
-              childs: true,
-            },
-          },
-          parentCategory: true,
-          products: true,
-        },
+        ...this.returnManyArguments(),
       })
-    } catch (error) {}
+    } catch (error) {
+      throw new InternalServerErrorException(error)
+    }
   }
 
   /**
@@ -162,11 +154,24 @@ export class CategoryService {
    */
   async findOneBySlug(slug: string) {
     return await this.prismaService.category.findUnique({
-      where: { slug },
+      where: {
+        slug,
+      },
       include: {
-        childs: true,
-        parentCategory: true,
-        products: true,
+        childs: {
+          include: {
+            childs: {
+              include: {
+                childs: true,
+              },
+            },
+          },
+        },
+        products: {
+          select: {
+            product: true,
+          },
+        },
       },
     })
   }
@@ -189,6 +194,25 @@ export class CategoryService {
       }
     } catch (error) {
       throw new BadRequestException(error)
+    }
+  }
+
+  private returnManyArguments(): Prisma.CategoryFindManyArgs {
+    return {
+      include: {
+        childs: {
+          include: {
+            childs: {
+              include: {
+                products: true,
+              },
+            },
+            products: true,
+          },
+        },
+        parentCategory: true,
+        products: true,
+      },
     }
   }
 }

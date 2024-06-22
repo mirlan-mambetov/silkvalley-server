@@ -71,7 +71,7 @@ export class CategoryController {
    */
   @Get('parents')
   @HttpCode(HttpStatus.OK)
-  async findMainCategories() {
+  async findParents() {
     return await this.categoryService.findParents()
   }
 

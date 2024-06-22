@@ -114,8 +114,6 @@ export class UserService {
           },
         },
       })
-
-      if (!user) throw new BadRequestException('Пользователеь не найден')
       return user
     } catch (error) {
       throw new BadRequestException(error)
@@ -174,7 +172,11 @@ export class UserService {
           items: {
             select: {
               id: true,
-              title: true,
+              product: {
+                select: {
+                  title: true,
+                },
+              },
             },
           },
           address: true,

@@ -55,7 +55,7 @@ model Order {
   totalCache   Int
   payment_type EnumPaymentMethod? @map("payment_type")
   userId       Int                @map("user_id")
-  items        OrderItem[]
+  items        ProductVariant[]
   user         Users              @relation(fields: [userId], references: [id])
   address      OrderAddress?
 
@@ -88,22 +88,7 @@ model Location {
   @@map("location")
 }
 
-model OrderItem {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  title      String
-  quantity  Int
-  price     Int
-  color     String?
-  size    String?
-  order     Order    @relation(fields: [orderId], references: [id])
-  orderId   Int      @map("order_id")
-  product   ProductVariant  @relation(fields: [productId], references: [id])
-  productId Int      @map("product_id")
 
-  @@map("order_item")
-}
 
 model Product {
   id               Int                 @id @default(autoincrement())
@@ -115,8 +100,7 @@ model Product {
   description      String
   slug             String              @unique
   poster           String
-  category         Category?           @relation(fields: [categoryId], references: [id])
-  categoryId       Int?                @map("category_id")
+  categories       ProductCategory[]
   variants ProductVariant[]
 
   @@map("product")
@@ -124,9 +108,9 @@ model Product {
 
 model ProductVariant {
   id           Int              @id @default(autoincrement())
-  color        Colors[]
+  color        Colors?
   price        Float
-  size         String
+  size         String?
   articleNumber    String              @unique @map("article_number")
   stock Int
   product      Product          @relation(fields: [productId], references: [id])
@@ -140,7 +124,8 @@ model ProductVariant {
   video            String?
   promotionId      Int?                @map("promotion_id")
   promotion        Promotion?          @relation(fields: [promotionId], references: [id])
-  orderItem        OrderItem[]
+  order Order? @relation(fields: [orderId], references: [id])
+  orderId Int? @unique
 
   @@map("product_variant")
 }
@@ -152,21 +137,36 @@ model Colors{
   images String[]
 
   variant ProductVariant? @relation(fields: [variantId],references: [id])
-  variantId Int? @map("variant_id")
+  variantId Int? @map("variant_id") @unique
   @@map("colors")
 }
 model Category {
   id             Int        @id @default(autoincrement())
-  name           String     @unique
+  name           String     
   slug           String     @unique
   createdAt      DateTime   @default(now())
   updatedAt      DateTime   @updatedAt
-  parentId       Int?       
+  parentId       Int?       @map("parent_id")
   parentCategory Category?  @relation("CategoryToCategory", fields: [parentId], references: [id])
   childs         Category[] @relation("CategoryToCategory")
-  products       Product[]
+  products ProductCategory[]
 
   @@map("category")
+}
+
+model ProductCategory {
+  id             Int        @id @default(autoincrement())
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  productId Int @map("product_id")
+  categoryId Int @map("category_id")
+
+  product Product @relation(fields: [productId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id])
+
+  @@unique([productId, categoryId])
+  @@map("product_category")
 }
 
 model Specification {
