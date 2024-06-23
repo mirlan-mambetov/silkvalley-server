@@ -10,13 +10,23 @@ import {
   Post,
 } from '@nestjs/common'
 import { Auth } from '../auth/decorators/auth.decorator'
-import { CreatePromotionDTO } from './dto/create.promotion.dto'
+import {
+  CreatePromotionDTO,
+  GeneratePromotionDataDTO,
+} from './dto/create.promotion.dto'
 import { UpdatePromotionDTO } from './dto/update.promotion.dto'
 import { PromotionService } from './promotion.service'
 
 @Controller('promo')
 export class PromotionController {
   constructor(private readonly promotionService: PromotionService) {}
+
+  @Post('generate')
+  @HttpCode(HttpStatus.CREATED)
+  @Auth(['ADMIN', 'OWNER'])
+  generatePromotionData(@Body() dto: GeneratePromotionDataDTO) {
+    return this.promotionService.generatePromotionData(dto)
+  }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -45,6 +55,12 @@ export class PromotionController {
   @HttpCode(HttpStatus.OK)
   findAll() {
     return this.promotionService.findAll()
+  }
+
+  @Get('activity')
+  @HttpCode(HttpStatus.OK)
+  findAllActivity() {
+    return this.promotionService.findActives()
   }
 
   @Get('by-slug/:slug')

@@ -7,13 +7,13 @@ import {
   Query,
 } from '@nestjs/common'
 import { QueryDTO } from '../data-transfer/query.dto'
-import { FiltersService } from './filters.service'
+import { FilterService } from './filters.service'
 
-@Controller('filters')
-export class FiltersController {
-  constructor(private readonly filtersService: FiltersService) {}
+@Controller('filter')
+export class FilterController {
+  constructor(private readonly filtersService: FilterService) {}
 
-  @Get('category/product/attributes/:slug')
+  @Get('attributes')
   @HttpCode(HttpStatus.OK)
   async findProductAttributes(@Param('slug') slug: string) {
     return await this.filtersService.productAttributes(slug)
@@ -22,6 +22,6 @@ export class FiltersController {
   @Get('product/filter')
   @HttpCode(HttpStatus.OK)
   async filteredProducts(@Query() queries: QueryDTO) {
-    return await this.filtersService.filterdProducts(queries)
+    return await this.filtersService.filterProducts(queries)
   }
 }

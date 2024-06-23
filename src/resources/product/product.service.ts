@@ -126,7 +126,7 @@ export class ProductService {
    *
    * @returns ALL PRODUCTS
    */
-  async getAllProducts(): Promise<Product[]> {
+  async findAllProducts(): Promise<Product[]> {
     return await this.prismaService.product.findMany({
       include: {
         variants: {
@@ -135,6 +135,7 @@ export class ProductService {
             specifications: true,
           },
         },
+        promotion: true,
         categories: {
           include: {
             category: true,
@@ -264,14 +265,34 @@ export class ProductService {
    * @param productId
    * @returns
    */
-  async getProductVariant(id: number): Promise<ProductVariant[]> {
-    return this.prismaService.productVariant.findMany({
+  async findVariantById(id: number): Promise<ProductVariant> {
+    return this.prismaService.productVariant.findUnique({
       where: { id },
       include: {
         color: true,
         specifications: true,
       },
     })
+  }
+
+  /**
+   *
+   * @param ids
+   * @returns
+   */
+  async findVariantsByIds(ids: number[]): Promise<ProductVariant[]> {
+    const variants = await this.prismaService.productVariant.findMany({
+      where: {
+        id: {
+          in: ids,
+        },
+      },
+      include: {
+        color: true,
+        specifications: true,
+      },
+    })
+    return variants
   }
 
   /**
@@ -292,6 +313,7 @@ export class ProductService {
               productId: true,
             },
           },
+          promotion: true,
           variants: {
             include: {
               color: true,
@@ -320,6 +342,7 @@ export class ProductService {
           id,
         },
         include: {
+          promotion: true,
           categories: true,
           variants: true,
         },

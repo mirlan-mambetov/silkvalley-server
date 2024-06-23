@@ -1,72 +1,19 @@
 import { Injectable } from '@nestjs/common'
-import { Prisma } from '@prisma/client'
 import { EnumProductSort } from 'src/enums/Filter.enum'
 import { PrismaService } from 'src/prisma.service'
 import { QueryDTO } from '../data-transfer/query.dto'
 import { ProductService } from '../product/product.service'
 
 @Injectable()
-export class FiltersService {
+export class FilterService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly productService: ProductService,
   ) {}
 
-  async productAttributes(slug: string) {
-    let filters = []
-    // const product = await this.prismaService.product.findMany({
-    //   where: {
-    //     OR: [
-    //       {
-    //         category: {
-    //           slug,
-    //         },
-    //       },
-    //       {
-    //         secondCategory: {
-    //           slug,
-    //         },
-    //       },
-    //       {
-    //         childsCategory: {
-    //           slug,
-    //         },
-    //       },
-    //     ],
-    //   },
-    //   include: { attributes: true },
-    // })
-    // const seenAttributes = new Set() // Сет для хранения уникальных атрибутов
-    // product.forEach((product) => {
-    //   product.attributes.forEach((attribute) => {
-    //     const key = `${attribute.size}_${attribute.color}` // Создание уникального ключа для атрибута
-    //     if (!seenAttributes.has(key)) {
-    //       // Проверка, не встречался ли атрибут ранее
-    //       seenAttributes.add(key) // Добавление атрибута в набор
-    //       filters.push({
-    //         color: attribute.color,
-    //         size: attribute.size,
-    //       })
-    //     }
-    //   })
-    // })
+  async productAttributes(slug: string) {}
 
-    return filters
-  }
-
-  async filterdProducts(dto?: QueryDTO) {
-    const sorts = this.sortFilter(dto.sort)
-    const filters = []
-    if (dto.childsCategoryId)
-      filters.push({ childsCategory: { id: Number(dto.childsCategoryId) } })
-    if (dto.secondCategoryId)
-      filters.push({ secondCategory: { id: Number(dto.secondCategoryId) } })
-    if (dto.mainCategoryId)
-      filters.push({ category: { id: Number(dto.mainCategoryId) } })
-    if (dto.maxPrice || dto.maxPrice)
-      filters.push(this.priceFilter(dto.minPrice, dto.maxPrice))
-    if (dto.selectedColor)
-      filters.push({ attributes: { some: { color: dto.selectedColor } } })
+  async filterProducts(dto?: QueryDTO) {
     // if (dto.selectedSize)
     //   filters.push({
     //     attributes: { some: { size: { contains: dto.selectedSize } } },
@@ -87,7 +34,7 @@ export class FiltersService {
     // return products
   }
 
-  sortFilter(sort: EnumProductSort) {
+  private sortFilter(sort: EnumProductSort) {
     // switch (sort) {
     //   case EnumProductSort.LOW_PRICE:
     //     return [{ price: 'desc' }]
@@ -100,24 +47,5 @@ export class FiltersService {
     // }
   }
 
-  private priceFilter(minPrice?: number, maxPrice?: number) {
-    let priceFilter: Prisma.IntFilter | undefined = undefined
-
-    if (minPrice) {
-      priceFilter = {
-        ...priceFilter,
-        gte: Number(minPrice),
-      }
-    }
-
-    if (maxPrice) {
-      priceFilter = {
-        ...priceFilter,
-        lte: Number(maxPrice),
-      }
-    }
-    return {
-      price: priceFilter,
-    }
-  }
+  private priceFilter(minPrice?: number, maxPrice?: number) {}
 }

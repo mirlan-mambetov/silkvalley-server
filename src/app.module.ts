@@ -12,13 +12,11 @@ import { ApiNotFoundMiddleware } from './middlewares/NotFound.middleware'
 import { PrismaService } from './prisma.service'
 import { AuthModule } from './resources/auth/auth.module'
 import { CategoryModule } from './resources/categories/category.module'
-import { FiltersModule } from './resources/filters/filters.module'
+import { FilterModule } from './resources/filters/filters.module'
 import { AppGateWayModule } from './resources/gateway/app.gateway.module'
 import { NotificaitonModule } from './resources/notification/notification.module'
 import { OrderModule } from './resources/orders/order.module'
 import { PaymentModule } from './resources/payment/payment.module'
-import { ProductAttributeModule } from './resources/product.attribute/product.attribute.module'
-import { ProductSpecificationModule } from './resources/product/product-specification/product-specification.module'
 import { ProductModule } from './resources/product/product.module'
 import { PromotionModule } from './resources/promotion/promotion.module'
 import { SmsModule } from './resources/sms/sms.module'
@@ -61,10 +59,8 @@ import { UserModule } from './resources/user/user.module'
     AppGateWayModule,
     SmsModule,
     PaymentModule,
-    FiltersModule,
+    FilterModule,
     ProductModule,
-    ProductAttributeModule,
-    ProductSpecificationModule,
     UploadModule,
     CategoryModule,
     AuthModule,

@@ -2,7 +2,10 @@ import { Injectable } from '@nestjs/common'
 import { createSlugName } from 'src/helpers/create.slug-name'
 import { PrismaService } from 'src/prisma.service'
 import { ProductService } from '../product/product.service'
-import { CreatePromotionDTO } from './dto/create.promotion.dto'
+import {
+  CreatePromotionDTO,
+  GeneratePromotionDataDTO,
+} from './dto/create.promotion.dto'
 import { UpdatePromotionDTO } from './dto/update.promotion.dto'
 
 @Injectable()
@@ -12,32 +15,74 @@ export class PromotionService {
     private readonly productService: ProductService,
   ) {}
 
-  async create(dto: CreatePromotionDTO) {
-    console
-    const slug = createSlugName(dto.title)
-    const promotion = await this.prismaService.promotion.create({
-      data: {
-        ...dto,
-        slug,
+  /**
+   *
+   * @param dto
+   * @returns
+   */
+  async generatePromotionData(dto: GeneratePromotionDataDTO) {
+    const { productsIds } = dto
+
+    const maxDiscount = await this.prismaService.productVariant.aggregate({
+      where: {
+        id: {
+          in: productsIds,
+        },
+      },
+      _max: {
+        discount: true,
       },
     })
-    return promotion
+
+    return {
+      discount: maxDiscount._max.discount,
+    }
   }
 
-  async update(id: number, dto: UpdatePromotionDTO) {
-    let slugName: string
-    if (dto.title) {
-      slugName = createSlugName(dto.title)
+  /**
+   *
+   * @param dto
+   * @returns
+   */
+  async create(dto: CreatePromotionDTO) {
+    const slug = createSlugName(dto.title)
+    await this.prismaService.promotion.create({
+      data: {
+        description: dto.description,
+        subtitle: dto.subtitle,
+        image: dto.image,
+        title: dto.title,
+        slug,
+        product: {
+          connect: dto.productsIds.map((ids) => ({ id: ids })),
+        },
+      },
+    })
+    return {
+      message: 'Акция создана',
     }
+  }
+
+  /**
+   *
+   * @param id
+   * @param dto
+   * @returns
+   */
+  async update(id: number, dto: UpdatePromotionDTO) {
     return await this.prismaService.promotion.update({
       where: { id },
       data: {
         ...dto,
-        slug: slugName,
       },
     })
   }
 
+  /**
+   *
+   * @param id
+   * @returns
+   */
   async findById(id: number) {
     return await this.prismaService.promotion.findUnique({
       where: { id },
@@ -45,25 +90,70 @@ export class PromotionService {
     })
   }
 
+  /**
+   *
+   * @returns ALL
+   */
   async findAll() {
     return await this.prismaService.promotion.findMany({
       include: { product: true },
     })
   }
 
-  async findBySlug(slug: string) {
-    return await this.prismaService.promotion.findUnique({
-      where: { slug },
+  /**
+   *
+   * @returns ALL
+   */
+  async findActives() {
+    return await this.prismaService.promotion.findMany({
+      where: {
+        active: true,
+      },
       include: { product: true },
     })
   }
 
+  /**
+   *
+   * @param slug
+   * @returns
+   */
+  async findBySlug(slug: string) {
+    return await this.prismaService.promotion.findUnique({
+      where: { slug },
+      include: {
+        product: {
+          include: {
+            categories: {
+              include: {
+                category: {
+                  include: {
+                    childs: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+  }
+
+  /**
+   *
+   * @param id
+   * @param value
+   * @returns
+   */
   async changeActive(id: number, value: boolean) {
-    return await this.prismaService.promotion.update({
+    await this.prismaService.promotion.update({
       where: { id },
       data: {
         active: value,
       },
     })
+    return {
+      message: 'Изменено',
+    }
   }
 }

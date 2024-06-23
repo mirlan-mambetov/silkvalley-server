@@ -102,7 +102,8 @@ model Product {
   poster           String
   categories       ProductCategory[]
   variants ProductVariant[]
-
+  promotionId      Int?                @map("promotion_id")
+  promotion        Promotion?          @relation(fields: [promotionId], references: [id])
   @@map("product")
 }
 
@@ -122,8 +123,7 @@ model ProductVariant {
   isNew            Boolean?            @default(false) @map("is_new")
   sales            Int?                @default(0)
   video            String?
-  promotionId      Int?                @map("promotion_id")
-  promotion        Promotion?          @relation(fields: [promotionId], references: [id])
+ 
   order Order? @relation(fields: [orderId], references: [id])
   orderId Int? @unique
 
@@ -150,6 +150,8 @@ model Category {
   parentCategory Category?  @relation("CategoryToCategory", fields: [parentId], references: [id])
   childs         Category[] @relation("CategoryToCategory")
   products ProductCategory[]
+  image String? 
+  icon String?
 
   @@map("category")
 }
@@ -188,10 +190,10 @@ model Promotion {
   discount    Int?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  active      Boolean   @default(true)
+  active      Boolean   @default(false)
   slug        String    @unique
   image       String
-  product     ProductVariant[]
+  product     Product[]
 
   @@map("promotion")
 }

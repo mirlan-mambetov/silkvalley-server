@@ -6,16 +6,12 @@ import {
 import { Prisma } from '@prisma/client'
 import { PrismaService } from 'src/prisma.service'
 import { generateSlug } from 'utils/generate-slug'
-import { FiltersService } from '../filters/filters.service'
 import { CreateCategoryDTO, CreateChildDTO } from './dto/create.category.dto'
 import { UpdateCategoryDTO } from './dto/update.category.dto'
 
 @Injectable()
 export class CategoryService {
-  constructor(
-    private readonly prismaService: PrismaService,
-    private readonly filterService: FiltersService,
-  ) {}
+  constructor(private readonly prismaService: PrismaService) {}
 
   /**
    *

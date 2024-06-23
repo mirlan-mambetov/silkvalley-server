@@ -134,7 +134,7 @@ export class ProductController {
   @Get('variant/:id')
   @HttpCode(HttpStatus.OK)
   async findVariantById(@Param('id', ParseIntPipe) id: number) {
-    return await this.productService.getProductVariant(id)
+    return await this.productService.findVariantById(id)
   }
 
   /**
@@ -155,7 +155,7 @@ export class ProductController {
   @Get()
   @HttpCode(HttpStatus.OK)
   async findAll() {
-    return await this.productService.getAllProducts()
+    return await this.productService.findAllProducts()
   }
 
   /**
