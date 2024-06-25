@@ -125,16 +125,22 @@ export class ProductController {
    * @param alias
    * @returns
    */
-  @Get('by-alias/:alias')
+  @Get('by-slug/:slug')
   @HttpCode(HttpStatus.OK)
-  async findOneByAlias(@Param('alias') alias: string) {
-    return await this.productService.findOneByAlias(alias)
+  async findOneByAlias(@Param('slug') slug: string) {
+    return await this.productService.findOneBySlug(slug)
   }
 
   @Get('variant/:id')
   @HttpCode(HttpStatus.OK)
   async findVariantById(@Param('id', ParseIntPipe) id: number) {
     return await this.productService.findVariantById(id)
+  }
+
+  @Get('category/:slug')
+  @HttpCode(HttpStatus.OK)
+  async findOneByCategoryId(@Param('slug') slug: string) {
+    return await this.productService.findByCategoryId(slug)
   }
 
   /**

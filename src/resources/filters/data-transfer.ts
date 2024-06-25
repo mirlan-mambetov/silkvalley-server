@@ -1,5 +1,7 @@
-export class IFilterQueriesDTO {
-  mainCategoryId?: string
-  secondCategoryId?: string
-  childsCategoryId?: string
+import { IsNotEmpty, IsString } from 'class-validator'
+
+export class IFilterDTO {
+  @IsString()
+  @IsNotEmpty()
+  category: number
 }

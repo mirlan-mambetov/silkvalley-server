@@ -1,27 +1,22 @@
-import {
-  Controller,
-  Get,
-  HttpCode,
-  HttpStatus,
-  Param,
-  Query,
-} from '@nestjs/common'
+import { Controller, Get, HttpCode, HttpStatus, Query } from '@nestjs/common'
 import { QueryDTO } from '../data-transfer/query.dto'
+import { IFilterDTO } from './data-transfer'
 import { FilterService } from './filters.service'
 
 @Controller('filter')
 export class FilterController {
   constructor(private readonly filtersService: FilterService) {}
 
-  @Get('attributes')
+  @Get()
   @HttpCode(HttpStatus.OK)
-  async findProductAttributes(@Param('slug') slug: string) {
-    return await this.filtersService.productAttributes(slug)
+  async findProductAttributes(@Query() query: IFilterDTO) {
+    return await this.filtersService.productAttributes(query)
   }
 
-  @Get('product/filter')
+  @Get('filtered')
   @HttpCode(HttpStatus.OK)
   async filteredProducts(@Query() queries: QueryDTO) {
+    console.log(queries)
     return await this.filtersService.filterProducts(queries)
   }
 }

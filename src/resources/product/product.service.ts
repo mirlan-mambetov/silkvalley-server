@@ -300,7 +300,7 @@ export class ProductService {
    * @param alias Вывод продукта по [SLUG]
    * @returns Возвращает один продукт, если найден
    */
-  async findOneByAlias(slug: string) {
+  async findOneBySlug(slug: string) {
     try {
       const product = await this.prismaService.product.findUnique({
         where: { slug },
@@ -369,6 +369,20 @@ export class ProductService {
         color: true,
         id: true,
         images: true,
+      },
+    })
+  }
+
+  async findByCategoryId(slug: string) {
+    return await this.prismaService.product.findMany({
+      where: {
+        categories: {
+          some: {
+            category: {
+              slug,
+            },
+          },
+        },
       },
     })
   }
