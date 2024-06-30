@@ -7,6 +7,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Subscription {
+  id        Int               @id @default(autoincrement())
+  userId    Int               @map("user_id")
+  user      Users             @relation(fields: [userId], references: [id])
+  type      NotificationType
+  createdAt DateTime          @default(now())
+
+  @@map("subscriptions")
+}
+
 model Users {
   id            Int            @id @default(autoincrement())
   name          String
@@ -19,19 +29,20 @@ model Users {
   updatedAt     DateTime       @updatedAt
   notifications Notification[]
   orders        Order[]
-  featureds ProductVariant[]
+  featureds     ProductVariant[]
+  subscriptions Subscription[]
 
   @@map("users")
 }
 
 model Notification {
   id           Int                  @id @default(autoincrement())
-  text         String
+  message      String
   createdAt    DateTime             @default(now())
   updatedAt    DateTime             @updatedAt
-  expire       Boolean              @default(false)
+  read         Boolean              @default(false)
   userId       Int?                 @map("user_id")
-  typeOfNotify EnumTypeNotification @map("type_notification")
+  type         NotificationType     @map("notification_type")
   user         Users?               @relation(fields: [userId], references: [id])
 
   @@map("notification")
@@ -51,12 +62,12 @@ model Order {
   id           Int                @id @default(autoincrement())
   createdAt    DateTime           @default(now()) @map("created_at")
   updatedAt    DateTime           @updatedAt @map("updated_at")
-  orderId      String             @unique
+  orderId      String             @unique()
   status       EnumStatusOrder    @default(WAITING)
   totalCache   Int
   payment_type EnumPaymentMethod? @map("payment_type")
-  userId       Int                @map("user_id")
   items        ProductVariant[]
+  userId       Int                @map("user_id")
   user         Users              @relation(fields: [userId], references: [id])
   address      OrderAddress?
 
@@ -132,7 +143,7 @@ model ProductVariant {
   userId Int? @map("user_id") 
  
   order Order? @relation(fields: [orderId], references: [id])
-  orderId Int? @unique
+  orderId Int?
 
   @@map("product_variant")
 }
@@ -205,6 +216,13 @@ model Promotion {
   @@map("promotion")
 }
 
+enum NotificationType {
+  PROMOTION
+  PRODUCT_PROMOTION
+  ORDER_UPDATE
+  ORDER_PLACE
+}
+
 enum UserRoles {
   USER
   ADMIN
@@ -221,11 +239,4 @@ enum EnumPaymentMethod {
   CACHE
   CARD
   MBANK
-}
-
-enum EnumTypeNotification {
-  ORDER
-  PAYMENT_METHOD
-  PROMOTION
-  PROFILE
 }

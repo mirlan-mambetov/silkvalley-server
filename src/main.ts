@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core'
 import { NestExpressApplication } from '@nestjs/platform-express'
+import * as cookieParser from 'cookie-parser'
 import * as hbs from 'express-handlebars'
 import { join } from 'path'
 import { AppModule } from './app.module'
@@ -22,6 +23,7 @@ async function bootstrap() {
   app.setViewEngine('hbs')
   app.setGlobalPrefix('api/v1', { exclude: ['/'] })
   app.enableCors({
+    credentials: true,
     origin: [
       'https://dashboard.slkvalley.com',
       'https://slkvalley.com',
@@ -29,7 +31,9 @@ async function bootstrap() {
       'http://localhost:3001',
     ],
   })
+  app.use(cookieParser(process.env.COOKIE_SECRET))
+
   await app.listen(5000)
-  console.log(`Application is running on: ${await app.getUrl()}`)
+  console.log(`SERVER has been running on: ${await app.getUrl()}`)
 }
 bootstrap()

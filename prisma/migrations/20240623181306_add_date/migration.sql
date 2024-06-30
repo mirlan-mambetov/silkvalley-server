@@ -1,7 +1,0 @@
--- AlterTable
-ALTER TABLE "category" ADD COLUMN     "icon" TEXT,
-ADD COLUMN     "image" TEXT;
-
--- AlterTable
-ALTER TABLE "product_variant" ADD COLUMN     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-ADD COLUMN     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;

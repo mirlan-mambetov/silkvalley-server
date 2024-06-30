@@ -24,6 +24,11 @@ export class AuthService {
     private readonly prismaService: PrismaService,
   ) {}
 
+  /**
+   *
+   * @param dto
+   * @returns
+   */
   async register(dto: RegisterDTO) {
     try {
       const user = await this.userService.findOneByEmail(dto.email)
@@ -46,28 +51,42 @@ export class AuthService {
     }
   }
 
+  /**
+   *
+   * @param dto
+   * @returns
+   */
   async login(dto: LoginDTO): Promise<IAuth> {
-    const user = await this.userService.findOneByEmail(dto.email, {
-      id: true,
-      email: true,
-      password: true,
-      role: true,
-    })
-    if (!user) throw new BadRequestException('Пользователь не найден')
+    try {
+      const user = await this.userService.findOneByEmail(dto.email, {
+        id: true,
+        email: true,
+        password: true,
+        role: true,
+      })
+      if (!user) throw new BadRequestException('Пользователь не найден')
 
-    // CHECK PASSWORD
-    const comparePassword = await argon.verify(user.password, dto.password)
-    if (!comparePassword) throw new UnauthorizedException('Пароли не совпадают')
+      // CHECK PASSWORD
+      const comparePassword = await argon.verify(user.password, dto.password)
+      if (!comparePassword) throw new BadRequestException('Пароли не совпадают')
 
-    // GENERATE TOKENS
-    const { accessToken, refreshToken } = await this.generateTokens(user)
+      // GENERATE TOKENS
+      const { accessToken, refreshToken } = await this.generateTokens(user)
 
-    return {
-      accessToken,
-      refreshToken,
+      return {
+        accessToken,
+        refreshToken,
+      }
+    } catch (error) {
+      throw new BadRequestException(error)
     }
   }
 
+  /**
+   *
+   * @param user
+   * @returns
+   */
   private async generateTokens(user: Partial<Users>) {
     const payload = { id: user.id, email: user.email, role: user.role }
 
@@ -93,6 +112,11 @@ export class AuthService {
     return sessionId
   }
 
+  /**
+   *
+   * @param token
+   * @returns
+   */
   async getNewTokens(token: string) {
     try {
       const result = await this.jwtService.verifyAsync(token)

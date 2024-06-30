@@ -1,24 +1,17 @@
 import {
   BadRequestException,
-  Inject,
   Injectable,
   InternalServerErrorException,
-  forwardRef,
 } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import * as argon from 'argon2'
 import { PrismaService } from 'src/prisma.service'
-import { AuthService } from '../auth/auth.service'
 import { CreateUserDTO } from './data-transfer/create.user.dto'
 import { UpdateUserDTO } from './data-transfer/update.user.dto'
 
 @Injectable()
 export class UserService {
-  constructor(
-    private readonly prismaService: PrismaService,
-    @Inject(forwardRef(() => AuthService))
-    private readonly authService: AuthService,
-  ) {}
+  constructor(private readonly prismaService: PrismaService) {}
 
   /**
    *
@@ -172,11 +165,7 @@ export class UserService {
           items: {
             select: {
               id: true,
-              product: {
-                select: {
-                  title: true,
-                },
-              },
+              product: true,
             },
           },
           address: true,

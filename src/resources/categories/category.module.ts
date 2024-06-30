@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common'
+import { JwtService } from '@nestjs/jwt'
 import { PrismaService } from 'src/prisma.service'
 import { FilterService } from '../filters/filters.service'
 import { ProductService } from '../product/product.service'
@@ -14,6 +15,7 @@ import { CategoryService } from './category.service'
     ProductService,
     UploadService,
     FilterService,
+    JwtService,
   ],
 })
 export class CategoryModule {}

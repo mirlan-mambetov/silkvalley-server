@@ -14,18 +14,34 @@ export class NotificationService {
     private readonly prismaService: PrismaService,
   ) {}
 
+  /**
+   *
+   * @param dto
+   * @returns
+   */
   async create(dto: CreateNotifyDto) {
     const user = await this.userService.findOneById(dto.userId)
-    const notification = await this.prismaService.notification.create({
+
+    const notify = await this.prismaService.notification.create({
       data: {
-        text: dto.text,
-        userId: user.id,
-        typeOfNotify: dto.typeOfNotification,
+        message: dto.message.trim(),
+        type: dto.type,
+        user: {
+          connect: {
+            id: user.id,
+          },
+        },
       },
     })
-    return notification
+
+    return notify
   }
 
+  /**
+   *
+   * @param id
+   * @returns
+   */
   async changeExpire(id: number) {
     try {
       await this.prismaService.notification.update({
@@ -33,7 +49,7 @@ export class NotificationService {
           id,
         },
         data: {
-          expire: true,
+          read: true,
         },
       })
       return true

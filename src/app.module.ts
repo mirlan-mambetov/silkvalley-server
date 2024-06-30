@@ -1,3 +1,4 @@
+import { MailerModule } from '@nestjs-modules/mailer'
 import {
   MiddlewareConsumer,
   Module,
@@ -9,7 +10,6 @@ import { ServeStaticModule } from '@nestjs/serve-static'
 import { join } from 'path'
 import { AppController } from './app.controller'
 import { ApiNotFoundMiddleware } from './middlewares/NotFound.middleware'
-import { PrismaService } from './prisma.service'
 import { AuthModule } from './resources/auth/auth.module'
 import { CategoryModule } from './resources/categories/category.module'
 import { FilterModule } from './resources/filters/filters.module'
@@ -36,26 +36,23 @@ import { UserModule } from './resources/user/user.module'
           : '.env.development',
       isGlobal: true,
     }),
-    // MailerModule.forRoot({
-    //   transport: {
-    //     host: 'live.smtp.mailtrap.io',
-    //     port: 587,
-    //     auth: {
-    //       user: 'api',
-    //       pass: '6bea5a14cccd5ff7040507d36a084584',
-    //     },
-    //   },
-    //   defaults: {
-    //     from: 'Silk Valley.',
-    //   },
-    //   template: {
-    //     // dir: __dirname + '/templates',
-    //     adapter: new HandlebarsAdapter(),
-    //     options: {
-    //       strict: true,
-    //     },
-    //   },
-    // }),
+    MailerModule.forRoot({
+      transport: {
+        host: 'srv536935.hstgr.cloud',
+        port: 465,
+        secure: true,
+        auth: {
+          user: 'root',
+          pass: 'Mambetovmn1995#',
+        },
+        tls: {
+          rejectUnauthorized: false,
+        },
+      },
+      defaults: {
+        from: 'hello@slkvalley.com',
+      },
+    }),
     AppGateWayModule,
     SmsModule,
     PaymentModule,
@@ -70,7 +67,6 @@ import { UserModule } from './resources/user/user.module'
     PromotionModule,
   ],
   controllers: [AppController],
-  providers: [PrismaService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
@@ -80,3 +76,4 @@ export class AppModule implements NestModule {
       .forRoutes('*')
   }
 }
+// {SHA512-CRYPT}$6$IBaZksJ4S6GphKDO$bZQGBS1Vvr7pbKivWUtgywCpVHY3Ny6oAH8Xr56Lqo9/ppaU1Vfxf8CAg85aEwY8g.cFvfgpP/U.R2lu7AquN0

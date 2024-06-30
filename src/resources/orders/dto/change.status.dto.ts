@@ -5,3 +5,7 @@ export class ChangeStatusDTO {
   @IsEnum(EnumStatusOrder)
   status: EnumStatusOrder
 }
+
+export class QueryParams {
+  order: string
+}

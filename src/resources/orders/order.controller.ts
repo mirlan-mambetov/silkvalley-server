@@ -7,11 +7,12 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Query,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common'
 import { Auth } from '../auth/decorators/auth.decorator'
-import { ChangeStatusDTO } from './dto/change.status.dto'
+import { ChangeStatusDTO, QueryParams } from './dto/change.status.dto'
 import { OrderService } from './order.service'
 
 @Controller('order')
@@ -25,12 +26,12 @@ export class OrderController {
     return this.orderService.findAll()
   }
 
-  @Get('by-orderId/:orderid')
+  @Get('query')
   @HttpCode(HttpStatus.OK)
   @Auth()
-  findByOrderId(@Param('orderid') orderid: string) {
-    console.log(orderid)
-    return this.orderService.findByOrderId(orderid)
+  findByOrderId(@Query() query: QueryParams) {
+    console.log(query)
+    return this.orderService.findByOrderId(query.order)
   }
 
   @Get(':id')

@@ -1,7 +1,17 @@
-import { EnumTypeNotification } from '@prisma/client'
+import { NotificationType } from '@prisma/client'
+import { IsEnum, IsInt, IsNotEmpty, IsNumber, IsString } from 'class-validator'
 
 export class CreateNotifyDto {
-  text: string
+  @IsString()
+  @IsNotEmpty()
+  message: string
+
+  @IsNumber()
+  @IsInt()
+  @IsNotEmpty()
   userId: number
-  typeOfNotification: EnumTypeNotification
+
+  @IsEnum(NotificationType)
+  @IsNotEmpty()
+  type: NotificationType
 }

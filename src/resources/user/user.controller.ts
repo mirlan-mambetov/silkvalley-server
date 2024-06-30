@@ -9,9 +9,11 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Req,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common'
+import { JwtService } from '@nestjs/jwt'
 import { Auth } from '../auth/decorators/auth.decorator'
 import { CurrentUser } from '../auth/decorators/currentUser.decorator'
 import { CreateUserDTO } from './data-transfer/create.user.dto'
@@ -20,7 +22,10 @@ import { UserService } from './user.service'
 
 @Controller('user')
 export class UserController {
-  constructor(private readonly userSerivce: UserService) {}
+  constructor(
+    private readonly userSerivce: UserService,
+    private readonly jwtService: JwtService,
+  ) {}
 
   /**
    *
@@ -72,7 +77,9 @@ export class UserController {
   @Get('profile')
   @HttpCode(HttpStatus.OK)
   @Auth()
-  async findProfile(@CurrentUser('email') email: string) {
+  async findProfile(@CurrentUser('email') email: string, @Req() req: Request) {
+    console.log(email)
+    // console.log(req.headers)
     return await this.userSerivce.getUserProfile(email)
   }
 

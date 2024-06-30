@@ -1,35 +1,14 @@
-import { EnumPaymentMethod, EnumStatusOrder, Users } from '@prisma/client'
+import { EnumPaymentMethod, EnumStatusOrder } from '@prisma/client'
 import {
+  IsArray,
   IsBoolean,
   IsEnum,
+  IsInt,
+  IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
 } from 'class-validator'
-
-export class IPlaceOrderDTO {
-  @IsEnum(EnumStatusOrder)
-  status: EnumStatusOrder
-
-  @IsEnum(EnumPaymentMethod)
-  paymentMethod: EnumPaymentMethod
-
-  products: IOrderProducts[]
-
-  @IsNumber()
-  totalPrice: number
-
-  address: IPointsDelivery
-
-  @IsBoolean()
-  isCanceld?: boolean
-
-  user: Pick<Users, 'email' | 'name' | 'phoneNumber'>
-}
-export interface IGeo {
-  lat: number
-  lng: number
-}
 
 export class IPointsDelivery {
   @IsOptional()
@@ -41,30 +20,64 @@ export class IPointsDelivery {
   location: IGeo
 }
 
-export class IOrderProducts {
-  @IsNumber()
-  id: number
+export class IPlaceOrderDTO {
+  @IsArray({ each: true })
+  @IsEnum(EnumStatusOrder)
+  status: EnumStatusOrder
 
+  @IsArray({ each: true })
+  @IsEnum(EnumPaymentMethod)
+  paymentMethod: EnumPaymentMethod
+
+  @IsNotEmpty()
+  products: IOrderProducts[]
+
+  @IsInt()
+  @IsNumber()
+  @IsNotEmpty()
+  totalCache: number
+
+  @IsInt()
+  @IsNumber()
+  totalDiscount?: number
+
+  @IsNotEmpty()
+  address: IPointsDelivery
+
+  @IsBoolean()
+  isCanceld?: boolean
+}
+
+export interface IGeo {
+  lat: number
+  lng: number
+}
+
+export class ProductVariantDTO {
+  price: number
+  size: string
+  articleNumber: string
+  stock: number
+  productId: number
+  discount: number
+  id: number
+}
+export class IOrderProducts {
   @IsString()
+  @IsNotEmpty()
   title: string
 
   @IsString()
+  @IsNotEmpty()
   description: string
 
+  @IsInt()
   @IsNumber()
   quantityInCart: number
-
-  @IsNumber()
-  price: number
 
   @IsString()
   poster: string
 
-  @IsString()
-  @IsOptional()
-  selectedColor?: string
-
-  @IsString()
-  @IsOptional()
-  selectedSize?: string
+  @IsNotEmpty()
+  variant: ProductVariantDTO
 }

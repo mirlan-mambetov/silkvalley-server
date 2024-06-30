@@ -23,15 +23,19 @@ export class OrderService {
     })
   }
 
-  async findByOrderId(orderId: string) {
+  async findByOrderId(order: string) {
     return await this.prismaService.order.findUnique({
       where: {
-        orderId,
+        orderId: order,
       },
       include: {
         address: true,
         user: true,
-        items: true,
+        items: {
+          include: {
+            product: true,
+          },
+        },
       },
     })
   }
@@ -62,11 +66,11 @@ export class OrderService {
         },
       })
 
-      await this.notificationService.create({
-        text: `Статус вашего заказа ${order.orderId}${order.orderId} обновлен.`,
-        typeOfNotification: 'ORDER',
-        userId: order.userId,
-      })
+      // await this.notificationService.create({
+      //   text: `Статус вашего заказа ${order.orderId}${order.orderId} обновлен.`,
+      //   typeOfNotification: 'ORDER',
+      //   userId: order.userId,
+      // })
       return {
         messages: {
           order: `Статус ${order.orderId} успешно изменен на ${order.status}`,
