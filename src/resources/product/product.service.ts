@@ -128,15 +128,6 @@ export class ProductService {
    */
   async findAllProducts(): Promise<Product[]> {
     return await this.prismaService.product.findMany({
-      where: {
-        variants: {
-          some: {
-            stock: {
-              gt: 0,
-            },
-          },
-        },
-      },
       include: {
         variants: {
           include: {
