@@ -63,6 +63,11 @@ export class ProductVariantDTO {
   id: number
 }
 export class IOrderProducts {
+  @IsNumber()
+  @IsInt()
+  @IsNotEmpty()
+  id: number
+
   @IsString()
   @IsNotEmpty()
   title: string

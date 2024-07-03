@@ -8,6 +8,7 @@ import {
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { Request } from 'express'
+import { AuthEnumName } from 'src/enums/auth.enum'
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -19,28 +20,25 @@ export class AuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest()
     const token = this.extractTokenFromHeader(request)
-    if (!token) {
-      throw new UnauthorizedException()
-    }
     try {
+      if (!token) {
+        throw new UnauthorizedException()
+      }
       const payload = await this.jwtService.verifyAsync(token, {
         secret: this.configService.get<string>('JWT_SECRET_KEY'),
       })
-      console.log(payload)
       request['user'] = payload
     } catch (error) {
-      console.log(error)
       throw new UnauthorizedException()
     }
     return true
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {
-    console.log(request.headers.cookie)
-    if (!request.headers.cookie) {
-      throw new UnauthorizedException()
+    const cookies = request.cookies
+    if (cookies && cookies[AuthEnumName.ACCESS_TOKEN]) {
+      return cookies[AuthEnumName.ACCESS_TOKEN]
     }
-    const [name, token] = request.headers.cookie.split('=')
-    return token ? token : undefined
+    return undefined
   }
 }

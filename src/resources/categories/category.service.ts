@@ -25,6 +25,7 @@ export class CategoryService {
         data: {
           ...dto,
           slug: slugName,
+          icon: dto.icon ? dto.icon : undefined,
         },
       })
 
@@ -34,6 +35,11 @@ export class CategoryService {
     }
   }
 
+  /**
+   *
+   * @param dto
+   * @returns
+   */
   async createChild(dto: CreateChildDTO) {
     try {
       const slugName = generateSlug(dto.name)
@@ -42,6 +48,7 @@ export class CategoryService {
           name: dto.name,
           slug: slugName,
           parentId: dto.parentId,
+          icon: dto.icon ? dto.icon : undefined,
         },
       })
       return child
@@ -58,15 +65,12 @@ export class CategoryService {
    */
   async update(id: number, dto: UpdateCategoryDTO) {
     try {
-      let slugName = generateSlug(dto.name)
-
       const category = await this.prismaService.category.update({
         where: {
           id,
         },
         data: {
           ...dto,
-          slug: slugName,
         },
       })
       return category
@@ -158,9 +162,11 @@ export class CategoryService {
           include: {
             childs: {
               include: {
+                products: true,
                 childs: true,
               },
             },
+            products: true,
           },
         },
         products: {

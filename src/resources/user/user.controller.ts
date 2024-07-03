@@ -78,8 +78,6 @@ export class UserController {
   @HttpCode(HttpStatus.OK)
   @Auth()
   async findProfile(@CurrentUser('email') email: string, @Req() req: Request) {
-    console.log(email)
-    // console.log(req.headers)
     return await this.userSerivce.getUserProfile(email)
   }
 

@@ -1,6 +1,6 @@
 import { InjectStripeClient } from '@golevelup/nestjs-stripe'
 import { MailerService } from '@nestjs-modules/mailer'
-import { Injectable } from '@nestjs/common'
+import { BadRequestException, Injectable } from '@nestjs/common'
 import { EnumPaymentMethod, EnumStatusOrder, Users } from '@prisma/client'
 import { PaymentEnumStatus } from 'src/enums/Payment.enum'
 import { ICardPayment } from 'src/interfaces/payment.interface'
@@ -11,7 +11,7 @@ import { NotificationService } from '../notification/notification.service'
 import { SmsService } from '../sms/sms.service'
 import { UserService } from '../user/user.service'
 import { StripePaymentIntentSucceededEvent } from './data-transfer/payment.dto'
-import { IPlaceOrderDTO } from './data-transfer/place.order.dto'
+import { IOrderProducts, IPlaceOrderDTO } from './data-transfer/place.order.dto'
 
 @Injectable()
 export class PaymentService {
@@ -83,12 +83,16 @@ export class PaymentService {
    */
   async placeOrder(dto: IPlaceOrderDTO, email: string) {
     const user = await this.userService.findOneByEmail(email)
+
+    // CHANGED QUANTITY PRODUCTS
+    await this.changeProductStock(dto.products)
+
     switch (dto.paymentMethod) {
       /**
        * PLACE ORDER WITH CACHE
        */
       case EnumPaymentMethod.CACHE:
-        const cacheOrder = await this.createOrder(user, dto)
+        const order = await this.createOrder(user, dto)
         // await this.mailerService.sendMail({
         //   to: `${user.email}`, // list of receivers
         //   subject: 'Служба доставки', // Subject line
@@ -96,14 +100,14 @@ export class PaymentService {
         //   html: '<b>welcome</b>', // HTML body content
         // })
         const notify = await this.notificationService.create({
-          message: `Ваш заказ ${cacheOrder.orderId} принят на обработку! Метод оплаты наличными. Ожидайте`,
+          message: `Ваш заказ ${order.orderId} принят на обработку! Метод оплаты наличными. Ожидайте`,
           type: 'ORDER_PLACE',
           userId: user.id,
         })
 
         return {
           message: notify.message,
-          orderId: cacheOrder.id,
+          orderId: order.id,
           notifyId: notify.id,
         }
 
@@ -117,7 +121,7 @@ export class PaymentService {
           products: dto.products,
         })
         const cardPaymentNotify = await this.notificationService.create({
-          message: `Ваш заказ ${cacheOrder.orderId} принят на обработку! Метод оплаты наличными. Ожидайте`,
+          message: `Ваш заказ ${cardOrder.orderId} принят на обработку! Метод оплаты наличными. Ожидайте`,
           type: 'ORDER_PLACE',
           userId: user.id,
         })
@@ -125,14 +129,41 @@ export class PaymentService {
         return {
           detail: paymentWithCard,
           message: notify.message,
-          orderId: cardPaymentNotify.id,
-          notifyId: notify.id,
+          orderId: cardOrder.id,
+          notifyId: cardPaymentNotify.id,
         }
 
       default:
         return {
           message: 'Не выбран метод оплаты',
         }
+    }
+  }
+
+  /**
+   *
+   * @param products
+   */
+  async changeProductStock(products: IOrderProducts[]) {
+    for await (const product of products) {
+      const variant = await this.prismaService.productVariant.findUnique({
+        where: { id: product.variant.id },
+        select: { stock: true },
+      })
+
+      if (variant.stock < product.variant.stock) {
+        throw new BadRequestException(`Ошибка. Данного товара нет в наличии`)
+      }
+
+      const newStock = variant.stock - product.variant.stock
+      if (newStock < 0) {
+        throw new Error(`Ошибка. Данного товара нет в наличии`)
+      }
+
+      await this.prismaService.productVariant.update({
+        where: { id: product.variant.id },
+        data: { stock: newStock },
+      })
     }
   }
 

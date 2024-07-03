@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsNumber, IsString, Length } from 'class-validator'
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Length,
+} from 'class-validator'
 
 export class CreateCategoryDTO {
   @IsString()
@@ -7,6 +13,11 @@ export class CreateCategoryDTO {
     message: 'Минимальная длина названии 4 и максимальная 255символов',
   })
   name: string
+
+  @IsNotEmpty()
+  @IsString()
+  @IsOptional()
+  icon?: string
 }
 
 export class CreateChildDTO {
@@ -19,4 +30,9 @@ export class CreateChildDTO {
 
   @IsNumber()
   parentId: number
+
+  @IsNotEmpty()
+  @IsString()
+  @IsOptional()
+  icon?: string
 }

@@ -44,15 +44,18 @@ export class NotificationService {
    */
   async changeExpire(id: number) {
     try {
-      await this.prismaService.notification.update({
+      const notify = await this.prismaService.notification.update({
         where: {
           id,
         },
         data: {
           read: true,
         },
+        select: {
+          read: true,
+        },
       })
-      return true
+      return notify
     } catch (error) {
       throw new InternalServerErrorException(error)
     }

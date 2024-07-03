@@ -13,11 +13,10 @@ import { AuthEnumName } from 'src/enums/auth.enum'
 import { AuthService } from './auth.service'
 import { LoginDTO } from './data-transfer/login.dto'
 import { RegisterDTO } from './data-transfer/register.dto'
-import { Auth } from './decorators/auth.decorator'
-import { CurrentUser } from './decorators/currentUser.decorator'
 
 @Controller('auth')
 export class AuthController {
+  expiresMilliseconds = 10 * 60 * 1000
   constructor(private readonly authService: AuthService) {}
 
   /**
@@ -43,7 +42,7 @@ export class AuthController {
       path: '/',
       secure: true,
       sameSite: 'lax',
-      maxAge: 10 * 60 * 60 * 1000,
+      maxAge: this.expiresMilliseconds,
     })
     return res.status(HttpStatus.OK).json({
       message: 'Вход выполнен успешно',
@@ -53,12 +52,17 @@ export class AuthController {
 
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
-  @Auth()
-  async refresh(
-    @Body() token: { refreshToken: string },
-    @CurrentUser('name') username: string,
-  ) {
-    const tokens = await this.authService.getNewTokens(token.refreshToken)
-    return tokens
+  async refresh(@Body() token: { refreshToken: string }, @Res() res: Response) {
+    const data = await this.authService.getNewTokens(token.refreshToken)
+
+    res.cookie(AuthEnumName.ACCESS_TOKEN, data.accessToken, {
+      httpOnly: true,
+      path: '/',
+      secure: true,
+      sameSite: 'lax',
+      maxAge: this.expiresMilliseconds,
+    })
+
+    return res.json({ refreshToken: data.refreshToken })
   }
 }

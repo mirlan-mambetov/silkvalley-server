@@ -38,9 +38,8 @@ import { UserModule } from './resources/user/user.module'
     }),
     MailerModule.forRoot({
       transport: {
-        host: 'srv536935.hstgr.cloud',
-        port: 465,
-        secure: true,
+        host: 'slkvalley.com',
+        port: 25,
         auth: {
           user: 'root',
           pass: 'Mambetovmn1995#',
@@ -48,9 +47,6 @@ import { UserModule } from './resources/user/user.module'
         tls: {
           rejectUnauthorized: false,
         },
-      },
-      defaults: {
-        from: 'hello@slkvalley.com',
       },
     }),
     AppGateWayModule,
@@ -76,4 +72,3 @@ export class AppModule implements NestModule {
       .forRoutes('*')
   }
 }
-// {SHA512-CRYPT}$6$IBaZksJ4S6GphKDO$bZQGBS1Vvr7pbKivWUtgywCpVHY3Ny6oAH8Xr56Lqo9/ppaU1Vfxf8CAg85aEwY8g.cFvfgpP/U.R2lu7AquN0
