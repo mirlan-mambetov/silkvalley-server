@@ -131,6 +131,7 @@ export class UserService {
     return await this.prismaService.users.findMany({
       include: {
         notifications: true,
+        orders: true,
       },
     })
   }

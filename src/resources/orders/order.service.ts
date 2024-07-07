@@ -40,12 +40,27 @@ export class OrderService {
     })
   }
 
+  /**
+   *
+   * @returns ALL ORDERS
+   */
   async findAll() {
     return await this.prismaService.order.findMany({
       include: {
         address: true,
         items: true,
-        user: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            phoneNumber: true,
+            email: true,
+            avatar: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
       },
     })
   }
@@ -66,11 +81,11 @@ export class OrderService {
         },
       })
 
-      // await this.notificationService.create({
-      //   text: `Статус вашего заказа ${order.orderId}${order.orderId} обновлен.`,
-      //   typeOfNotification: 'ORDER',
-      //   userId: order.userId,
-      // })
+      await this.notificationService.create({
+        message: `Статус вашего заказа ${order.orderId}${order.orderId} обновлен.`,
+        type: 'ORDER_UPDATE',
+        userId: order.userId,
+      })
       return {
         messages: {
           order: `Статус ${order.orderId} успешно изменен на ${order.status}`,

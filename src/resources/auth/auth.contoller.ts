@@ -65,4 +65,23 @@ export class AuthController {
 
     return res.json({ refreshToken: data.refreshToken })
   }
+
+  /**
+   *
+   * @param res
+   * @returns
+   */
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  logOut(@Res() res: Response) {
+    res.clearCookie(AuthEnumName.ACCESS_TOKEN, {
+      httpOnly: true,
+      path: '/',
+      secure: true,
+      sameSite: 'lax',
+    })
+    return res.status(HttpStatus.OK).json({
+      logout: true,
+    })
+  }
 }
