@@ -49,7 +49,6 @@ export class OrderController {
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: ChangeStatusDTO,
   ) {
-    console.log(dto)
     return this.orderService.changeStatus(id, dto)
   }
 }

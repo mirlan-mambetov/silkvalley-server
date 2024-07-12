@@ -15,10 +15,6 @@ export class UpdateProductVariantDto {
 
   @IsNumber()
   @IsOptional()
-  rating?: number
-
-  @IsNumber()
-  @IsOptional()
   discount?: number
 
   @IsBoolean()
@@ -29,19 +25,7 @@ export class UpdateProductVariantDto {
   @IsOptional()
   isNew?: boolean
 
-  @IsNumber()
-  @IsOptional()
-  sales?: number
-
   @IsString()
   @IsOptional()
   video?: string
-
-  @IsNumber()
-  @IsOptional()
-  promotionId?: number
-
-  @IsNumber()
-  @IsOptional()
-  productId?: number
 }

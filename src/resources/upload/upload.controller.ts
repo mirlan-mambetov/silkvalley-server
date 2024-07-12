@@ -7,11 +7,13 @@ import {
   HttpStatus,
   Param,
   Post,
+  Res,
   UploadedFile,
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common'
 import { AnyFilesInterceptor, FileInterceptor } from '@nestjs/platform-express'
+import { Response } from 'express'
 import { UploadService } from './upload.service'
 
 @Controller('upload')
@@ -34,8 +36,10 @@ export class UploadController {
   async upload(
     @UploadedFile() file: Express.Multer.File,
     @Param('alias') alias: string,
+    @Res() res: Response,
   ) {
-    return await this.uploadService.saveFile(file, alias)
+    const data = await this.uploadService.saveFile(file, alias)
+    res.json({ ...data })
   }
 
   @Delete()

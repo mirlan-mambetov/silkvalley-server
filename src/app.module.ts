@@ -38,10 +38,10 @@ import { UserModule } from './resources/user/user.module'
     }),
     MailerModule.forRoot({
       transport: {
-        host: 'slkvalley.com',
+        host: 'info.slkvalley.com',
         port: 25,
         auth: {
-          user: 'root',
+          user: 'info',
           pass: 'Mambetovmn1995#',
         },
         tls: {

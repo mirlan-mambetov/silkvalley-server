@@ -76,7 +76,7 @@ export class ProductService {
         },
       })
 
-      if (categoryIds.length) {
+      if (categoryIds && categoryIds.length) {
         // Обновляем основные данные продукта
         const currentCategories =
           await this.prismaService.productCategory.findMany({
@@ -151,17 +151,19 @@ export class ProductService {
   /**
    * @description CREATE VARIANT TO PRODUCT
    * @param dto
-   * @returns
+   * @returns [VariantID, SuccessMessage]
    */
   async createProductVariant(dto: CreateProductVariantDto) {
     const articleNumber = generateProductId()
-    await this.prismaService.productVariant.create({
+    const variant = await this.prismaService.productVariant.create({
       data: {
         ...dto,
+        price: Number(dto.price),
         articleNumber,
       },
     })
     return {
+      variantId: variant.id,
       message: 'Вариант добавлен',
     }
   }
@@ -197,6 +199,38 @@ export class ProductService {
     })
     return {
       message: 'Цвета обновлены',
+    }
+  }
+
+  /**
+   *
+   * @param id
+   * @param path
+   */
+  async removeColorImage(id: number, path: string) {
+    try {
+      const color = await this.prismaService.colors.findUnique({
+        where: { id },
+      })
+      const existPath = color.images.find((imgPath) => imgPath === path)
+      if (existPath) {
+        await this.uploadService.deleteFile(existPath)
+        const updatedImages = color.images.filter((imgPath) => imgPath !== path)
+
+        await this.prismaService.colors.update({
+          where: {
+            id,
+          },
+          data: {
+            images: updatedImages,
+          },
+        })
+      }
+      return {
+        message: 'Изображение удалено',
+      }
+    } catch (error) {
+      throw new InternalServerErrorException(error)
     }
   }
 
@@ -319,6 +353,9 @@ export class ProductService {
               color: true,
               specifications: true,
             },
+            orderBy: {
+              updatedAt: 'desc',
+            },
           },
         },
       })
@@ -414,25 +451,39 @@ export class ProductService {
    * @param id
    * @returns
    */
-  // async delete(id: number) {
-  //   try {
-  //     const product = await this.findOneById(id)
-  //     // DELETE PRODUCT POSTER
-  //     await this.uploadService.deleteFile(product.poster)
-  //     await this.prismaService.orderItem.deleteMany({
-  //       where: {
-  //         productId: product.id,
-  //       },
-  //     })
-  //     // DELETE PRODUCT
-  //     await this.prismaService.product.delete({
-  //       where: { id },
-  //     })
-  //     return {
-  //       message: `Товар ${product.title} удален! `,
-  //     }
-  //   } catch (error) {
-  //     throw new InternalServerErrorException(error)
-  //   }
-  // }
+  async delete(id: number) {
+    try {
+      const product = await this.findOneById(id)
+
+      await this.prismaService.$transaction(async (prisma) => {
+        const variants = await prisma.productVariant.findMany({
+          where: {
+            productId: product.id,
+          },
+        })
+
+        const orders = await prisma.order.findMany({
+          where: {
+            items: {
+              some: {
+                id: 1,
+              },
+            },
+          },
+        })
+      })
+      // DELETE PRODUCT POSTER
+      await this.uploadService.deleteFile(product.poster)
+
+      // DELETE PRODUCT
+      await this.prismaService.product.delete({
+        where: { id },
+      })
+      return {
+        message: `Товар ${product.title} удален! `,
+      }
+    } catch (error) {
+      throw new InternalServerErrorException(error)
+    }
+  }
 }

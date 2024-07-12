@@ -52,10 +52,6 @@ export class CreateProductVariantDto {
 
   @IsNumber()
   @IsOptional()
-  rating?: number
-
-  @IsNumber()
-  @IsOptional()
   discount?: number
 
   @IsBoolean()

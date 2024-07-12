@@ -57,8 +57,6 @@ export class UploadService {
             resolve({ message: 'Файл успешно удален' })
           }
         })
-      } else {
-        reject('Файл не найден')
       }
     })
   }

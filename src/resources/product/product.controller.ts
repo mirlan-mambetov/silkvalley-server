@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -12,6 +13,7 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common'
+import { Auth } from '../auth/decorators/auth.decorator'
 import { CreateProductDto } from './data-transfer/create.data.transfer'
 import {
   CreateColorDTO,
@@ -36,7 +38,7 @@ export class ProductController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @UsePipes(new ValidationPipe())
-  // @Auth(['ADMIN', 'OWNER'])
+  @Auth(['ADMIN', 'OWNER'])
   async create(@Body() dto: CreateProductDto) {
     return await this.productService.create(dto)
   }
@@ -44,15 +46,15 @@ export class ProductController {
   @Post('variant')
   @HttpCode(HttpStatus.CREATED)
   @UsePipes(new ValidationPipe())
-  // @Auth(['ADMIN', 'OWNER'])
+  @Auth(['ADMIN', 'OWNER'])
   async createVariant(@Body() dto: CreateProductVariantDto) {
     return await this.productService.createProductVariant(dto)
   }
 
   @Patch('variant/:id')
-  @HttpCode(HttpStatus.CREATED)
+  @HttpCode(HttpStatus.OK)
   @UsePipes(new ValidationPipe())
-  // @Auth(['ADMIN', 'OWNER'])
+  @Auth(['ADMIN', 'OWNER'])
   async updateVariant(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateProductVariantDto,
@@ -63,17 +65,28 @@ export class ProductController {
   @Post('variant/color')
   @HttpCode(HttpStatus.CREATED)
   @UsePipes(new ValidationPipe())
-  // @Auth(['ADMIN', 'OWNER'])
+  @Auth(['ADMIN', 'OWNER'])
   async createColor(@Body() dto: CreateColorDTO) {
     return await this.productService.createColor(dto)
   }
 
   @Put('variant/color')
-  @HttpCode(HttpStatus.CREATED)
+  @HttpCode(HttpStatus.OK)
   @UsePipes(new ValidationPipe())
-  // @Auth(['ADMIN',   'OWNER'])
+  @Auth(['ADMIN', 'OWNER'])
   async updateColor(@Body() dto: UpdateColorDTO) {
     return await this.productService.updateColor(dto)
+  }
+
+  @Delete('variant/color/:id')
+  @HttpCode(HttpStatus.OK)
+  @UsePipes(new ValidationPipe())
+  @Auth(['ADMIN', 'OWNER'])
+  async removeColorImage(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() data: { path: string },
+  ) {
+    return await this.productService.removeColorImage(id, data.path)
   }
 
   @Get('variant/color/:id')
@@ -91,7 +104,7 @@ export class ProductController {
   @Post('variant/specification')
   @HttpCode(HttpStatus.CREATED)
   @UsePipes(new ValidationPipe())
-  // @Auth(['ADMIN', 'OWNER'])
+  @Auth(['ADMIN', 'OWNER'])
   async createSpecification(@Body() dto: CreateSpecificationDto) {
     return await this.productService.createSpecifications(dto)
   }
@@ -99,7 +112,7 @@ export class ProductController {
   @Put('variant/specification')
   @HttpCode(HttpStatus.CREATED)
   @UsePipes(new ValidationPipe())
-  // @Auth(['ADMIN', 'OWNER'])
+  @Auth(['ADMIN', 'OWNER'])
   async updateSpecification(@Body() dto: UpdateSpecificationDto) {
     return await this.productService.updateSpecifications(dto)
   }
@@ -112,7 +125,7 @@ export class ProductController {
    */
   @Patch(':id')
   @HttpCode(HttpStatus.OK)
-  // @Auth(['ADMIN', 'OWNER'])
+  @Auth(['ADMIN', 'OWNER'])
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateProductDto,
