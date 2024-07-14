@@ -18,7 +18,17 @@ export class OrderService {
       include: {
         address: true,
         user: true,
-        items: true,
+        items: {
+          include: {
+            color: true,
+            product: {
+              select: {
+                id: true,
+                title: true,
+              },
+            },
+          },
+        },
       },
     })
   }
@@ -82,7 +92,7 @@ export class OrderService {
       })
 
       await this.notificationService.create({
-        message: `Статус вашего заказа ${order.orderId}${order.orderId} обновлен.`,
+        message: `Статус вашего заказа ${order.orderId} обновлен.`,
         type: 'ORDER_UPDATE',
         userId: order.userId,
       })

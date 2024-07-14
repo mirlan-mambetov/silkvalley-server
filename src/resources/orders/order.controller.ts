@@ -36,7 +36,7 @@ export class OrderController {
 
   @Get(':id')
   @HttpCode(HttpStatus.OK)
-  @Auth()
+  @Auth(['ADMIN', 'OWNER'])
   findById(@Param('id', ParseIntPipe) id: number) {
     return this.orderService.findById(id)
   }

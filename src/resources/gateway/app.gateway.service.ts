@@ -9,7 +9,7 @@ import {
 } from '@nestjs/websockets'
 import { Server, Socket } from 'socket.io'
 import { EnumClientHOST } from 'src/enums/App.gateway.enum'
-import { IPlaceOrderDTOgateway } from './dto/gateway.dto'
+import { INotifyDTOgateway, IPlaceOrderDTOgateway } from './dto/gateway.dto'
 
 @WebSocketGateway({
   cors: {
@@ -74,5 +74,10 @@ export class AppGateWayService
   @SubscribeMessage('placeOrder')
   placeOrder(@MessageBody() message: IPlaceOrderDTOgateway) {
     this.server.emit('sendOrder', message)
+  }
+
+  @SubscribeMessage('sendNotification')
+  changeOrderStatus(@MessageBody() body: INotifyDTOgateway) {
+    this.server.emit('notify', body)
   }
 }

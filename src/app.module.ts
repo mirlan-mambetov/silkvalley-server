@@ -39,11 +39,8 @@ import { UserModule } from './resources/user/user.module'
     MailerModule.forRoot({
       transport: {
         host: 'info.slkvalley.com',
-        port: 25,
-        auth: {
-          user: 'info',
-          pass: 'Mambetovmn1995#',
-        },
+        port: 465,
+
         tls: {
           rejectUnauthorized: false,
         },
