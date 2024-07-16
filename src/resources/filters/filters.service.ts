@@ -61,6 +61,14 @@ export class FilterService {
       where: {
         AND: filters,
       },
+      include: {
+        variants: {
+          include: {
+            color: true,
+            specifications: true,
+          },
+        },
+      },
       orderBy: sort,
     })
     return products
@@ -69,13 +77,13 @@ export class FilterService {
   private sortFilter(
     sort: EnumProductSort,
   ):
-    | Prisma.ProductVariantOrderByWithRelationInput
-    | Prisma.ProductVariantOrderByWithRelationInput[] {
+    | Prisma.ProductOrderByWithRelationInput
+    | Prisma.ProductOrderByWithRelationInput[] {
     switch (sort) {
-      case EnumProductSort.LOW_PRICE:
-        return { price: 'desc' }
-      case EnumProductSort.HIGH_PRICE:
-        return { price: 'asc' }
+      case EnumProductSort.HIGH:
+        return { defaultPrice: 'asc' }
+      case EnumProductSort.LOW:
+        return { defaultPrice: 'desc' }
       case EnumProductSort.NEWEST:
         return { createdAt: 'asc' }
       case EnumProductSort.OLDEST:

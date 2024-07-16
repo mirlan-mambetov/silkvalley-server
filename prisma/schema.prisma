@@ -123,6 +123,10 @@ model Product {
   // Next Update
   user             Users?              @relation(fields: [userId], references: [id])
   userId Int?      @map("user_id")
+
+  // IN CURRENT UPDATE
+  defaultPrice Int? @map("default_price")
+  defaultSize String? @map("default_size")
   @@map("product")
 }
 

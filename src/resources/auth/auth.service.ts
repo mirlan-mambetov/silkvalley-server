@@ -1,3 +1,4 @@
+import { MailerService } from '@nestjs-modules/mailer'
 import {
   BadRequestException,
   Inject,
@@ -22,6 +23,7 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly prismaService: PrismaService,
+    private readonly mailService: MailerService,
   ) {}
 
   /**
@@ -31,22 +33,33 @@ export class AuthService {
    */
   async register(dto: RegisterDTO) {
     try {
-      const user = await this.userService.findOneByEmail(dto.email)
-
-      if (!user) {
-        await this.userService.save(dto)
-        return {
-          message: 'Регистрация прошла успешно',
-          success: true,
-        }
-      }
-      return new BadRequestException('Такой E-mail уже используется')
+      console.log(dto)
+      this.mailService
+        .sendMail({
+          to: dto.email, // list of receivers
+          from: 'info@slkvalley.com',
+          subject: 'Потдвердите E-mail ✔', // Subject line
+          text: 'Для регистрации на сайте slkvalley.com', // plaintext body
+          html: '<b>Для потдверждения перейдите по ссылке https://slkvalley.com</b>', // HTML body content
+        })
+        .then((res) => {
+          // console.log(res)
+        })
+        .catch((err) => {})
+      // const user = await this.userService.findOneByEmail(dto.email)
+      // if (!user) {
+      //   await this.userService.save(dto)
+      //   return {
+      //     message: 'Регистрация прошла успешно',
+      //     success: true,
+      //   }
+      // }
+      // return new BadRequestException('Такой E-mail уже используется')
     } catch (error) {
       throw new BadRequestException({
         status: error.status,
         name: error.name,
-        message:
-          'Неизвестная ошибка сервера. Возможные причины: 1 - не правильныe значения в полях. 2 - ожидаемые типы не соответствуют требованиям!',
+        message: 'Неизвестная ошибка сервера. ',
       })
     }
   }

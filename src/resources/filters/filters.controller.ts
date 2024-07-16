@@ -16,7 +16,6 @@ export class FilterController {
   @Get('filtered')
   @HttpCode(HttpStatus.OK)
   async filteredProducts(@Query() queries: QueryDTO) {
-    console.log(queries)
     return await this.filtersService.filterProducts(queries)
   }
 }

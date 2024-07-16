@@ -1,4 +1,5 @@
 import { MailerModule } from '@nestjs-modules/mailer'
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter'
 import {
   MiddlewareConsumer,
   Module,
@@ -19,6 +20,7 @@ import { OrderModule } from './resources/orders/order.module'
 import { PaymentModule } from './resources/payment/payment.module'
 import { ProductModule } from './resources/product/product.module'
 import { PromotionModule } from './resources/promotion/promotion.module'
+import { SearchModule } from './resources/search/search.module'
 import { SmsModule } from './resources/sms/sms.module'
 import { UploadModule } from './resources/upload/upload.module'
 import { UserModule } from './resources/user/user.module'
@@ -36,15 +38,33 @@ import { UserModule } from './resources/user/user.module'
           : '.env.development',
       isGlobal: true,
     }),
-    MailerModule.forRoot({
-      transport: {
-        host: 'info.slkvalley.com',
-        port: 465,
 
-        tls: {
-          rejectUnauthorized: false,
+    MailerModule.forRootAsync({
+      useFactory: () => ({
+        transport: {
+          host: 'slkvalley.com',
+          port: 465,
+          secure: true,
+          requireTLS: true,
+          auth: {
+            user: 'root',
+            pass: 'Mambetovmn1995#',
+          },
+          tls: {
+            rejectUnauthorized: false,
+          },
         },
-      },
+        defaults: {
+          from: 'info@slkvalley.com',
+        },
+        template: {
+          dir: __dirname + '/templates',
+          adapter: new HandlebarsAdapter(),
+          options: {
+            strict: true,
+          },
+        },
+      }),
     }),
     AppGateWayModule,
     SmsModule,
@@ -58,6 +78,7 @@ import { UserModule } from './resources/user/user.module'
     OrderModule,
     NotificaitonModule,
     PromotionModule,
+    SearchModule,
   ],
   controllers: [AppController],
 })

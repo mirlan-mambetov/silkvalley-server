@@ -135,6 +135,16 @@ export class ProductController {
 
   /**
    *
+   * @returns
+   */
+  @Get('similar/:id')
+  @HttpCode(HttpStatus.OK)
+  async findSimilar(@Param('id', ParseIntPipe) id: number) {
+    return await this.productService.findSimilar(id)
+  }
+
+  /**
+   *
    * @param alias
    * @returns
    */
@@ -152,7 +162,7 @@ export class ProductController {
 
   @Get('category/:slug')
   @HttpCode(HttpStatus.OK)
-  async findOneByCategoryId(@Param('slug') slug: string) {
+  async findByCategorySlug(@Param('slug') slug: string) {
     return await this.productService.findByCategoryId(slug)
   }
 
@@ -175,16 +185,6 @@ export class ProductController {
   @HttpCode(HttpStatus.OK)
   async findAll() {
     return await this.productService.findAllProducts()
-  }
-
-  /**
-   *
-   * @returns
-   */
-  @Get('similar/:id')
-  @HttpCode(HttpStatus.OK)
-  async findSimilar() {
-    return await this.productService.findSimilar()
   }
 
   // /**

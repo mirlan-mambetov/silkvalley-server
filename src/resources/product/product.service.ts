@@ -154,12 +154,29 @@ export class ProductService {
    * @returns [VariantID, SuccessMessage]
    */
   async createProductVariant(dto: CreateProductVariantDto) {
+    const productId = dto.productId
+    const allVariants = await this.prismaService.productVariant.findMany({
+      where: {
+        productId,
+      },
+    })
+    if (allVariants.length) {
+      await this.prismaService.product.update({
+        where: {
+          id: productId,
+        },
+        data: {
+          defaultPrice: allVariants[0].price,
+        },
+      })
+    }
     const articleNumber = generateProductId()
     const variant = await this.prismaService.productVariant.create({
       data: {
         ...dto,
         price: Number(dto.price),
         articleNumber,
+        productId,
       },
     })
     return {
@@ -410,6 +427,11 @@ export class ProductService {
     })
   }
 
+  /**
+   *
+   * @param slug
+   * @returns
+   */
   async findByCategoryId(slug: string) {
     return await this.prismaService.product.findMany({
       where: {
@@ -417,6 +439,24 @@ export class ProductService {
           some: {
             category: {
               slug,
+            },
+          },
+        },
+      },
+      include: {
+        variants: {
+          include: {
+            color: true,
+            specifications: true,
+          },
+        },
+        categories: {
+          include: {
+            category: {
+              select: {
+                id: true,
+                name: true,
+              },
             },
           },
         },
@@ -444,7 +484,50 @@ export class ProductService {
     })
   }
 
-  async findSimilar() {}
+  /**
+   *
+   * @param productId
+   * @returns SIMILAR PRODUCTS []
+   */
+  async findSimilar(productId: number) {
+    const product = await this.prismaService.product.findUnique({
+      where: {
+        id: productId,
+      },
+      include: {
+        categories: {
+          include: {
+            category: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const products = await this.prismaService.product.findMany({
+      where: {
+        categories: {
+          some: {
+            category: {
+              name: product.categories[0].category.name,
+            },
+          },
+        },
+      },
+      include: {
+        variants: {
+          include: {
+            color: true,
+            specifications: true,
+          },
+        },
+      },
+    })
+    return products
+  }
 
   /**
    *

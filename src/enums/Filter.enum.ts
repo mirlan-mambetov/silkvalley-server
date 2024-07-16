@@ -3,6 +3,6 @@ export enum EnumProductSort {
   VIEWS = 'views',
   OLDEST = 'oldest',
   NEWEST = 'newest',
-  HIGH_PRICE = 'high',
-  LOW_PRICE = 'low',
+  HIGH = 'high',
+  LOW = 'low',
 }

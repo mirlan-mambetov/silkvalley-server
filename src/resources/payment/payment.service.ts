@@ -1,5 +1,4 @@
 import { InjectStripeClient } from '@golevelup/nestjs-stripe'
-import { MailerService } from '@nestjs-modules/mailer'
 import { BadRequestException, Injectable } from '@nestjs/common'
 import { EnumPaymentMethod, EnumStatusOrder, Users } from '@prisma/client'
 import { PaymentEnumStatus } from 'src/enums/Payment.enum'
@@ -20,7 +19,7 @@ export class PaymentService {
     private readonly userService: UserService,
     private readonly smsService: SmsService,
     private readonly notificationService: NotificationService,
-    private readonly mailerService: MailerService,
+    // private readonly mailerService: MailerService,
     @InjectStripeClient() private stripe: Stripe,
   ) {}
 
