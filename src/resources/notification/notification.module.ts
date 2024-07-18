@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { PrismaService } from 'src/prisma.service'
 import { AuthService } from '../auth/auth.service'
+import { MailService } from '../mail/mail.service'
 import { ProductService } from '../product/product.service'
 import { UploadService } from '../upload/upload.service'
 import { UserService } from '../user/user.service'
@@ -18,6 +19,7 @@ import { NotificationService } from './notification.service'
     JwtService,
     UploadService,
     ProductService,
+    MailService,
   ],
   controllers: [NotificationController],
 })

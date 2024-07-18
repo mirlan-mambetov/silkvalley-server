@@ -1,8 +1,8 @@
-import { MailerService } from '@nestjs-modules/mailer'
 import {
   BadRequestException,
   Inject,
   Injectable,
+  InternalServerErrorException,
   UnauthorizedException,
   forwardRef,
 } from '@nestjs/common'
@@ -11,7 +11,9 @@ import { Users } from '@prisma/client'
 import * as argon from 'argon2'
 import { IAuth } from 'src/interfaces/auth.interface'
 import { PrismaService } from 'src/prisma.service'
+import { generateRandomNumbers } from 'utils/generate-random-numbers'
 import { v4 } from 'uuid'
+import { MailService } from '../mail/mail.service'
 import { UserService } from '../user/user.service'
 import { LoginDTO } from './data-transfer/login.dto'
 import { RegisterDTO } from './data-transfer/register.dto'
@@ -23,9 +25,27 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly prismaService: PrismaService,
-    private readonly mailService: MailerService,
+    private readonly mailService: MailService,
   ) {}
 
+  /**
+   *
+   * @param email
+   * @returns
+   */
+  async confirmEmail(email: string) {
+    try {
+      const code = generateRandomNumbers.generate()
+      const isExist = await this.userService.findOneByEmail(email)
+      if (isExist) {
+        throw new BadRequestException('E-mail уже существует в системе')
+      }
+      this.mailService.sendRegisterEmail(email, `${code}`)
+      return { code, email }
+    } catch (error) {
+      throw error
+    }
+  }
   /**
    *
    * @param dto
@@ -33,34 +53,24 @@ export class AuthService {
    */
   async register(dto: RegisterDTO) {
     try {
-      console.log(dto)
-      this.mailService
-        .sendMail({
-          to: dto.email, // list of receivers
-          from: 'info@slkvalley.com',
-          subject: 'Потдвердите E-mail ✔', // Subject line
-          text: 'Для регистрации на сайте slkvalley.com', // plaintext body
-          html: '<b>Для потдверждения перейдите по ссылке https://slkvalley.com</b>', // HTML body content
-        })
-        .then((res) => {
-          // console.log(res)
-        })
-        .catch((err) => {})
-      // const user = await this.userService.findOneByEmail(dto.email)
-      // if (!user) {
-      //   await this.userService.save(dto)
-      //   return {
-      //     message: 'Регистрация прошла успешно',
-      //     success: true,
-      //   }
-      // }
-      // return new BadRequestException('Такой E-mail уже используется')
+      const user = await this.userService.findOneByEmail(dto.email)
+      if (user) throw new BadRequestException('Такой E-mail уже используется')
+      await this.userService.save(dto)
+      return {
+        message: 'Регистрация прошла успешно',
+        success: true,
+      }
     } catch (error) {
-      throw new BadRequestException({
-        status: error.status,
-        name: error.name,
-        message: 'Неизвестная ошибка сервера. ',
-      })
+      if (error instanceof BadRequestException) {
+        throw error
+      } else {
+        console.error('Ошибка регистрации пользователя:', error)
+        throw new InternalServerErrorException({
+          status: error.status || 500,
+          name: error.name || 'InternalServerError',
+          message: 'Неизвестная ошибка сервера. Пожалуйста, попробуйте позже.',
+        })
+      }
     }
   }
 
@@ -91,7 +101,14 @@ export class AuthService {
         refreshToken,
       }
     } catch (error) {
-      throw new BadRequestException(error)
+      if (error instanceof BadRequestException) {
+        throw error
+      } else {
+        console.error('Ошибка авторизации пользователя:', error)
+        throw new InternalServerErrorException({
+          message: 'Неизвестная ошибка сервера. Пожалуйста, попробуйте позже.',
+        })
+      }
     }
   }
 

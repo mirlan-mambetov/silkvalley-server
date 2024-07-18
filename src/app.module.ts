@@ -1,5 +1,3 @@
-import { MailerModule } from '@nestjs-modules/mailer'
-import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter'
 import {
   MiddlewareConsumer,
   Module,
@@ -15,6 +13,7 @@ import { AuthModule } from './resources/auth/auth.module'
 import { CategoryModule } from './resources/categories/category.module'
 import { FilterModule } from './resources/filters/filters.module'
 import { AppGateWayModule } from './resources/gateway/app.gateway.module'
+import { MailModule } from './resources/mail/mail.module'
 import { NotificaitonModule } from './resources/notification/notification.module'
 import { OrderModule } from './resources/orders/order.module'
 import { PaymentModule } from './resources/payment/payment.module'
@@ -39,33 +38,6 @@ import { UserModule } from './resources/user/user.module'
       isGlobal: true,
     }),
 
-    MailerModule.forRootAsync({
-      useFactory: () => ({
-        transport: {
-          host: 'slkvalley.com',
-          port: 465,
-          secure: true,
-          requireTLS: true,
-          auth: {
-            user: 'root',
-            pass: 'Mambetovmn1995#',
-          },
-          tls: {
-            rejectUnauthorized: false,
-          },
-        },
-        defaults: {
-          from: 'info@slkvalley.com',
-        },
-        template: {
-          dir: __dirname + '/templates',
-          adapter: new HandlebarsAdapter(),
-          options: {
-            strict: true,
-          },
-        },
-      }),
-    }),
     AppGateWayModule,
     SmsModule,
     PaymentModule,
@@ -79,6 +51,7 @@ import { UserModule } from './resources/user/user.module'
     NotificaitonModule,
     PromotionModule,
     SearchModule,
+    MailModule,
   ],
   controllers: [AppController],
 })

@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { PrismaService } from 'src/prisma.service'
 import { AuthService } from '../auth/auth.service'
+import { MailService } from '../mail/mail.service'
 import { NotificationService } from '../notification/notification.service'
 import { ProductService } from '../product/product.service'
 import { UploadService } from '../upload/upload.service'
@@ -21,6 +22,7 @@ import { OrderService } from './order.service'
     ProductService,
     AuthService,
     JwtService,
+    MailService,
   ],
 })
 export class OrderModule {}

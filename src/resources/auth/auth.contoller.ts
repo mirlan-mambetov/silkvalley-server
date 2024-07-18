@@ -19,6 +19,12 @@ export class AuthController {
   expiresMilliseconds = 10 * 60 * 1000
   constructor(private readonly authService: AuthService) {}
 
+  @Post('confirm')
+  @HttpCode(HttpStatus.OK)
+  @UsePipes(new ValidationPipe())
+  confirmEmail(@Body() body: { email: string }) {
+    return this.authService.confirmEmail(body.email)
+  }
   /**
    *
    * @param dto
