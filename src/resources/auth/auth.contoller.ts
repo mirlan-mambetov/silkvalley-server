@@ -9,7 +9,6 @@ import {
   ValidationPipe,
 } from '@nestjs/common'
 import { Response } from 'express'
-import { AuthEnumName } from 'src/enums/auth.enum'
 import { AuthService } from './auth.service'
 import { LoginDTO } from './data-transfer/login.dto'
 import { RegisterDTO } from './data-transfer/register.dto'
@@ -42,17 +41,10 @@ export class AuthController {
   @UsePipes(new ValidationPipe())
   async login(@Body() dto: LoginDTO, @Res() res: Response) {
     const data = await this.authService.login(dto)
-
-    res.cookie(AuthEnumName.ACCESS_TOKEN, data.accessToken, {
-      httpOnly: true,
-      path: '/',
-      secure: true,
-      sameSite: 'lax',
-      maxAge: this.expiresMilliseconds,
-    })
     return res.status(HttpStatus.OK).json({
       message: 'Вход выполнен успешно',
       refreshToken: data.refreshToken,
+      accessToken: data.accessToken,
     })
   }
 
@@ -60,34 +52,9 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async refresh(@Body() token: { refreshToken: string }, @Res() res: Response) {
     const data = await this.authService.getNewTokens(token.refreshToken)
-
-    res.cookie(AuthEnumName.ACCESS_TOKEN, data.accessToken, {
-      httpOnly: true,
-      path: '/',
-      secure: true,
-      sameSite: 'lax',
-      maxAge: this.expiresMilliseconds,
-    })
-
-    return res.json({ refreshToken: data.refreshToken })
-  }
-
-  /**
-   *
-   * @param res
-   * @returns
-   */
-  @Post('logout')
-  @HttpCode(HttpStatus.OK)
-  logOut(@Res() res: Response) {
-    res.clearCookie(AuthEnumName.ACCESS_TOKEN, {
-      httpOnly: true,
-      path: '/',
-      secure: true,
-      sameSite: 'lax',
-    })
-    return res.status(HttpStatus.OK).json({
-      logout: true,
+    return res.json({
+      refreshToken: data.refreshToken,
+      accessToken: data.accessToken,
     })
   }
 }
