@@ -23,13 +23,14 @@ async function bootstrap() {
   app.setViewEngine('hbs')
   app.setGlobalPrefix('api/v1', { exclude: ['/'] })
   app.enableCors({
-    credentials: true,
     origin: [
       'https://dashboard.slkvalley.com',
       'https://slkvalley.com',
       'http://localhost:3000',
       'http://localhost:3001',
     ],
+    methods: 'GET,POST,PUT,PATCH,HEAD,DELETE',
+    credentials: true,
   })
   app.use(cookieParser(process.env.COOKIE_SECRET))
 

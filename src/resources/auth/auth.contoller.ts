@@ -52,6 +52,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async refresh(@Body() token: { refreshToken: string }, @Res() res: Response) {
     const data = await this.authService.getNewTokens(token.refreshToken)
+
     return res.json({
       refreshToken: data.refreshToken,
       accessToken: data.accessToken,
