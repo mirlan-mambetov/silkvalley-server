@@ -1,5 +1,9 @@
 import { InjectStripeClient } from '@golevelup/nestjs-stripe'
-import { BadRequestException, Injectable } from '@nestjs/common'
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common'
 import { EnumPaymentMethod, EnumStatusOrder, Users } from '@prisma/client'
 import { PaymentEnumStatus } from 'src/enums/Payment.enum'
 import { ICardPayment } from 'src/interfaces/payment.interface'
@@ -81,61 +85,65 @@ export class PaymentService {
    * @returns
    */
   async placeOrder(dto: IPlaceOrderDTO, email: string) {
-    const user = await this.userService.findOneByEmail(email)
+    try {
+      const user = await this.userService.findOneByEmail(email)
 
-    // CHANGED QUANTITY PRODUCTS
-    await this.changeProductStock(dto.products)
+      // CHANGED QUANTITY PRODUCTS
+      await this.changeProductStock(dto.products)
 
-    switch (dto.paymentMethod) {
-      /**
-       * PLACE ORDER WITH CACHE
-       */
-      case EnumPaymentMethod.CACHE:
-        const order = await this.createOrder(user, dto)
-        // await this.mailerService.sendMail({
-        //   to: `${user.email}`, // list of receivers
-        //   subject: 'Служба доставки', // Subject line
-        //   text: 'Ваш заказ принят на обработку ✔', // plaintext body
-        //   html: '<b>welcome</b>', // HTML body content
-        // })
-        const notify = await this.notificationService.create({
-          message: `Ваш заказ ${order.orderId} принят на обработку! Метод оплаты наличными. Ожидайте`,
-          type: 'ORDER_PLACE',
-          userId: user.id,
-        })
+      switch (dto.paymentMethod) {
+        /**
+         * PLACE ORDER WITH CACHE
+         */
+        case EnumPaymentMethod.CACHE:
+          const order = await this.createOrder(user, dto)
+          // await this.mailerService.sendMail({
+          //   to: `${user.email}`, // list of receivers
+          //   subject: 'Служба доставки', // Subject line
+          //   text: 'Ваш заказ принят на обработку ✔', // plaintext body
+          //   html: '<b>welcome</b>', // HTML body content
+          // })
+          const notify = await this.notificationService.create({
+            message: `Ваш заказ ${order.orderId} принят на обработку! Метод оплаты наличными. Ожидайте`,
+            type: 'ORDER_PLACE',
+            userId: user.id,
+          })
 
-        return {
-          message: notify.message,
-          orderId: order.id,
-          notifyId: notify.id,
-        }
+          return {
+            message: notify.message,
+            orderId: order.id,
+            notifyId: notify.id,
+          }
 
-      /**
-       * PLACE ORDER WITH CARD
-       */
-      case EnumPaymentMethod.CARD:
-        const cardOrder = await this.createOrder(user, dto)
-        const paymentWithCard = await this.placeOrderWithCard({
-          order: cardOrder,
-          products: dto.products,
-        })
-        const cardPaymentNotify = await this.notificationService.create({
-          message: `Ваш заказ ${cardOrder.orderId} принят на обработку! Метод оплаты наличными. Ожидайте`,
-          type: 'ORDER_PLACE',
-          userId: user.id,
-        })
+        /**
+         * PLACE ORDER WITH CARD
+         */
+        case EnumPaymentMethod.CARD:
+          const cardOrder = await this.createOrder(user, dto)
+          const paymentWithCard = await this.placeOrderWithCard({
+            order: cardOrder,
+            products: dto.products,
+          })
+          const cardPaymentNotify = await this.notificationService.create({
+            message: `Ваш заказ ${cardOrder.orderId} принят на обработку! Метод оплаты наличными. Ожидайте`,
+            type: 'ORDER_PLACE',
+            userId: user.id,
+          })
 
-        return {
-          detail: paymentWithCard,
-          message: notify.message,
-          orderId: cardOrder.id,
-          notifyId: cardPaymentNotify.id,
-        }
+          return {
+            detail: paymentWithCard,
+            message: notify.message,
+            orderId: cardOrder.id,
+            notifyId: cardPaymentNotify.id,
+          }
 
-      default:
-        return {
-          message: 'Не выбран метод оплаты',
-        }
+        default:
+          return {
+            message: 'Не выбран метод оплаты',
+          }
+      }
+    } catch (error) {
+      throw new InternalServerErrorException(error)
     }
   }
 
