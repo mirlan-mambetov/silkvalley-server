@@ -6,12 +6,16 @@ import {
 import { Prisma } from '@prisma/client'
 import { PrismaService } from 'src/prisma.service'
 import { generateSlug } from 'utils/generate-slug'
+import { UploadService } from '../upload/upload.service'
 import { CreateCategoryDTO, CreateChildDTO } from './dto/create.category.dto'
 import { UpdateCategoryDTO } from './dto/update.category.dto'
 
 @Injectable()
 export class CategoryService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly uploadService: UploadService,
+  ) {}
 
   /**
    *
@@ -21,15 +25,15 @@ export class CategoryService {
   async create(dto: CreateCategoryDTO) {
     try {
       const slugName = generateSlug(dto.name)
-      const category = await this.prismaService.category.create({
+      await this.prismaService.category.create({
         data: {
           ...dto,
           slug: slugName,
-          icon: dto.icon ? dto.icon : undefined,
         },
       })
-
-      return category
+      return {
+        message: 'Категория создана',
+      }
     } catch (error) {
       throw new InternalServerErrorException(error)
     }
@@ -43,15 +47,16 @@ export class CategoryService {
   async createChild(dto: CreateChildDTO) {
     try {
       const slugName = generateSlug(dto.name)
-      const child = await this.prismaService.category.create({
+      await this.prismaService.category.create({
         data: {
           name: dto.name,
           slug: slugName,
           parentId: dto.parentId,
-          icon: dto.icon ? dto.icon : undefined,
         },
       })
-      return child
+      return {
+        message: 'Категория создана',
+      }
     } catch (error) {
       throw new BadRequestException(error)
     }
@@ -65,7 +70,7 @@ export class CategoryService {
    */
   async update(id: number, dto: UpdateCategoryDTO) {
     try {
-      const category = await this.prismaService.category.update({
+      await this.prismaService.category.update({
         where: {
           id,
         },
@@ -73,7 +78,9 @@ export class CategoryService {
           ...dto,
         },
       })
-      return category
+      return {
+        message: 'Категория обновлена',
+      }
     } catch (error) {
       throw new InternalServerErrorException(error)
     }
@@ -186,16 +193,23 @@ export class CategoryService {
   async delete(id: number) {
     try {
       const category = await this.findOneById(id)
-      if (category.childs?.length || category.products?.length)
+      if (
+        (category.childs && category.childs.length) ||
+        category.products?.length
+      )
         throw new BadRequestException(
           'Удаление невозможно! В категории есть товары и подкатегории!',
         )
+      if (category.icon && category.image) {
+        await this.uploadService.deleteFile(category.icon)
+        await this.uploadService.deleteFile(category.image)
+      }
       await this.prismaService.category.delete({ where: { id } })
       return {
         message: 'Категория удалена',
       }
     } catch (error) {
-      throw new BadRequestException(error)
+      throw error
     }
   }
 

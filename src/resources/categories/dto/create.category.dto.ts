@@ -14,10 +14,17 @@ export class CreateCategoryDTO {
   })
   name: string
 
-  @IsNotEmpty()
   @IsString()
+  @IsNotEmpty()
+  icon: string
+
   @IsOptional()
-  icon?: string
+  @IsNumber()
+  parentId?: number
+
+  @IsString()
+  @IsNotEmpty()
+  image: string
 }
 
 export class CreateChildDTO {
