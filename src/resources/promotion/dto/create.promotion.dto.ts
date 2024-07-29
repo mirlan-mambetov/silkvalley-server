@@ -1,11 +1,4 @@
-import {
-  IsArray,
-  IsInt,
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  IsString,
-} from 'class-validator'
+import { IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator'
 
 export class CreatePromotionDTO {
   @IsString()
@@ -23,15 +16,6 @@ export class CreatePromotionDTO {
   @IsString()
   @IsOptional()
   description?: string
-
-  @IsInt()
-  @IsOptional()
-  @IsNumber()
-  discount?: number
-
-  @IsNotEmpty()
-  @IsArray()
-  productsIds: number[]
 }
 export class GeneratePromotionDataDTO {
   @IsNotEmpty()

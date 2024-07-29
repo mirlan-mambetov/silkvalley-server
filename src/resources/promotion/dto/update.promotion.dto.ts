@@ -1,4 +1,11 @@
-import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator'
+import {
+  IsArray,
+  IsBoolean,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator'
 
 export class UpdatePromotionDTO {
   @IsString()
@@ -24,4 +31,20 @@ export class UpdatePromotionDTO {
   @IsBoolean()
   @IsOptional()
   active?: boolean
+}
+
+export class AddProductDTO {
+  @IsArray({ each: true })
+  @IsNotEmpty()
+  productsIds: number[]
+}
+
+export class RemoveProductDTO {
+  @IsNotEmpty()
+  @IsNumber()
+  id: number
+
+  @IsNotEmpty()
+  @IsNumber()
+  productId: number
 }

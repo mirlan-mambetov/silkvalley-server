@@ -14,7 +14,11 @@ import {
   CreatePromotionDTO,
   GeneratePromotionDataDTO,
 } from './dto/create.promotion.dto'
-import { UpdatePromotionDTO } from './dto/update.promotion.dto'
+import {
+  AddProductDTO,
+  RemoveProductDTO,
+  UpdatePromotionDTO,
+} from './dto/update.promotion.dto'
 import { PromotionService } from './promotion.service'
 
 @Controller('promo')
@@ -28,6 +32,9 @@ export class PromotionController {
     return this.promotionService.generatePromotionData(dto)
   }
 
+  /**
+   * @description CREATE PROMOTION
+   */
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @Auth(['ADMIN', 'OWNER'])
@@ -43,6 +50,28 @@ export class PromotionController {
     @Body() dto: UpdatePromotionDTO,
   ) {
     return this.promotionService.update(id, dto)
+  }
+
+  @Post('add-products/:id')
+  @HttpCode(HttpStatus.CREATED)
+  @Auth(['ADMIN', 'OWNER'])
+  addProducts(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: AddProductDTO,
+  ) {
+    return this.promotionService.addProducts(id, dto)
+  }
+
+  /**
+   *
+   * @param dto
+   * @returns Deleted product from promotion
+   */
+  @Post('remove-product')
+  @HttpCode(HttpStatus.CREATED)
+  @Auth(['ADMIN', 'OWNER'])
+  removeProduct(@Body() dto: RemoveProductDTO) {
+    return this.promotionService.removeProduct(dto)
   }
 
   @Get('by-id/:id')

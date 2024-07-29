@@ -396,7 +396,15 @@ export class ProductService {
           id,
         },
         include: {
-          promotion: true,
+          promotion: {
+            include: {
+              product: {
+                select: {
+                  id: true,
+                },
+              },
+            },
+          },
           categories: true,
           variants: true,
         },
