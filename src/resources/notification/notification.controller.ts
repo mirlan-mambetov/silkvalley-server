@@ -20,7 +20,7 @@ export class NotificationController {
    */
   @Post('expire/:id')
   @HttpCode(HttpStatus.OK)
-  @Auth(['ADMIN', 'OWNER'])
+  @Auth()
   changeExpire(@Param('id', ParseIntPipe) id: number) {
     return this.notificationService.changeExpire(id)
   }
