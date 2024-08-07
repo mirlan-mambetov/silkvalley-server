@@ -24,16 +24,16 @@ export class PaymentController {
     return await this.paymentService.updateStatus(body, userId)
   }
 
-  /**
-   *
-   * @param body
-   * @returns
-   */
-  @Post('canceled-order')
-  @HttpCode(HttpStatus.OK)
-  async cancelTransaction(@Body() body: { sessionId: string }) {
-    return await this.paymentService.cancelTransaction(body.sessionId)
-  }
+  // /**
+  //  *
+  //  * @param body
+  //  * @returns
+  //  */
+  // @Post('canceled-order')
+  // @HttpCode(HttpStatus.OK)
+  // async cancelTransaction(@Body() body: { sessionId: string }) {
+  //   return await this.paymentService.cancelTransaction(body.sessionId)
+  // }
 
   /**
    *

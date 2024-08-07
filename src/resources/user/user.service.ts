@@ -166,7 +166,7 @@ export class UserService {
           items: {
             select: {
               id: true,
-              product: true,
+              productVariant: true,
             },
           },
           address: true,

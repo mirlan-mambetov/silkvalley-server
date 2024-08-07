@@ -31,11 +31,20 @@ model Users {
   orders        Order[]
   featureds     ProductVariant[]
   subscriptions Subscription[]
-
-  // Next update
+  coupons       Coupon[]
   products      Product[]
 
   @@map("users")
+}
+model Coupon {
+  id         Int       @id @default(autoincrement())
+  code       String    @unique
+  discount   Float
+  status     CouponStatus @default(PENDING)
+  user       Users      @relation(fields: [userId], references: [id])
+  userId     Int
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 }
 
 model Notification {
@@ -69,12 +78,29 @@ model Order {
   status       EnumStatusOrder    @default(WAITING)
   totalCache   Int
   payment_type EnumPaymentMethod? @map("payment_type")
-  items        ProductVariant[]
+  items        OrderItems[]
   userId       Int                @map("user_id")
   user         Users              @relation(fields: [userId], references: [id])
   address      OrderAddress?
 
   @@map("orders")
+}
+
+model OrderItems{
+  id                                  Int                @id @default(autoincrement())
+  createdAt                           DateTime           @default(now()) @map("created_at")
+  updatedAt                           DateTime           @updatedAt @map("updated_at")
+
+  orderId                             Int @map("order_id")
+  productVariantId                    Int @map("product_variant_id")
+  quantity                            Int
+  price                               Int
+  order             Order             @relation(fields: [orderId], references: [id])
+  productVariant    ProductVariant    @relation(fields: [productVariantId], references: [id])
+
+  @@unique([orderId, productVariantId])
+
+  @@map("order_items")
 }
 
 model OrderAddress {
@@ -106,23 +132,23 @@ model Location {
 
 
 model Product {
-  id               Int                 @id @default(autoincrement())
-  createdAt        DateTime            @default(now())
-  updatedAt        DateTime            @updatedAt
+  id                Int                 @id @default(autoincrement())
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
 
-  title            String
-  subtitle         String              @map("sub_title")
-  description      String
-  slug             String              @unique
-  poster           String
-  categories       ProductCategory[]
-  variants ProductVariant[]
-  promotionId      Int?                @map("promotion_id")
-  promotion        Promotion?          @relation(fields: [promotionId], references: [id])
+  title             String
+  subtitle          String              @map("sub_title")
+  description       String
+  slug              String              @unique
+  poster            String
+  categories        ProductCategory[]
+  variants          ProductVariant[]
+  promotionId       Int?                @map("promotion_id")
+  promotion         Promotion?          @relation(fields: [promotionId], references: [id])
 
   // Next Update
-  user             Users?              @relation(fields: [userId], references: [id])
-  userId Int?      @map("user_id")
+  user              Users?              @relation(fields: [userId], references: [id])
+  userId Int?       @map("user_id")
 
   // IN CURRENT UPDATE
   defaultPrice Int? @map("default_price")
@@ -131,30 +157,31 @@ model Product {
 }
 
 model ProductVariant {
-  id           Int              @id @default(autoincrement())
-  createdAt        DateTime            @default(now())
-  updatedAt        DateTime            @updatedAt 
+  id                Int              @id @default(autoincrement())
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt 
+  ordered           Int?
 
-  color        Colors?
-  price        Float
-  size         String?
-  articleNumber    String              @unique @map("article_number")
-  stock Int
-  product      Product          @relation(fields: [productId], references: [id])
-  productId    Int
-  specifications   Specification[]
-  rating           Int?
-  discount         Int?
-  isHit            Boolean?            @default(false) @map("is_hit")
-  isNew            Boolean?            @default(false) @map("is_new")
-  sales            Int?                @default(0)
-  video            String?
+  color             Colors?
+  price             Float
+  size              String?
+  articleNumber     String              @unique @map("article_number")
+  stock             Int
+  product           Product          @relation(fields: [productId], references: [id])
+  productId         Int
+  specifications    Specification[]
+  rating            Int?
+  discount          Int?
+  isHit             Boolean?            @default(false) @map("is_hit")
+  isNew             Boolean?            @default(false) @map("is_new")
+  sales             Int?                @default(0)
+  video             String?
 
-  user Users? @relation(fields: [userId],references: [id])
-  userId Int? @map("user_id") 
+  user              Users? @relation(fields: [userId],references: [id])
+  userId            Int? @map("user_id") 
  
-  order Order? @relation(fields: [orderId], references: [id])
-  orderId Int?
+  orders            OrderItems[]
+  orderId           Int?
 
   @@map("product_variant")
 }
@@ -238,6 +265,12 @@ enum UserRoles {
   USER
   ADMIN
   OWNER
+}
+
+enum CouponStatus {
+  PENDING
+  REDEEMED
+  EXPIRED
 }
 
 enum EnumStatusOrder {

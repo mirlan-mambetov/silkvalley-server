@@ -20,11 +20,15 @@ export class OrderService {
         user: true,
         items: {
           include: {
-            color: true,
-            product: {
-              select: {
-                id: true,
-                title: true,
+            productVariant: {
+              include: {
+                color: true,
+                product: {
+                  select: {
+                    id: true,
+                    title: true,
+                  },
+                },
               },
             },
           },
@@ -43,7 +47,11 @@ export class OrderService {
         user: true,
         items: {
           include: {
-            product: true,
+            productVariant: {
+              include: {
+                product: true,
+              },
+            },
           },
         },
       },
@@ -58,7 +66,11 @@ export class OrderService {
     return await this.prismaService.order.findMany({
       include: {
         address: true,
-        items: true,
+        items: {
+          include: {
+            productVariant: true,
+          },
+        },
         user: {
           select: {
             id: true,
@@ -85,7 +97,9 @@ export class OrderService {
     try {
       const order = await this.prismaService.order.update({
         where: { id },
-        data: dto,
+        data: {
+          status: dto.status,
+        },
         include: {
           user: true,
         },

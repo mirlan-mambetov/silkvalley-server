@@ -14,7 +14,7 @@ import { NotificationService } from '../notification/notification.service'
 import { SmsService } from '../sms/sms.service'
 import { UserService } from '../user/user.service'
 import { StripePaymentIntentSucceededEvent } from './data-transfer/payment.dto'
-import { IOrderProducts, IPlaceOrderDTO } from './data-transfer/place.order.dto'
+import { IOrderItems, IPlaceOrderDTO } from './data-transfer/place.order.dto'
 
 @Injectable()
 export class PaymentService {
@@ -89,7 +89,7 @@ export class PaymentService {
       const user = await this.userService.findOneByEmail(email)
 
       // CHANGED QUANTITY PRODUCTS
-      await this.changeProductStock(dto.products)
+      await this.changeProductStock(dto.items)
 
       switch (dto.paymentMethod) {
         /**
@@ -122,7 +122,7 @@ export class PaymentService {
           const cardOrder = await this.createOrder(user, dto)
           const paymentWithCard = await this.placeOrderWithCard({
             order: cardOrder,
-            products: dto.products,
+            products: dto.items,
           })
           const cardPaymentNotify = await this.notificationService.create({
             message: `Ваш заказ ${cardOrder.orderId} принят на обработку! Метод оплаты наличными. Ожидайте`,
@@ -151,25 +151,23 @@ export class PaymentService {
    *
    * @param products
    */
-  async changeProductStock(products: IOrderProducts[]) {
-    for await (const product of products) {
-      const variant = await this.prismaService.productVariant.findUnique({
-        where: { id: product.variant.id },
+  async changeProductStock(variants: IOrderItems[]) {
+    for await (const variant of variants) {
+      const findedVariant = await this.prismaService.productVariant.findUnique({
+        where: { id: variant.variantId },
         select: { stock: true },
       })
-
-      if (variant.stock < product.variant.stock) {
+      if (findedVariant.stock < variant.quantity) {
         throw new BadRequestException(`Ошибка. Данного товара нет в наличии`)
       }
-
-      const newStock = variant.stock - product.variant.stock
-      if (newStock < 0) {
-        throw new Error(`Ошибка. Данного товара нет в наличии`)
-      }
-
       await this.prismaService.productVariant.update({
-        where: { id: product.variant.id },
-        data: { stock: newStock },
+        where: { id: variant.variantId },
+        data: {
+          stock: {
+            decrement: variant.quantity,
+          },
+          ordered: variant.quantity,
+        },
       })
     }
   }
@@ -185,16 +183,16 @@ export class PaymentService {
   ): Promise<Stripe.Response<Stripe.Checkout.Session> | undefined> {
     const { order, products } = data
 
-    const lineItems = products.map((product) => ({
-      quantity: product.quantityInCart,
+    const lineItems = products.map((variant) => ({
+      quantity: variant.quantity,
       price_data: {
         product_data: {
-          name: product.title,
-          description: product.description,
-          images: [`http://localhost:3000${product.poster}`],
+          name: variant.title,
+          description: variant.description,
+          images: [`${process.env.API_HOST}${variant.poster}`],
         },
         currency: 'KGS',
-        unit_amount: product.variant.price * 100,
+        unit_amount: variant.price * 100,
       },
     }))
 
@@ -222,8 +220,7 @@ export class PaymentService {
     const {
       address,
       paymentMethod,
-      products,
-      status,
+      items,
       totalCache,
       // isCanceld,
       // totalDiscount,
@@ -232,7 +229,10 @@ export class PaymentService {
     const order = await this.prismaService.order.create({
       data: {
         items: {
-          connect: products.map((product) => ({ id: product.variant.id })),
+          create: items.map((variant) => ({
+            productVariantId: variant.variantId,
+            quantity: variant.quantity,
+          })),
         },
         user: {
           connect: {
@@ -240,7 +240,7 @@ export class PaymentService {
           },
         },
         totalCache,
-        status,
+        status: EnumStatusOrder.WAITING,
         orderId: ORDER_ID,
         payment_type: paymentMethod,
       },
@@ -265,12 +265,12 @@ export class PaymentService {
     return order
   }
 
-  /**
-   *
-   * @param sessionId
-   */
-  async cancelTransaction(sessionId: string) {
-    // const logs = await this.stripe.checkout.sessions.list({ status: 'open' })
-    // console.log(logs)
-  }
+  // /**
+  //  *
+  //  * @param sessionId
+  //  */
+  // async cancelTransaction(sessionId: string) {
+  //   // const logs = await this.stripe.checkout.sessions.list({ status: 'open' })
+  //   // console.log(logs)
+  // }
 }
