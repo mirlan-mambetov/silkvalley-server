@@ -42,7 +42,6 @@ CREATE TABLE "notification" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "read" BOOLEAN NOT NULL DEFAULT false,
-    "user_id" INTEGER,
     "notification_type" "NotificationType" NOT NULL,
 
     CONSTRAINT "notification_pkey" PRIMARY KEY ("id")
