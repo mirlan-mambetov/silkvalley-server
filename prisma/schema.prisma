@@ -93,14 +93,12 @@ model OrderItems{
   createdAt                           DateTime           @default(now()) @map("created_at")
   updatedAt                           DateTime           @updatedAt @map("updated_at")
 
-  orderId                             Int @map("order_id")
-  productVariantId                    Int @map("product_variant_id")
+  orderId                             Int @map("order_id") @unique
+  productVariantId                    Int @map("product_variant_id") @unique
   quantity                            Int
   price                               Int
   order             Order             @relation(fields: [orderId], references: [id])
   productVariant    ProductVariant    @relation(fields: [productVariantId], references: [id])
-
-  @@unique([orderId, productVariantId])
 
   @@map("order_items")
 }

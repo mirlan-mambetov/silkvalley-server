@@ -232,6 +232,8 @@ export class PaymentService {
           create: items.map((variant) => ({
             productVariantId: variant.variantId,
             quantity: variant.quantity,
+            price: variant.price,
+            id: variant.variantId,
           })),
         },
         user: {
