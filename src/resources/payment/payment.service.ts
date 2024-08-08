@@ -166,7 +166,6 @@ export class PaymentService {
           stock: {
             decrement: variant.quantity,
           },
-          ordered: variant.quantity,
         },
       })
     }
@@ -233,7 +232,6 @@ export class PaymentService {
             productVariantId: variant.variantId,
             quantity: variant.quantity,
             price: variant.price,
-            id: variant.variantId,
           })),
         },
         user: {
