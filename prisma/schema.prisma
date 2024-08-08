@@ -78,7 +78,7 @@ model Order {
   updatedAt    DateTime           @updatedAt @map("updated_at")
   orderId      String             @unique()
   status       EnumStatusOrder    @default(WAITING)
-  totalCache   Int
+  totalCache   Float
   payment_type EnumPaymentMethod? @map("payment_type")
   items        OrderItems[]
   userId       Int                @map("user_id")
@@ -93,12 +93,15 @@ model OrderItems{
   createdAt                           DateTime           @default(now()) @map("created_at")
   updatedAt                           DateTime           @updatedAt @map("updated_at")
 
-  orderId                             Int @map("order_id") @unique
-  productVariantId                    Int @map("product_variant_id") @unique
+  orderId                             Int @map("order_id")
+  productVariantId                    Int @map("product_variant_id")
+  
   quantity                            Int
-  price                               Int
+  price                               Float
   order             Order             @relation(fields: [orderId], references: [id])
   productVariant    ProductVariant    @relation(fields: [productVariantId], references: [id])
+  
+  @@unique([orderId, productVariantId])
 
   @@map("order_items")
 }
