@@ -21,6 +21,7 @@ import { ProductModule } from './resources/product/product.module'
 import { PromotionModule } from './resources/promotion/promotion.module'
 import { SearchModule } from './resources/search/search.module'
 import { SmsModule } from './resources/sms/sms.module'
+import { StatModule } from './resources/stat/stat.module'
 import { UploadModule } from './resources/upload/upload.module'
 import { UserModule } from './resources/user/user.module'
 
@@ -52,6 +53,7 @@ import { UserModule } from './resources/user/user.module'
     PromotionModule,
     SearchModule,
     MailModule,
+    StatModule,
   ],
   controllers: [AppController],
 })

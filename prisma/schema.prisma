@@ -257,6 +257,7 @@ model Promotion {
   @@map("promotion")
 }
 
+
 enum NotificationType {
   PROMOTION
   PRODUCT_PROMOTION

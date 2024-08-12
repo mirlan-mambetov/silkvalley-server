@@ -106,7 +106,7 @@ export class OrderService {
       })
 
       await this.notificationService.create({
-        message: `Статус вашего заказа ${order.orderId} обновлен.`,
+        message: `Статус вашего заказа был обработан. Проверьте ваш почтовый ящик для доп.информации`,
         type: 'ORDER_UPDATE',
         userId: order.userId,
       })

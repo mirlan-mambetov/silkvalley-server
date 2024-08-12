@@ -1,4 +1,4 @@
 export enum EnumClientHOST {
-  CLIENT = 'https://slkvalley.com',
+  CLIENT = 'http://localhost:3000',
   DASHBOARD = 'https://dashboard.slkvalley.com',
 }

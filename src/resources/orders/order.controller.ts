@@ -30,7 +30,6 @@ export class OrderController {
   @HttpCode(HttpStatus.OK)
   @Auth()
   findByOrderId(@Query() query: QueryParams) {
-    console.log(query)
     return this.orderService.findByOrderId(query.order)
   }
 

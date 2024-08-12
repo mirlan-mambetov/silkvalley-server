@@ -10,6 +10,7 @@ import { ICardPayment } from 'src/interfaces/payment.interface'
 import { PrismaService } from 'src/prisma.service'
 import Stripe from 'stripe'
 import { v4 as uuid } from 'uuid'
+import { MailService } from '../mail/mail.service'
 import { NotificationService } from '../notification/notification.service'
 import { SmsService } from '../sms/sms.service'
 import { UserService } from '../user/user.service'
@@ -22,6 +23,7 @@ export class PaymentService {
     private readonly prismaService: PrismaService,
     private readonly userService: UserService,
     private readonly smsService: SmsService,
+    private readonly mailService: MailService,
     private readonly notificationService: NotificationService,
     // private readonly mailerService: MailerService,
     @InjectStripeClient() private stripe: Stripe,
@@ -97,14 +99,13 @@ export class PaymentService {
          */
         case EnumPaymentMethod.CACHE:
           const order = await this.createOrder(user, dto)
-          // await this.mailerService.sendMail({
-          //   to: `${user.email}`, // list of receivers
-          //   subject: 'Служба доставки', // Subject line
-          //   text: 'Ваш заказ принят на обработку ✔', // plaintext body
-          //   html: '<b>welcome</b>', // HTML body content
-          // })
+          this.mailService.sendOrderDetail(user.email, {
+            ...order,
+            items: dto.items,
+          })
+
           const notify = await this.notificationService.create({
-            message: `Ваш заказ ${order.orderId} принят на обработку! Метод оплаты наличными. Ожидайте`,
+            message: `Ваш заказ принят на обработку! Проверьте ваш почтовый ящик для доп.информации`,
             type: 'ORDER_PLACE',
             userId: user.id,
           })

@@ -25,9 +25,12 @@ import { MailService } from './mail.service'
       },
       template: {
         dir: join(__dirname, '..', '..', '..', 'views', 'mail'),
-        adapter: new HandlebarsAdapter(),
+        adapter: new HandlebarsAdapter(null, {
+          inlineCssEnabled: true,
+        }),
         options: {
           strict: true,
+          cache: false,
         },
       },
     }),
