@@ -54,11 +54,14 @@ export class MailService {
           email,
           order: {
             createdAt,
-            items,
             orderId,
             payment_type,
             status,
             totalCache,
+            items: items.map((item) => ({
+              ...item,
+              poster: `${process.env.API_HOST}${item.poster}`,
+            })),
           },
         },
       })
