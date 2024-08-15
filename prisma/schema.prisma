@@ -252,6 +252,8 @@ model Promotion {
   active      Boolean   @default(false)
   slug        String    @unique
   image       String
+  imageSm     String @map("small_image")
+  
   product     Product[]
 
   @@map("promotion")

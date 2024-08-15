@@ -22,6 +22,10 @@ export class UpdatePromotionDTO {
 
   @IsString()
   @IsOptional()
+  imageSm?: string
+
+  @IsString()
+  @IsOptional()
   description?: string
 
   @IsOptional()

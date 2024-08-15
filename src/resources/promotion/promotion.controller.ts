@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -14,6 +15,7 @@ import {
   CreatePromotionDTO,
   GeneratePromotionDataDTO,
 } from './dto/create.promotion.dto'
+import { DeleteImageDTO } from './dto/delete.image.dto'
 import {
   AddProductDTO,
   RemoveProductDTO,
@@ -106,5 +108,12 @@ export class PromotionController {
     @Body() { value }: { value: boolean },
   ) {
     return this.promotionService.changeActive(id, value)
+  }
+
+  @Delete('image')
+  @HttpCode(HttpStatus.OK)
+  @Auth(['ADMIN', 'OWNER'])
+  deleteImage(@Body() dto: DeleteImageDTO) {
+    return this.promotionService.deleteImage(dto)
   }
 }

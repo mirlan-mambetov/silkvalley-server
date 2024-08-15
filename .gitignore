@@ -11,6 +11,7 @@
 ./src/resource/[old]
 /public/uploads
 /.github
+/prisma/migrations
 
 # Logs
 logs

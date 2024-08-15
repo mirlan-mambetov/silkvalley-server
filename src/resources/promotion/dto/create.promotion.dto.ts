@@ -14,6 +14,10 @@ export class CreatePromotionDTO {
   image: string
 
   @IsString()
+  @IsNotEmpty()
+  imageSm: string
+
+  @IsString()
   @IsOptional()
   description?: string
 }

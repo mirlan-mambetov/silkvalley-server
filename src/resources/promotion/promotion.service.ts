@@ -2,10 +2,12 @@ import { Injectable } from '@nestjs/common'
 import { PrismaService } from 'src/prisma.service'
 import { generateSlug } from 'utils/generate-slug'
 import { ProductService } from '../product/product.service'
+import { UploadService } from '../upload/upload.service'
 import {
   CreatePromotionDTO,
   GeneratePromotionDataDTO,
 } from './dto/create.promotion.dto'
+import { DeleteImageDTO } from './dto/delete.image.dto'
 import {
   AddProductDTO,
   RemoveProductDTO,
@@ -17,6 +19,7 @@ export class PromotionService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly productService: ProductService,
+    private readonly uploadService: UploadService,
   ) {}
 
   /**
@@ -55,6 +58,7 @@ export class PromotionService {
         description: dto.description,
         subtitle: dto.subtitle,
         image: dto.image,
+        imageSm: dto.imageSm,
         title: dto.title,
         slug,
       },
@@ -71,12 +75,15 @@ export class PromotionService {
    * @returns
    */
   async update(id: number, dto: UpdatePromotionDTO) {
-    return await this.prismaService.promotion.update({
+    await this.prismaService.promotion.update({
       where: { id },
       data: {
         ...dto,
       },
     })
+    return {
+      message: 'Успешно обновлено',
+    }
   }
 
   /**
@@ -207,6 +214,36 @@ export class PromotionService {
     })
     return {
       message: 'Изменено',
+    }
+  }
+
+  async deleteImage(dto: DeleteImageDTO) {
+    const { id, path } = dto
+    const promo = await this.findById(id)
+    let image: string | null = null
+    let imageSm: string | null = null
+
+    if (promo.image.includes(path)) {
+      image = promo.image
+    } else if (promo.imageSm.includes(path)) {
+      imageSm = promo.imageSm
+    }
+
+    if (image) {
+      await this.update(id, { image: '' })
+      await this.uploadService.deleteFile(image)
+      return {
+        message: 'Файл удален',
+      }
+    } else if (imageSm) {
+      await this.update(id, { imageSm: '' })
+      await this.uploadService.deleteFile(imageSm)
+      return {
+        message: 'Файл удален',
+      }
+    }
+    return {
+      message: 'Не удалось удалить файл',
     }
   }
 }
