@@ -26,8 +26,10 @@ async function bootstrap() {
     origin: [
       'https://dashboard.slkvalley.com',
       'https://slkvalley.com',
+      'https://preview.slkvalley.com',
       'http://localhost:3000',
       'http://localhost:3001',
+      'http://localhost:3002',
     ],
     methods: 'GET,POST,PUT,PATCH,HEAD,DELETE',
     credentials: true,
