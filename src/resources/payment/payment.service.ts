@@ -217,53 +217,79 @@ export class PaymentService {
    * @returns
    */
   private async createOrder(user: Partial<Users>, dto: IPlaceOrderDTO) {
-    const {
-      address,
-      paymentMethod,
-      items,
-      totalCache,
-      // isCanceld,
-      // totalDiscount,
-    } = dto
-    const ORDER_ID = uuid()
-    const order = await this.prismaService.order.create({
-      data: {
-        items: {
-          create: items.map((variant) => ({
-            productVariantId: variant.variantId,
-            quantity: variant.quantity,
-            price: variant.price,
-          })),
-        },
-        user: {
-          connect: {
-            id: Number(user.id),
-          },
-        },
+    try {
+      const {
+        warhouse,
+        paymentMethod,
+        items,
         totalCache,
-        status: EnumStatusOrder.WAITING,
-        orderId: ORDER_ID,
-        payment_type: paymentMethod,
-      },
-    })
+        // isCanceld,
+        // totalDiscount,
+      } = dto
+      const ORDER_ID = uuid()
+      const order = await this.prismaService.order.create({
+        data: {
+          items: {
+            create: items.map((variant) => ({
+              productVariantId: variant.variantId,
+              quantity: variant.quantity,
+              price: variant.price,
+            })),
+          },
+          user: {
+            connect: {
+              id: Number(user.id),
+            },
+          },
+          warehouse: {
+            create: {
+              name: warhouse.name,
+              location: {
+                create: {
+                  lat: warhouse.location.lat,
+                  lng: warhouse.location.lng,
+                },
+              },
+            },
+          },
+          totalCache,
+          status: EnumStatusOrder.WAITING,
+          orderId: ORDER_ID,
+          payment_type: paymentMethod,
+        },
+      })
 
-    await this.prismaService.orderAddress.create({
-      data: {
-        name: address.name,
-        location: {
-          create: {
-            ...address.location,
+      /**
+       * После того как будет реализовано поис данных с формы добавления адреса пользователя на карте здесь в location записать lat,lng
+       */
+      await this.prismaService.orderAddress.create({
+        data: {
+          name: dto.userAddress.name,
+          location: {
+            create: {
+              lat: 2,
+              lng: 2,
+            },
+          },
+          userAddress: {
+            create: {
+              city: dto.userAddress.address.city,
+              houseNumber: dto.userAddress.address.houseNumber,
+              road: dto.userAddress.address.road,
+            },
+          },
+          order: {
+            connect: {
+              id: Number(order.id),
+            },
           },
         },
-        order: {
-          connect: {
-            id: Number(order.id),
-          },
-        },
-      },
-    })
+      })
 
-    return order
+      return order
+    } catch (error) {
+      throw new Error(error)
+    }
   }
 
   // /**

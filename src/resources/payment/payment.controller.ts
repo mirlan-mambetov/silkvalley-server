@@ -1,4 +1,12 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Post,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common'
 import { Auth } from '../auth/decorators/auth.decorator'
 import { CurrentUser } from '../auth/decorators/currentUser.decorator'
 import { StripePaymentIntentSucceededEvent } from './data-transfer/payment.dto'
@@ -42,8 +50,9 @@ export class PaymentController {
    * @returns
    */
   @Post('place-order')
-  @HttpCode(HttpStatus.OK)
   @Auth()
+  @HttpCode(HttpStatus.OK)
+  @UsePipes(new ValidationPipe())
   async placeOrder(
     @Body() dto: IPlaceOrderDTO,
     @CurrentUser('email') email: string,

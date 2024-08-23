@@ -1,77 +1,13 @@
-generator client {
-  provider = "prisma-client-js"
-}
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-model Subscription {
-  id        Int               @id @default(autoincrement())
-  userId    Int               @map("user_id")
-  user      Users             @relation(fields: [userId], references: [id])
-  type      NotificationType
-  createdAt DateTime          @default(now())
-
-  @@map("subscriptions")
+generator client {
+  provider = "prisma-client-js"
 }
 
-model Users {
-  id            Int            @id @default(autoincrement())
-  name          String
-  email         String         @unique
-  phoneNumber   String         @map("phone_number")
-  password      String
-  avatar        String?        @default("/images/default-avatar.png")
-  role          UserRoles[]    @default([USER])
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  notifications Notification[]
-  orders        Order[]
-  featureds     ProductVariant[]
-  subscriptions Subscription[]
-  coupons       Coupon[]
-  products      Product[]
-
-  @@map("users")
-}
-model Coupon {
-  id         Int       @id @default(autoincrement())
-  code       String    @unique
-  discount   Float
-  status     CouponStatus @default(PENDING)
-  user       Users      @relation(fields: [userId], references: [id])
-  userId     Int
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-
-  @@map("coupon")
-}
-
-model Notification {
-  id           Int                  @id @default(autoincrement())
-  message      String
-  createdAt    DateTime             @default(now())
-  updatedAt    DateTime             @updatedAt
-  read         Boolean              @default(false)
-  userId       Int?                 @map("user_id")
-  type         NotificationType     @map("notification_type")
-  user         Users?               @relation(fields: [userId], references: [id])
-
-  @@map("notification")
-}
-
-model PointsDeliver {
-  id        Int       @id @default(autoincrement())
-  name      String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  location  Location?
-
-  @@map("points_deliver")
-}
-
+// ### МОДЕЛЬ ЗАКАЗОВ
 model Order {
   id           Int                @id @default(autoincrement())
   createdAt    DateTime           @default(now()) @map("created_at")
@@ -85,9 +21,11 @@ model Order {
   user         Users              @relation(fields: [userId], references: [id])
   address      OrderAddress?
 
+  warehouseId  Int?               @map("warehouse_id")
+  warehouse    Warehouse?         @relation(fields: [warehouseId], references: [id])
   @@map("orders")
 }
-
+// ### МОДЕЛЬ ВАРИАНТОВ ТОВАРА ЗАКАЗА
 model OrderItems{
   id                                  Int                @id @default(autoincrement())
   createdAt                           DateTime           @default(now()) @map("created_at")
@@ -106,33 +44,50 @@ model OrderItems{
   @@map("order_items")
 }
 
+// ### МОДЕЛЬ АДРЕСОВ ЗАКАЗОВ
 model OrderAddress {
-  id        Int       @id @default(autoincrement())
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
-  orderId   Int?      @unique @map("order_id")
-  name      String
-  location  Location?
-  order     Order?    @relation(fields: [orderId], references: [id])
-
+  id                Int           @id @default(autoincrement())
+  createdAt         DateTime      @default(now()) @map("created_at")
+  updatedAt         DateTime      @updatedAt @map("updated_at")
+  orderId           Int?          @unique @map("order_id")
+  name              String
+  location          Location?
+  order             Order?        @relation(fields: [orderId], references: [id])
+  userAddressId     Int?          @map("user_address_id")
+  userAddress       UserAddress?  @relation(fields: [userAddressId], references: [id])
   @@map("orders_address")
 }
 
-model Location {
-  id               Int            @id @default(autoincrement())
-  createdAt        DateTime       @default(now()) @map("created_at")
-  updatedAt        DateTime       @updatedAt @map("updated_at")
-  lat              Float
-  lng              Float
-  orderId          Int?           @unique @map("order_id")
-  pointsDeliveryId Int?           @unique @map("points_delivery_location")
-  order            OrderAddress?  @relation(fields: [orderId], references: [id])
-  pointsDelivery   PointsDeliver? @relation(fields: [pointsDeliveryId], references: [id])
 
-  @@map("location")
+model Category {
+  id             Int        @id @default(autoincrement())
+  name           String     
+  slug           String     @unique
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  parentId       Int?       @map("parent_id")
+  parentCategory Category?  @relation("CategoryToCategory", fields: [parentId], references: [id])
+  childs         Category[] @relation("CategoryToCategory")
+  products ProductCategory[]
+  image String? 
+  icon String?
+
+  @@map("category")
 }
 
-
+// ### МОДЕЛЬ АДРЕСОВ ПОЛЬЗОВАТЕЛЯ
+model UserAddress {
+  id                Int       @id @default(autoincrement())
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+  country           String?
+  city              String
+  road              String
+  houseNumber       String    @map("house_number")
+  postalCode        String?   @map("postal_code")
+  location          Location?
+  orderAddresses    OrderAddress[]
+}
 
 model Product {
   id                Int                 @id @default(autoincrement())
@@ -199,21 +154,7 @@ model Colors{
   variantId Int? @map("variant_id") @unique
   @@map("colors")
 }
-model Category {
-  id             Int        @id @default(autoincrement())
-  name           String     
-  slug           String     @unique
-  createdAt      DateTime   @default(now())
-  updatedAt      DateTime   @updatedAt
-  parentId       Int?       @map("parent_id")
-  parentCategory Category?  @relation("CategoryToCategory", fields: [parentId], references: [id])
-  childs         Category[] @relation("CategoryToCategory")
-  products ProductCategory[]
-  image String? 
-  icon String?
 
-  @@map("category")
-}
 
 model ProductCategory {
   id             Int        @id @default(autoincrement())
@@ -229,6 +170,7 @@ model ProductCategory {
   @@unique([productId, categoryId])
   @@map("product_category")
 }
+
 
 model Specification {
   id        Int      @id @default(autoincrement())
@@ -259,6 +201,97 @@ model Promotion {
   @@map("promotion")
 }
 
+
+model Users {
+  id            Int            @id @default(autoincrement())
+  name          String
+  email         String         @unique
+  phoneNumber   String         @map("phone_number")
+  password      String
+  avatar        String?        @default("/images/default-avatar.png")
+  role          UserRoles[]    @default([USER])
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  notifications Notification[]
+  orders        Order[]
+  featureds     ProductVariant[]
+  subscriptions Subscription[]
+  coupons       Coupon[]
+  products      Product[]
+
+  @@map("users")
+}
+
+// ### МОДЕЛЬ КУПОНОВ ПОЛЬЗОВАТЕЛЯ
+model Coupon {
+  id         Int       @id @default(autoincrement())
+  code       String    @unique
+  discount   Float
+  status     CouponStatus @default(PENDING)
+  user       Users      @relation(fields: [userId], references: [id])
+  userId     Int
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@map("coupon")
+}
+
+// ### МОДЕЛЬ УВЕДОМЛЕНИЙ
+model Subscription {
+  id        Int               @id @default(autoincrement())
+  userId    Int               @map("user_id")
+  user      Users             @relation(fields: [userId], references: [id])
+  type      NotificationType
+  createdAt DateTime          @default(now())
+
+  @@map("subscriptions")
+}
+
+// ### МОДЕЛЬ УВЕДОМЛЕНИЙ
+model Notification {
+  id           Int                  @id @default(autoincrement())
+  message      String
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  read         Boolean              @default(false)
+  userId       Int?                 @map("user_id")
+  type         NotificationType     @map("notification_type")
+  user         Users?               @relation(fields: [userId], references: [id])
+
+  @@map("notification")
+}
+
+// ### МОДЕЛЬ СКЛАДОВ
+model Warehouse {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  name      String
+  location          Location?
+  orders            Order[]
+}
+
+
+// ### МОДЕЛЬ ЛОКАЦИИ
+model Location {
+  id               Int            @id @default(autoincrement())
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @updatedAt @map("updated_at")
+  lat              Float
+  lng              Float
+
+  warehouseId      Int?           @unique @map("warehouse_id")
+  orderId          Int?           @unique @map("order_id")
+  userAddressId    Int?           @unique @map("user_address_id")
+  pointsDeliveryId Int?           @unique @map("points_delivery_location")
+
+  warehous         Warehouse?  @relation(fields: [warehouseId], references: [id])
+  order            OrderAddress?  @relation(fields: [orderId], references: [id])
+  userAddress      UserAddress?   @relation(fields: [userAddressId], references: [id])
+
+  @@map("location")
+}
 
 enum NotificationType {
   PROMOTION

@@ -12,6 +12,7 @@
 /public/uploads
 /.github
 /prisma/migrations
+/prisma/schema
 
 # Logs
 logs

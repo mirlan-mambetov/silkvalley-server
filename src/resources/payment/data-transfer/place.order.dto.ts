@@ -20,12 +20,63 @@ export class IPointsDelivery {
   location: IGeo
 }
 
+export class UserAddressDTO {
+  @IsOptional()
+  @IsString()
+  amenity?: string
+
+  @IsOptional()
+  @IsString()
+  road?: string
+
+  @IsOptional()
+  @IsString()
+  city_district?: string
+
+  @IsOptional()
+  @IsString()
+  postcode?: string
+
+  @IsOptional()
+  @IsString()
+  city?: string
+
+  @IsOptional()
+  @IsString()
+  state?: string
+
+  @IsOptional()
+  @IsString()
+  country?: string
+
+  @IsOptional()
+  @IsString()
+  country_code?: string
+
+  @IsOptional()
+  @IsString()
+  houseNumber?: string
+}
+export class IGeocodeData {
+  @IsNotEmpty()
+  @IsString()
+  name: string
+
+  @IsNotEmpty()
+  @IsString()
+  display_name: string
+
+  @IsNotEmpty()
+  @IsString()
+  address: UserAddressDTO
+}
 export class IPlaceOrderDTO {
-  @IsArray({ each: true })
+  @IsNotEmpty()
   @IsEnum(EnumPaymentMethod)
   paymentMethod: EnumPaymentMethod
 
   @IsNotEmpty()
+  @IsArray()
   items: IOrderItems[]
 
   @IsInt()
@@ -35,12 +86,17 @@ export class IPlaceOrderDTO {
 
   @IsInt()
   @IsNumber()
+  @IsOptional()
   totalDiscount?: number
 
   @IsNotEmpty()
-  address: IPointsDelivery
+  warhouse: IPointsDelivery
+
+  @IsNotEmpty()
+  userAddress: IGeocodeData
 
   @IsBoolean()
+  @IsOptional()
   isCanceld?: boolean
 }
 
