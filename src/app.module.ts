@@ -24,6 +24,7 @@ import { SmsModule } from './resources/sms/sms.module'
 import { StatModule } from './resources/stat/stat.module'
 import { UploadModule } from './resources/upload/upload.module'
 import { UserModule } from './resources/user/user.module'
+import { TimerModule } from './resources/timer/timer.module'
 
 @Module({
   imports: [
@@ -38,7 +39,7 @@ import { UserModule } from './resources/user/user.module'
           : '.env.development',
       isGlobal: true,
     }),
-
+    TimerModule,
     AppGateWayModule,
     SmsModule,
     PaymentModule,

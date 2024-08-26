@@ -7,6 +7,14 @@ generator client {
   provider = "prisma-client-js"
 }
 
+model Timer{
+  id           Int                @id @default(autoincrement())
+  createdAt    DateTime           @default(now()) @map("created_at")
+  updatedAt    DateTime           @updatedAt @map("updated_at")
+
+  timer DateTime
+}
+
 // ### МОДЕЛЬ ЗАКАЗОВ
 model Order {
   id           Int                @id @default(autoincrement())
