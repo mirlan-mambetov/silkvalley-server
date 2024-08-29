@@ -1,0 +1,25 @@
+
+// ### МОДЕЛЬ УВЕДОМЛЕНИЙ
+model Subscription {
+  id        Int               @id @default(autoincrement())
+  userId    Int               @map("user_id")
+  user      Users             @relation(fields: [userId], references: [id])
+  type      NotificationType
+  createdAt DateTime          @default(now())
+
+  @@map("subscriptions")
+}
+
+// ### МОДЕЛЬ УВЕДОМЛЕНИЙ
+model Notification {
+  id           Int                  @id @default(autoincrement())
+  message      String
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  read         Boolean              @default(false)
+  userId       Int?                 @map("user_id")
+  type         NotificationType     @map("notification_type")
+  user         Users?               @relation(fields: [userId], references: [id])
+
+  @@map("notification")
+}

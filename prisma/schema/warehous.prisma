@@ -1,0 +1,14 @@
+
+// ### МОДЕЛЬ СКЛАДОВ
+model Warehouse {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // НАЗВАНИЕ СКЛАДА
+  name      String
+  // ШИРОТА И ДОЛГОТА СКЛАДА ДЛЯ ОПРЕДЕЛЕНИЕ КООРДИНАТ НА КАРТЕ
+  location          Location?
+  // ЗАКАЗЫ
+  orders            Order[]
+}

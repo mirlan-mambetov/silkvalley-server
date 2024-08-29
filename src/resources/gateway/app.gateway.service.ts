@@ -9,6 +9,7 @@ import {
 } from '@nestjs/websockets'
 import { Server, Socket } from 'socket.io'
 import { EnumClientHOST } from 'src/enums/App.gateway.enum'
+import { UserService } from '../user/user.service'
 import { INotifyDTOgateway, IPlaceOrderDTOgateway } from './dto/gateway.dto'
 
 @WebSocketGateway({
@@ -23,7 +24,7 @@ export class AppGateWayService
   @WebSocketServer()
   server: Server
 
-  private usersOnline: any[] = []
+  constructor(private readonly userService: UserService) {}
 
   async onModuleInit() {
     console.log('App Gateway initializied')
@@ -33,37 +34,33 @@ export class AppGateWayService
     const origin = client.handshake.headers.origin as EnumClientHOST
     switch (origin) {
       case EnumClientHOST.CLIENT:
-        console.log(`Silk Valley: ${EnumClientHOST.CLIENT}`)
+        console.log(`CLIENT SOCKET: ${EnumClientHOST.CLIENT}`)
         const user = client.handshake.auth
         if (user?.userId) {
           console.log(`User ${user.userId} is ONLINE`)
-          if (!this.usersOnline.some((user) => user.userId === user.userId)) {
-            this.usersOnline.push({ userId: user.userId })
-          }
+          await this.userService.setUserOnlineStatus(+user.userId, true)
         }
       case EnumClientHOST.DASHBOARD:
-        console.log(`Dashboard socket: ${EnumClientHOST.DASHBOARD}`)
-        this.server.emit('online', this.usersOnline)
+        console.log(`DASHBOARD SOCKET: ${EnumClientHOST.DASHBOARD}`)
+        this.server.emit('online', 'users online')
         break
       default:
         console.log('Unknown origin host')
     }
   }
 
-  handleDisconnect(client: any) {
+  async handleDisconnect(client: any) {
     const origin = client.handshake.headers.origin as EnumClientHOST
     const user = client.handshake.auth
 
     switch (origin) {
       case EnumClientHOST.CLIENT:
         if (user?.userId) {
-          this.usersOnline = this.usersOnline.filter(
-            (u) => u.userId !== user.userId,
-          )
+          await this.userService.setUserOnlineStatus(+user.userId, false)
           console.log(`User ${user.userId} is OFFLINE`)
         }
       case EnumClientHOST.DASHBOARD:
-        this.server.emit('online', this.usersOnline)
+        this.server.emit('online', 'online users')
         break
 
       default:

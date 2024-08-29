@@ -15,6 +15,20 @@ export class UserService {
 
   /**
    *
+   * @param userId
+   * @param isOnline
+   */
+  async setUserOnlineStatus(userId: number, isOnline: boolean) {
+    await this.prismaService.users.update({
+      where: { id: userId },
+      data: {
+        isOnline,
+        lastVisited: new Date(),
+      },
+    })
+  }
+  /**
+   *
    * @param user DTO USER
    * @returns
    */

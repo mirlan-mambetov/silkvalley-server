@@ -1,0 +1,38 @@
+model Users {
+  id            Int            @id @default(autoincrement())
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  
+  name          String
+  email         String         @unique
+  phoneNumber   String         @map("phone_number")
+  password      String
+  avatar        String?        @default("/images/default-avatar.png")
+  isOnline      Boolean?       @default(false)
+  lastVisited   DateTime?
+
+  role          UserRoles[]    @default([USER])
+  notifications Notification[]
+  orders        Order[]
+  featureds     ProductVariant[]
+  subscriptions Subscription[]
+  coupons       Coupon[]
+  products      Product[]
+
+  @@map("users")
+}
+
+// ### МОДЕЛЬ КУПОНОВ ПОЛЬЗОВАТЕЛЯ
+model Coupon {
+  id         Int       @id @default(autoincrement())
+  code       String    @unique
+  discount   Float
+  status     CouponStatus @default(PENDING)
+  user       Users      @relation(fields: [userId], references: [id])
+  userId     Int
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@map("coupon")
+}
+

@@ -1,0 +1,122 @@
+model Product {
+  id                Int                 @id @default(autoincrement())
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  // НАЗВАНИЕ ТОВАРА
+  title             String
+  // КРАТКОЕ ОПИСАНИЕ ПОДЗАГОЛОВОК ТОВАРА
+  subtitle          String              @map("sub_title")
+  // ОПИСАНИЕ
+  description       String
+  // УНИКАЛЬНЫЙ SLUG
+  slug              String              @unique
+  // ПОСТЕР ТОВАРА
+  poster            String
+  // КАТЕГОРИЯ ТОВАРА
+  categories        ProductCategory[]
+  // ВАРИАНТЫ ТОВАРА
+  variants          ProductVariant[]
+  // В АКЦИИ ЛИ ТОВАР
+  promotionId       Int?                @map("promotion_id")
+  promotion         Promotion?          @relation(fields: [promotionId], references: [id])
+
+  // КЕМ И КОГДА БЫЛ ДОБАВЛЕН ЕСЛИ [ADMIN]
+  user              Users?              @relation(fields: [userId], references: [id])
+  userId Int?       @map("user_id")
+
+  // ЦЕНА ПО УМОЛЧАНИЮ НУЖНА ДЛЯ ФИЛЬТРАЦИИ
+  defaultPrice Int? @map("default_price")
+  // РАЗМЕР ПО УМОЛЧАНИЮ НУЖНА ДЛЯ ФИЛЬТРАЦИИ
+  defaultSize String? @map("default_size")
+  @@map("product")
+}
+
+model ProductVariant {
+  id                Int              @id @default(autoincrement())
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt 
+
+  // УНИКАЛЬНЫЙ ЙДЕНТИФИКАТОР ЗАКАЗА
+  ordered           Int?
+  // ЦВЕТ ВАРИАНТА
+  color             Colors?
+  // ЦЕНА ВАРИАНТА
+  price             Float
+  // РАЗМЕР ЕСЛИ ОДЕЖДА ВАРИАНТА
+  size              String?
+  // АРТИКУЛ ВАРИАНТА
+  articleNumber     String              @unique @map("article_number")
+  // КОЛИЧЕСТВО НА СКЛАДЕ ВАРИАНТА
+  stock             Int
+  // СВЯЗЬ С ТОВАРОМ
+  product           Product          @relation(fields: [productId], references: [id])
+  productId         Int
+  // СПЕЦИФИКАЦИИ ВАРИАНТА
+  specifications    Specification[]
+  // РЕЙТИНГ ВАРИАНТА
+  rating            Int?
+  // СКИДКА
+  discount          Int?
+  // ХИТ
+  isHit             Boolean?            @default(false) @map("is_hit")
+  // НОВИНКА
+  isNew             Boolean?            @default(false) @map("is_new")
+  // ПРОДАН СКОЛЬКО РАЗ
+  sales             Int?                @default(0)
+  // ВИДЕО
+  video             String?
+  // ИЗБРАННЫЕ ДЛЯ ПОЛЬЗОВАТЕЛЯ
+  user              Users? @relation(fields: [userId],references: [id])
+  userId            Int? @map("user_id") 
+ 
+  // СВЯЗЬ С ЗАКАЗАМИ
+  orders            OrderItems[]
+  orderId           Int?
+
+  @@map("product_variant")
+}
+model Colors{
+  id                Int               @id @default(autoincrement())
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  // ЦВЕТ ВАРИАНТА
+  color             String
+  // КАРТИНКИ ВАРИАНТА
+  images            String[]
+  // СВЯЗЬ С ВАРИАНТАМИ ТОВАРА
+  variant ProductVariant?             @relation(fields: [variantId],references: [id])
+  variantId         Int?              @map("variant_id") @unique
+
+  @@map("colors")
+}
+
+model ProductCategory {
+  id                  Int        @id @default(autoincrement())
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+
+  // КАТЕГОРИЯ ТОВАРА
+  productId           Int @map("product_id")
+  categoryId          Int @map("category_id")
+
+  product Product @relation(fields: [productId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id])
+
+  @@unique([productId, categoryId])
+  @@map("product_category")
+}
+
+model Specification {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  // НАЗВАНИЕ 
+  name      String
+  // ЗНАЧЕНИЕ
+  value     String
+  // СВЯЗЬ С ВАРИАНТАМИ
+  variants  ProductVariant? @relation(fields: [variantsId],references: [id])
+  variantsId Int?  @map("variants_id")
+  @@map("specification")
+}

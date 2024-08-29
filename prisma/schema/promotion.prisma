@@ -1,0 +1,17 @@
+model Promotion {
+  id          Int       @id @default(autoincrement())
+  title       String
+  subtitle    String?
+  description String?
+  discount    Int?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  active      Boolean   @default(false)
+  slug        String    @unique
+  image       String
+  imageSm     String @map("small_image")
+  
+  product     Product[]
+
+  @@map("promotion")
+}

@@ -1,0 +1,64 @@
+// ### МОДЕЛЬ ЗАКАЗОВ
+model Order {
+  id           Int                @id @default(autoincrement())
+  createdAt    DateTime           @default(now()) @map("created_at")
+  updatedAt    DateTime           @updatedAt @map("updated_at")
+  orderId      String             @unique()
+  status       EnumStatusOrder    @default(WAITING)
+  totalCache   Float
+  payment_type EnumPaymentMethod? @map("payment_type")
+  items        OrderItems[]
+  userId       Int                @map("user_id")
+  user         Users              @relation(fields: [userId], references: [id])
+  address      OrderAddress?
+
+  warehouseId  Int?               @map("warehouse_id")
+  warehouse    Warehouse?         @relation(fields: [warehouseId], references: [id])
+  @@map("orders")
+}
+// ### МОДЕЛЬ ВАРИАНТОВ ТОВАРА ЗАКАЗА
+model OrderItems{
+  id                                  Int                @id @default(autoincrement())
+  createdAt                           DateTime           @default(now()) @map("created_at")
+  updatedAt                           DateTime           @updatedAt @map("updated_at")
+
+  orderId                             Int @map("order_id")
+  productVariantId                    Int @map("product_variant_id")
+  
+  quantity                            Int
+  price                               Float
+  order             Order             @relation(fields: [orderId], references: [id])
+  productVariant    ProductVariant    @relation(fields: [productVariantId], references: [id])
+  
+  @@unique([orderId, productVariantId])
+
+  @@map("order_items")
+}
+
+// ### МОДЕЛЬ АДРЕСОВ ЗАКАЗОВ
+model OrderAddress {
+  id                Int           @id @default(autoincrement())
+  createdAt         DateTime      @default(now()) @map("created_at")
+  updatedAt         DateTime      @updatedAt @map("updated_at")
+  orderId           Int?          @unique @map("order_id")
+  name              String
+  location          Location?
+  order             Order?        @relation(fields: [orderId], references: [id])
+  userAddressId     Int?          @map("user_address_id")
+  userAddress       UserAddress?  @relation(fields: [userAddressId], references: [id])
+  @@map("orders_address")
+}
+
+// ### МОДЕЛЬ АДРЕСОВ ПОЛЬЗОВАТЕЛЯ
+model UserAddress {
+  id                Int       @id @default(autoincrement())
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+  country           String?
+  city              String
+  road              String
+  houseNumber       String    @map("house_number")
+  postalCode        String?   @map("postal_code")
+  location          Location?
+  orderAddresses    OrderAddress[]
+}
