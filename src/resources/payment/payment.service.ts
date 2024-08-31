@@ -87,6 +87,7 @@ export class PaymentService {
    * @returns
    */
   async placeOrder(dto: IPlaceOrderDTO, email: string) {
+    console.log(dto)
     try {
       const user = await this.userService.findOneByEmail(email)
 
