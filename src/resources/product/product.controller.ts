@@ -160,6 +160,12 @@ export class ProductController {
     return await this.productService.findVariantById(id)
   }
 
+  @Get('variants/category/:slug')
+  @HttpCode(HttpStatus.OK)
+  async findVariantsByCategorySlug(@Param('slug') slug: string) {
+    return await this.productService.findVariantsByCategorySlug(slug)
+  }
+
   @Get('category/:slug')
   @HttpCode(HttpStatus.OK)
   async findByCategorySlug(@Param('slug') slug: string) {

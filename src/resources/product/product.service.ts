@@ -435,6 +435,33 @@ export class ProductService {
     })
   }
 
+  async findVariantsByCategorySlug(slug: string) {
+    return await this.prismaService.productVariant.findMany({
+      where: {
+        product: {
+          categories: {
+            some: {
+              category: {
+                slug,
+              },
+            },
+          },
+        },
+      },
+      include: {
+        color: true,
+        product: {
+          select: {
+            id: true,
+            title: true,
+            description: true,
+            subtitle: true,
+            slug: true,
+          },
+        },
+      },
+    })
+  }
   /**
    *
    * @param slug

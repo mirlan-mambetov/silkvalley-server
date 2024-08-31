@@ -176,11 +176,6 @@ export class CategoryService {
             products: true,
           },
         },
-        products: {
-          select: {
-            product: true,
-          },
-        },
       },
     })
   }

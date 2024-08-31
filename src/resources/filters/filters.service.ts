@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { EnumProductSort } from 'src/enums/Filter.enum'
 import { PrismaService } from 'src/prisma.service'
-import { QueryDTO } from '../data-transfer/query.dto'
+import { QueryFilterDTO } from '../data-transfer/query.dto'
 import { ProductService } from '../product/product.service'
 import { IFilterDTO } from './data-transfer'
 
@@ -40,12 +40,55 @@ export class FilterService {
     return data
   }
 
+  async findVariantAttributes(id: number) {
+    let data = {}
+
+    const attributes = await this.prismaService.productVariant.findMany({
+      where: {
+        product: {
+          categories: {
+            some: {
+              category: {
+                id,
+              },
+            },
+          },
+        },
+      },
+      select: {
+        articleNumber: true,
+        color: {
+          select: {
+            color: true,
+          },
+        },
+        sales: true,
+        size: true,
+        rating: true,
+        isHit: true,
+        isNew: true,
+        discount: true,
+        price: true,
+      },
+    })
+    const categories = await this.prismaService.category.findMany({
+      where: {
+        parentId: +id,
+      },
+    })
+    data = {
+      attributes,
+      categories,
+    }
+    return data
+  }
+
   /**
    *
    * @param query
    * @returns
    */
-  async filterProducts(query?: QueryDTO) {
+  async filterProducts(query?: QueryFilterDTO) {
     let filters = {}
     if (query.category) {
       filters = {
@@ -56,34 +99,81 @@ export class FilterService {
         },
       }
     }
+    if (query.color) {
+      filters = {
+        ...filters,
+        variants: {
+          some: {
+            color: {
+              color: query.color,
+            },
+          },
+        },
+      }
+    }
+    if (query.size) {
+      filters = {
+        ...filters,
+        variants: {
+          some: {
+            size: query.size,
+          },
+        },
+      }
+    }
     let sort = this.sortFilter(query.sort)
-    const products = await this.prismaService.product.findMany({
+    const variants = await this.prismaService.productVariant.findMany({
       where: {
-        AND: filters,
+        product: {
+          AND: filters,
+        },
       },
       include: {
-        variants: {
-          include: {
-            color: true,
-            specifications: true,
+        color: true,
+        product: {
+          select: {
+            id: true,
+            slug: true,
+            title: true,
+            subtitle: true,
+            description: true,
+            poster: true,
           },
         },
       },
       orderBy: sort,
     })
-    return products
+    return variants
+    // const products = await this.prismaService.product.findMany({
+    //   where: {
+    //     AND: filters,
+    //   },
+    //   include: {
+    //     categories: {
+    //       select: {
+    //         category: true,
+    //       },
+    //     },
+    //     variants: {
+    //       include: {
+    //         color: true,
+    //         specifications: true,
+    //       },
+    //     },
+    //   },
+    //   orderBy: sort,
+    // })
+    // return products
   }
 
   private sortFilter(
     sort: EnumProductSort,
-  ):
-    | Prisma.ProductOrderByWithRelationInput
-    | Prisma.ProductOrderByWithRelationInput[] {
+  ): Prisma.ProductVariantOrderByWithRelationInput {
     switch (sort) {
       case EnumProductSort.HIGH:
-        return { defaultPrice: 'asc' }
+        return { price: 'asc' }
       case EnumProductSort.LOW:
-        return { defaultPrice: 'desc' }
+        return { price: 'desc' }
       case EnumProductSort.NEWEST:
         return { createdAt: 'asc' }
       case EnumProductSort.OLDEST:

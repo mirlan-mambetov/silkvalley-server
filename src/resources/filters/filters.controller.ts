@@ -1,5 +1,13 @@
-import { Controller, Get, HttpCode, HttpStatus, Query } from '@nestjs/common'
-import { QueryDTO } from '../data-transfer/query.dto'
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Query,
+} from '@nestjs/common'
+import { QueryFilterDTO } from '../data-transfer/query.dto'
 import { IFilterDTO } from './data-transfer'
 import { FilterService } from './filters.service'
 
@@ -13,9 +21,15 @@ export class FilterController {
     return await this.filtersService.productAttributes(query)
   }
 
+  @Post('attributes')
+  @HttpCode(HttpStatus.OK)
+  findVariantAttributes(@Body() dto: { id: string }) {
+    return this.filtersService.findVariantAttributes(+dto.id)
+  }
+
   @Get('filtered')
   @HttpCode(HttpStatus.OK)
-  async filteredProducts(@Query() queries: QueryDTO) {
+  async filteredProducts(@Query() queries: QueryFilterDTO) {
     return await this.filtersService.filterProducts(queries)
   }
 }
