@@ -70,6 +70,7 @@ export class FilterService {
         discount: true,
         price: true,
       },
+      distinct: 'size',
     })
     const categories = await this.prismaService.category.findMany({
       where: {
@@ -89,44 +90,37 @@ export class FilterService {
    * @returns
    */
   async filterProducts(query?: QueryFilterDTO) {
-    let filters = {}
-    if (query.category) {
-      filters = {
-        categories: {
-          some: {
-            categoryId: Number(query.category),
-          },
-        },
-      }
-    }
+    const filters: any = []
+
     if (query.color) {
-      filters = {
-        ...filters,
-        variants: {
-          some: {
-            color: {
-              color: query.color,
-            },
-          },
+      filters.push({
+        color: {
+          color: query.color,
         },
-      }
+      })
     }
+
     if (query.size) {
-      filters = {
-        ...filters,
-        variants: {
-          some: {
-            size: query.size,
-          },
-        },
-      }
+      filters.push({
+        size: query.size,
+      })
     }
+
     let sort = this.sortFilter(query.sort)
     const variants = await this.prismaService.productVariant.findMany({
       where: {
-        product: {
-          AND: filters,
-        },
+        AND: [
+          ...filters,
+          {
+            product: {
+              categories: {
+                some: {
+                  categoryId: Number(query.category),
+                },
+              },
+            },
+          },
+        ],
       },
       include: {
         color: true,

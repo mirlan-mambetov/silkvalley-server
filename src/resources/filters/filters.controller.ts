@@ -6,6 +6,8 @@ import {
   HttpStatus,
   Post,
   Query,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common'
 import { QueryFilterDTO } from '../data-transfer/query.dto'
 import { IFilterDTO } from './data-transfer'
@@ -28,6 +30,7 @@ export class FilterController {
   }
 
   @Get('filtered')
+  @UsePipes(new ValidationPipe())
   @HttpCode(HttpStatus.OK)
   async filteredProducts(@Query() queries: QueryFilterDTO) {
     return await this.filtersService.filterProducts(queries)

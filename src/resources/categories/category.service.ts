@@ -158,6 +158,7 @@ export class CategoryService {
    *
    * @param slug Параметр Slug :string
    * @returns Возврощает категорию по Slug
+   * @description используется и клиенте и на админке связи важны для админки
    */
   async findOneBySlug(slug: string) {
     return await this.prismaService.category.findUnique({
@@ -176,6 +177,7 @@ export class CategoryService {
             products: true,
           },
         },
+        products: true,
       },
     })
   }
